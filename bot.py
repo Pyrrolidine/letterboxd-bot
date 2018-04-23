@@ -1,7 +1,7 @@
 import discord, urllib.request, string
 from bs4 import BeautifulSoup
 
-TOKEN = 'PRIVATETOKENHERE'
+TOKEN = 'PRIVATETOKEN'
 
 client = discord.Client()
 
@@ -9,20 +9,35 @@ def search_letterboxd(message, search_type):
     list_words = message.content.split()
     msg = "Could not find anything."
 
-    contents = urllib.request.urlopen("https://letterboxd.com/search/{}".format(list_words[1:])).read().decode('utf-8')
+    try:
+        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_words[1:]))).read().decode('utf-8')
+    except:
+        msg = "404 Error with this search link."
+        return msg
+    html_soup = BeautifulSoup(contents, "html.parser")
 
-    list_links = contents.split()
+    results_html = html_soup.find('ul', class_="results")
+    if results_html is None:
+        return msg
 
-    for word in list_links:
-        if word.startswith('href="/{}'.format(search_type)):
-            msg = "https://letterboxd.com" + word[6:-2]
+    if search_type == "films/":
+        search_html = results_html.find('span', class_="film-title-wrapper")
+    elif search_type == "people/":
+        search_html = results_html.find('div', class_="person-summary -search")
+    else:
+        search_html = results_html.find('h2', class_="title-2 prettify")
+
+    a_link = search_html.find('a')
+    link = a_link['href']
+    msg = "https://letterboxd.com{}".format(link)
 
     return msg
 
 def get_favs(message):
     list_words = message.content.split()
-    msg = "Could not find the user's favourites."
+    msg = "This user does not have any favourites."
 
+    print("https://letterboxd.com/{}".format(list_words[1]))
     try:
         contents = urllib.request.urlopen("https://letterboxd.com/{}".format(list_words[1])).read().decode('utf-8')
     except:
@@ -30,7 +45,7 @@ def get_favs(message):
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
 
-    fav_html = html_soup.find_all(id="favourites")[0]
+    fav_html = html_soup.find(id="favourites")
     fav_span = fav_html.find_all('span')
     fav_links = list()
 
@@ -54,24 +69,19 @@ async def on_message(message):
     if message.content.startswith('!'):
         msg = ""
         if message.content.startswith('!help'):
-            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm currently not providing any commands as we are working on API related issues."
+            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Displays the 4 favourite films of a Letterboxd member."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
         elif message.content.startswith('!film '):
-            #msg = search_letterboxd(message, "film/")
-            msg = "Sorry, I'm currently broken. :sob:"
+            msg = search_letterboxd(message, "films/")
         elif message.content.startswith('!user '):
-            #msg = search_letterboxd(message, "")
-            msg = "Sorry, I'm currently broken. :sob:"
+            msg = search_letterboxd(message, "people/")
         elif message.content.startswith('!actor '):
-            #msg = search_letterboxd(message, "actor/")
-            msg = "Sorry, I'm currently broken. :sob:"
+            msg = search_letterboxd(message, "actors/")
         elif message.content.startswith('!director '):
-            #msg = search_letterboxd(message, "director/")
-            msg = "Sorry, I'm currently broken. :sob:"
+            msg = search_letterboxd(message, "directors/")
         elif message.content.startswith('!list '):
-            #msg = search_letterboxd(message, "list")
-            msg = "Sorry, I'm currently broken. :sob:"
+            msg = search_letterboxd(message, "lists/")
 
         if len(msg) > 0:
             await client.send_message(message.channel, msg)
