@@ -40,11 +40,55 @@ def search_letterboxd(message, search_type):
 
     return msg
 
+def get_info(message, has_link):
+    msg = ""
+    list_words = list()
+    if has_link:
+        list_words.extend(message.split('/'))
+    else:
+        list_words = message.content.split()
+
+    if has_link:
+        contents = urllib.request.urlopen(message).read().decode('utf-8')
+    else:
+        try:
+            contents = urllib.request.urlopen("https://letterboxd.com/film/{}".format('-'.join(list_words[1:]).lower())).read().decode('utf-8')
+        except:
+            msg = "Could not find this film."
+            return msg
+
+    html_soup = BeautifulSoup(contents, "html.parser")
+
+    info_html = html_soup.find(id="featured-film-header")
+    info_h1 = info_html.find(class_="headline-1 js-widont prettify")
+
+    name_film = ""
+    if has_link:
+        name_film = list_words[4]
+    else:
+        name_film = list_words[1]
+
+    msg += "**" + info_h1.contents[0] + "** <https://letterboxd.com/film/{}>".format(name_film.lower()) + '\n'
+
+    # Gets the director and year of release
+    a_html = info_html.find_all('a')
+    msg += "Year: " + a_html[0].contents[0] + '\n'
+    msg += "Director: " + a_html[1].contents[0].contents[0] + '\n'
+
+    # Gets the duration
+    p_html = html_soup.find(class_="text-link text-footer")
+    list_duration = p_html.contents[0].split()
+    msg += ' '.join(list_duration[0:2]) + '\n'
+
+    views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
+    msg += views_html['title']
+
+    return msg
+
 def get_favs(message):
     list_words = message.content.split()
     msg = "This user does not have any favourites."
 
-    print("https://letterboxd.com/{}".format(list_words[1]))
     try:
         contents = urllib.request.urlopen("https://letterboxd.com/{}".format(list_words[1])).read().decode('utf-8')
     except:
@@ -60,7 +104,7 @@ def get_favs(message):
         fav_links.append(div['data-film-link'])
 
     if len(fav_span) > 0:
-        msg = ""
+        msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words[1])
     for index, span in enumerate(fav_span):
         msg += "{}".format(span.contents)[2:-2]
         msg += ": <https://letterboxd.com{}>".format(fav_links[index][:-1])
@@ -76,10 +120,10 @@ async def on_message(message):
     if message.content.startswith('!'):
         msg = ""
         if message.content.startswith('!help'):
-            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Displays the 4 favourite films of a Letterboxd member."
+            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n**!info**:  Display informations about a film. This command requires to type the title exactly like the url, except for spaces instead of dashes.\nExample: !info in the mood for love\n\n**!sinfo**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !sinfo mood for love\n\n**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
-        elif message.content.startswith('!film '):
+        elif message.content.startswith('!film ') or message.content.startswith('!movie '):
             msg = search_letterboxd(message, "films/")
         elif message.content.startswith('!user '):
             msg = search_letterboxd(message, "people/")
@@ -89,6 +133,17 @@ async def on_message(message):
             msg = search_letterboxd(message, "directors/")
         elif message.content.startswith('!list '):
             msg = search_letterboxd(message, "lists/")
+        elif message.content.startswith('!info '):
+            msg = get_info(message, False)
+        elif message.content.startswith('!sinfo '):
+            film_link = search_letterboxd(message, "films/")
+            msg = get_info(film_link, True)
+        elif message.content.startswith('!del'):
+            async for log_message in client.logs_from(message.channel, limit=30):
+                if log_message.author == client.user:
+                    await client.delete_message(message)
+                    await client.delete_message(log_message)
+                    break
 
         if len(msg) > 0:
             await client.send_message(message.channel, msg)
