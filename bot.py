@@ -9,6 +9,13 @@ def search_letterboxd(message, search_type):
     list_words = message.content.split()
     msg = "Could not find anything."
 
+    if list_words[-1].isdigit() and search_type == "films/":
+        try:
+            contents = urllib.request.urlopen("https://letterboxd.com/film/{0}".format('-'.join(list_words[1:]))).read().decode('utf-8')
+            return "https://letterboxd.com/film/{}".format('-'.join(list_words[1:]))
+        except:
+            pass
+
     try:
         contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_words[1:]))).read().decode('utf-8')
     except:
