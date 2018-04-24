@@ -120,7 +120,7 @@ async def on_message(message):
     if message.content.startswith('!'):
         msg = ""
         if message.content.startswith('!help'):
-            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n**!info**:  Display informations about a film. This command requires to type the title exactly like the url, except for spaces instead of dashes.\nExample: !info in the mood for love\n\n**!sinfo**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !sinfo mood for love\n\n**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
+            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n**!info**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n**!qinfo**:  Display informations about a film. This command requires to type the title exactly like the url, except for spaces instead of dashes.\nExample: !qinfo in the mood for love\n\n**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
         elif message.content.startswith('!film ') or message.content.startswith('!movie '):
@@ -133,9 +133,9 @@ async def on_message(message):
             msg = search_letterboxd(message, "directors/")
         elif message.content.startswith('!list '):
             msg = search_letterboxd(message, "lists/")
-        elif message.content.startswith('!info '):
+        elif message.content.startswith('!qinfo '):
             msg = get_info(message, False)
-        elif message.content.startswith('!sinfo '):
+        elif message.content.startswith('!info '):
             film_link = search_letterboxd(message, "films/")
             msg = get_info(film_link, True)
         elif message.content.startswith('!del'):
