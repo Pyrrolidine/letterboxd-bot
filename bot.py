@@ -1,7 +1,7 @@
 import discord, urllib.request, string
 from bs4 import BeautifulSoup
 
-TOKEN = 'PRIVATETOKEN'
+TOKEN = 'PRIVATEKEY'
 
 client = discord.Client()
 
@@ -40,33 +40,18 @@ def search_letterboxd(message, search_type):
 
     return msg
 
-def get_info(message, has_link):
+def get_info(message):
     msg = ""
-    list_words = list()
-    if has_link:
-        list_words.extend(message.split('/'))
-    else:
-        list_words = message.content.split()
+    list_words = message.split('/')
 
-    if has_link:
-        contents = urllib.request.urlopen(message).read().decode('utf-8')
-    else:
-        try:
-            contents = urllib.request.urlopen("https://letterboxd.com/film/{}".format('-'.join(list_words[1:]).lower())).read().decode('utf-8')
-        except:
-            msg = "Could not find this film."
-            return msg
+    contents = urllib.request.urlopen(message).read().decode('utf-8')
 
     html_soup = BeautifulSoup(contents, "html.parser")
 
     info_html = html_soup.find(id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
-    name_film = ""
-    if has_link:
-        name_film = list_words[4]
-    else:
-        name_film = list_words[1]
+    name_film = list_words[4]
 
     msg += "**" + info_h1.contents[0] + "** <https://letterboxd.com/film/{}>".format(name_film.lower()) + '\n'
 
@@ -107,8 +92,7 @@ def get_favs(message):
         msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words[1])
     for index, span in enumerate(fav_span):
         msg += "{}".format(span.contents)[2:-2]
-        msg += ": <https://letterboxd.com{}>".format(fav_links[index][:-1])
-        msg += "\n"
+        msg += ": <https://letterboxd.com{}>".format(fav_links[index][:-1]) + "\n"
 
     return msg
 
@@ -120,7 +104,7 @@ async def on_message(message):
     if message.content.startswith('!'):
         msg = ""
         if message.content.startswith('!help'):
-            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n**!info**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n**!qinfo**:  Display informations about a film. This command requires to type the title exactly like the url, except for spaces instead of dashes.\nExample: !qinfo in the mood for love\n\n**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
+            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n**!info**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
         elif message.content.startswith('!film ') or message.content.startswith('!movie '):
@@ -133,11 +117,9 @@ async def on_message(message):
             msg = search_letterboxd(message, "directors/")
         elif message.content.startswith('!list '):
             msg = search_letterboxd(message, "lists/")
-        elif message.content.startswith('!qinfo '):
-            msg = get_info(message, False)
         elif message.content.startswith('!info '):
             film_link = search_letterboxd(message, "films/")
-            msg = get_info(film_link, True)
+            msg = get_info(film_link)
         elif message.content.startswith('!del'):
             async for log_message in client.logs_from(message.channel, limit=30):
                 if log_message.author == client.user:
