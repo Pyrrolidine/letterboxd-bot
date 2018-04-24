@@ -1,28 +1,30 @@
 import discord, urllib.request, string
 from bs4 import BeautifulSoup
 
-TOKEN = 'PRIVATEKEY'
+TOKEN = 'PRIVATE-TOKEN'
 
 client = discord.Client()
 
 def search_letterboxd(message, search_type):
-    list_words = message.content.split()
+    list_words_message = message.content.split()
     msg = "Could not find anything."
 
-    if list_words[-1].isdigit() and search_type == "films/":
+    # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
+    if list_words_message[-1].isdigit() and search_type == "films/":
         try:
-            contents = urllib.request.urlopen("https://letterboxd.com/film/{0}".format('-'.join(list_words[1:]))).read().decode('utf-8')
-            return "https://letterboxd.com/film/{}".format('-'.join(list_words[1:]))
+            contents = urllib.request.urlopen("https://letterboxd.com/film/{0}".format('-'.join(list_words_message[1:]))).read().decode('utf-8')
+            return "https://letterboxd.com/film/{}".format('-'.join(list_words_message[1:]))
         except:
             pass
 
     try:
-        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_words[1:]))).read().decode('utf-8')
+        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_words_message[1:]))).read().decode('utf-8')
     except:
         msg = "404 Error with this search link."
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
 
+    # Gets the first result in the list
     results_html = html_soup.find('ul', class_="results")
     if results_html is None:
         return msg
@@ -40,19 +42,20 @@ def search_letterboxd(message, search_type):
 
     return msg
 
-def get_info(message):
+def get_info(link):
     msg = ""
-    list_words = message.split('/')
+    list_words_link = link.split('/')
 
-    contents = urllib.request.urlopen(message).read().decode('utf-8')
+    contents = urllib.request.urlopen(link).read().decode('utf-8')
 
     html_soup = BeautifulSoup(contents, "html.parser")
 
     info_html = html_soup.find(id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
-    name_film = list_words[4]
+    name_film = list_words_link[4]
 
+    # Gets the title and link
     msg += "**" + info_h1.contents[0] + "** <https://letterboxd.com/film/{}>".format(name_film.lower()) + '\n'
 
     # Gets the director and year of release
@@ -65,32 +68,33 @@ def get_info(message):
     list_duration = p_html.contents[0].split()
     msg += ' '.join(list_duration[0:2]) + '\n'
 
+    # Gets the total views
     views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
     msg += views_html['title']
 
     return msg
 
 def get_favs(message):
-    list_words = message.content.split()
+    list_words_message = message.content.split()
     msg = "This user does not have any favourites."
 
     try:
-        contents = urllib.request.urlopen("https://letterboxd.com/{}".format(list_words[1])).read().decode('utf-8')
+        contents = urllib.request.urlopen("https://letterboxd.com/{}".format(list_words_message[1])).read().decode('utf-8')
     except:
         msg = "Could not find this user."
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
 
     fav_html = html_soup.find(id="favourites")
-    fav_span = fav_html.find_all('span')
+    span_html = fav_html.find_all('span')
     fav_links = list()
 
     for div in fav_html.find_all('div'):
         fav_links.append(div['data-film-link'])
 
-    if len(fav_span) > 0:
-        msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words[1])
-    for index, span in enumerate(fav_span):
+    if len(span_html) > 0:
+        msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words_message[1])
+    for index, span in enumerate(span_html):
         msg += "{}".format(span.contents)[2:-2]
         msg += ": <https://letterboxd.com{}>".format(fav_links[index][:-1]) + "\n"
 
@@ -136,6 +140,10 @@ async def on_ready():
     print('Logged in as')
     print(client.user.name)
     print(client.user.id)
+    print('------')
+    print('Connected on:')
+    for server in client.servers:
+        print(server)
     print('------')
 
 client.run(TOKEN)
