@@ -7,7 +7,7 @@ client = discord.Client()
 
 def search_letterboxd(message, search_type):
     list_words_message = message.content.split()
-    msg = "Could not find anything."
+    msg = ""
 
     # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
     if list_words_message[-1].isdigit() and search_type == "films/":
@@ -20,7 +20,6 @@ def search_letterboxd(message, search_type):
     try:
         contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_words_message[1:]))).read().decode('utf-8')
     except:
-        msg = "404 Error with this search link."
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
 
@@ -123,7 +122,10 @@ async def on_message(message):
             msg = search_letterboxd(message, "lists/")
         elif message.content.startswith('!info '):
             film_link = search_letterboxd(message, "films/")
-            msg = get_info(film_link)
+            if len(film_link) > 0:
+                msg = get_info(film_link)
+            else:
+                msg = "Could not find anything."
         elif message.content.startswith('!del'):
             async for log_message in client.logs_from(message.channel, limit=30):
                 if log_message.author == client.user:
