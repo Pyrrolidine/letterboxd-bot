@@ -59,6 +59,19 @@ def get_info(link):
     msg += "Year: " + a_html[0].contents[0] + '\n'
     msg += "Director: " + a_html[1].contents[0].contents[0] + '\n'
 
+    # Gets the country
+    div_html = html_soup.find('div', id='tab-details')
+    details_html = div_html.find_all('a')
+    msg += "Country: "
+    plural_country = 0
+    for detail in details_html:
+        if detail['href'].startswith("/films/country/"):
+            msg += "{}, ".format(detail.contents[0])
+            plural_country += 1
+    if plural_country > 1:
+        msg = msg.replace('Country', 'Countries')
+    msg = msg[:-2] + '\n'
+
     # Gets the duration
     p_html = html_soup.find(class_="text-link text-footer")
     list_duration = p_html.contents[0].split()
