@@ -105,7 +105,11 @@ async def on_message(message):
     if message.content.startswith('!'):
         msg = ""
         if message.content.startswith('!help'):
-            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n**!info**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
+            msg = "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and would appreciate feedback.\n\n__Commands__:\n\n"
+            msg = "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
+            msg = "**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n"
+            msg = "**!info**:  Display informations about a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
+            msg = "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
         elif message.content.startswith('!film ') or message.content.startswith('!movie '):
@@ -120,10 +124,7 @@ async def on_message(message):
             msg = search_letterboxd(message, "lists/")
         elif message.content.startswith('!info '):
             film_link = search_letterboxd(message, "films/")
-            if len(film_link) > 0:
-                msg = get_info(film_link)
-            else:
-                msg = "Could not find anything."
+            msg = get_info(film_link) if len(film_link) > 0 else "Could not find anything."
         elif message.content.startswith('!del'):
             async for log_message in client.logs_from(message.channel, limit=30):
                 if log_message.author == client.user:
