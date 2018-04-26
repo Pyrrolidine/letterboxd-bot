@@ -7,7 +7,7 @@ client = discord.Client()
 
 def search_letterboxd(message, search_type):
     list_words_message = message.content.split()
-    msg = ""
+    msg = "Could not find anything."
 
     # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
     if list_words_message[-1].isdigit() and search_type == "films/":
@@ -96,6 +96,32 @@ def get_favs(message):
 
     return msg
 
+def limit_history(max_size, server_id):
+    with open('history_{}.txt'.format(server_id)) as f:
+        lines = f.readlines()
+    if len(lines) > max_size:
+        with open('history_{}.txt'.format(server_id), 'w') as f:
+            f.writelines(lines[1:])
+
+def del_last_line(server_id):
+    command_to_erase = ""
+    try:
+        with open('history_{}.txt'.format(server_id)) as f:
+            lines = f.readlines()
+            if len(lines) == 0:
+                return ""
+
+        with open('history_{}.txt'.format(server_id), 'a') as f:
+            f.seek(0)
+            f.truncate()
+            command_to_erase = lines[-1][:-1]
+            f.writelines(lines[:-1])
+    except FileNotFoundError:
+        with open('history_{}.txt'.format(server_id), 'w') as f:
+            pass
+
+    return command_to_erase
+
 
 @client.event
 async def on_message(message):
@@ -126,13 +152,23 @@ async def on_message(message):
             film_link = search_letterboxd(message, "films/")
             msg = get_info(film_link) if len(film_link) > 0 else "Could not find anything."
         elif message.content.startswith('!del'):
+            command_to_erase = del_last_line(message.server.id)
+            deleted_message = False
             async for log_message in client.logs_from(message.channel, limit=30):
-                if log_message.author == client.user:
+                if log_message.author == client.user and deleted_message == False:
                     await client.delete_message(message)
+                    deleted_message = True
+                    await client.delete_message(log_message)
+                    if len(command_to_erase) == 0:
+                        break
+                if log_message.content == command_to_erase:
                     await client.delete_message(log_message)
                     break
 
         if len(msg) > 0:
+            with open('history_{}.txt'.format(message.server.id), 'a') as f:
+                f.write(message.content + '\n')
+            limit_history(20, message.server.id)
             await client.send_message(message.channel, msg)
 
 
