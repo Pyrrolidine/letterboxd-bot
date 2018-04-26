@@ -46,15 +46,12 @@ def get_info(link):
     list_words_link = link.split('/')
 
     contents = urllib.request.urlopen(link).read().decode('utf-8')
-
     html_soup = BeautifulSoup(contents, "html.parser")
-
     info_html = html_soup.find(id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
-    name_film = list_words_link[4]
-
     # Gets the title and link
+    name_film = list_words_link[4]
     msg += "**" + info_h1.contents[0] + "** <https://letterboxd.com/film/{}>".format(name_film.lower()) + '\n'
 
     # Gets the director and year of release
@@ -82,8 +79,8 @@ def get_favs(message):
     except:
         msg = "Could not find this user."
         return msg
-    html_soup = BeautifulSoup(contents, "html.parser")
 
+    html_soup = BeautifulSoup(contents, "html.parser")
     fav_html = html_soup.find(id="favourites")
     span_html = fav_html.find_all('span')
     fav_links = list()
@@ -98,6 +95,7 @@ def get_favs(message):
         msg += ": <https://letterboxd.com{}>".format(fav_links[index][:-1]) + "\n"
 
     return msg
+
 
 @client.event
 async def on_message(message):
