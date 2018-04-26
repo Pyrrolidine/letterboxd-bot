@@ -95,17 +95,13 @@ def get_favs(message):
 
     html_soup = BeautifulSoup(contents, "html.parser")
     fav_html = html_soup.find(id="favourites")
-    span_html = fav_html.find_all('span')
-    fav_links = list()
+    a_html = fav_html.find_all('a')
 
-    for div in fav_html.find_all('div'):
-        fav_links.append(div['data-film-link'])
-
-    if len(span_html) > 0:
+    if len(a_html) > 0:
         msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words_message[1])
-    for index, span in enumerate(span_html):
-        msg += "{}".format(span.contents)[2:-2]
-        msg += ": <https://letterboxd.com{}>".format(fav_links[index][:-1]) + "\n"
+    for fav in a_html:
+        msg += fav['title']
+        msg += ": <https://letterboxd.com{}>".format(fav['href'][:-1]) + '\n'
 
     return msg
 
