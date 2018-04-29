@@ -151,7 +151,6 @@ def get_review(film, user):
         except:
             pass
 
-    no_embed = True if len(list_link) > 1 else False
     for index, review_link in enumerate(list_link[::-1]):
         if index > 3:
             msg += "More reviews: <{}>".format(link)
