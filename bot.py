@@ -205,8 +205,6 @@ async def on_message(message):
             msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
-        elif message.content.startswith('!film ') or message.content.startswith('!movie '):
-            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
         elif message.content.startswith('!user '):
             msg = search_letterboxd(' '.join(list_cmd_words[1:]), "people/")
         elif message.content.startswith('!actor '):
@@ -228,7 +226,7 @@ async def on_message(message):
                 msg = "This command requires at least 2 words, the first for the username, and at least one more for a film title."
         elif message.content == '!checklb':
             msg = check_lbxd()
-        elif message.content.startswith('!info '):
+        elif message.content.startswith('!film ') or message.content.startswith('!movie '):
             film_link = search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
             msg = get_info(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
         elif message.content.startswith('!del'):
