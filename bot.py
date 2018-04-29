@@ -50,14 +50,12 @@ def get_info(link):
     info_html = html_soup.find(id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
-    # Create an embed with title, url and thumbnail
     name_film = list_words_link[4]
     a_html = info_html.find_all('a')
 
-    info_embed = discord.Embed(title=info_h1.contents[0] + ' ({})'.format(a_html[0].contents[0]), url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
+    # Get the image URL
     poster_html = html_soup.find('div', id='poster-col')
     image_url = poster_html.find('img', class_='image')['src']
-    info_embed.set_thumbnail(url=image_url)
 
     # Gets the director
     msg = "**Director:** " + a_html[1].contents[0].contents[0] + '\n'
@@ -82,9 +80,11 @@ def get_info(link):
 
     # Gets the total views
     views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
-    msg += views_html['title']
+    msg += "Watched by " + views_html.contents[0] + " members"
 
-    info_embed.add_field(name='\u200b', value=msg)
+    # Create an embed with title, url and thumbnail
+    info_embed = discord.Embed(title=info_h1.contents[0] + ' ({})'.format(a_html[0].contents[0]), description=msg, url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
+    info_embed.set_thumbnail(url=image_url)
 
     return info_embed
 
@@ -101,6 +101,9 @@ def get_favs(message):
     html_soup = BeautifulSoup(contents, "html.parser")
     fav_html = html_soup.find(id="favourites")
     a_html = fav_html.find_all('a')
+
+    if 'title' not in a_html[0].attrs:
+        return "{} does not have favourites.".format(list_words_message[1])
 
     if len(a_html) > 0:
         msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words_message[1])
@@ -195,7 +198,7 @@ async def on_message(message):
         if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
             msg += "Hello, I'm {}. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n".format(client.user.display_name)
             msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
-            msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n"
+            msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.\n\n"
             msg += "**!info**:  Display informations on a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
             msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth returns Porkepik's review of A Story of Floating Weeds (1934)\n\n"
             msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
