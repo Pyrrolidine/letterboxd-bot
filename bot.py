@@ -135,6 +135,13 @@ def del_last_line(server_id):
 
     return command_to_erase
 
+def check_lbxd():
+    msg = "Letterboxd is up."
+    try:
+        content = urllib.request.urlopen("https://letterboxd.com")
+    except urllib.error.HTTPError as e:
+        msg = "Letterboxd is down."
+    return msg
 
 @client.event
 async def on_message(message):
@@ -147,6 +154,7 @@ async def on_message(message):
             msg += "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n"
             msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
             msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n"
+            msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
             msg += "**!info**:  Display informations on a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
             msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
         elif message.content.startswith('!fav '):
@@ -161,6 +169,8 @@ async def on_message(message):
             msg = search_letterboxd(message, "directors/")
         elif message.content.startswith('!list '):
             msg = search_letterboxd(message, "lists/")
+        elif message.content == '!checklb':
+            msg = check_lbxd()
         elif message.content.startswith('!info '):
             film_link = search_letterboxd(message, "films/")
             msg = get_info(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find anything."
