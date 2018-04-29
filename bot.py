@@ -76,7 +76,7 @@ def get_info(link):
     if plural_country > 1:
         country_str = country_str.replace('Country', 'Countries')
     if plural_country != 0:
-        msg = country_str[:-2] + '\n'
+        msg += country_str[:-2] + '\n'
 
     # Gets the duration
     p_html = html_soup.find(class_="text-link text-footer")
