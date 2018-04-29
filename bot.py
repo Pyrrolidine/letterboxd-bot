@@ -42,7 +42,6 @@ def search_letterboxd(message, search_type):
     return msg
 
 def get_info(link):
-    msg = ""
     list_words_link = link.split('/')
 
     contents = urllib.request.urlopen(link).read().decode('utf-8')
@@ -50,19 +49,22 @@ def get_info(link):
     info_html = html_soup.find(id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
-    # Gets the title and link
+    # Create an embed with title, url and thumbnail
     name_film = list_words_link[4]
-    msg += "**" + info_h1.contents[0] + "** <https://letterboxd.com/film/{}>".format(name_film.lower()) + '\n'
-
-    # Gets the director and year of release
     a_html = info_html.find_all('a')
-    msg += "Year: " + a_html[0].contents[0] + '\n'
-    msg += "Director: " + a_html[1].contents[0].contents[0] + '\n'
+
+    info_embed = discord.Embed(title=info_h1.contents[0] + ' ({})'.format(a_html[0].contents[0]), url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
+    poster_html = html_soup.find('div', id='poster-col')
+    image_url = poster_html.find('img', class_='image')['src']
+    info_embed.set_thumbnail(url=image_url)
+
+    # Gets the director
+    msg = "**Director:** " + a_html[1].contents[0].contents[0] + '\n'
 
     # Gets the country
     div_html = html_soup.find('div', id='tab-details')
     details_html = div_html.find_all('a')
-    msg += "Country: "
+    msg += "**Country:** "
     plural_country = 0
     for detail in details_html:
         if detail['href'].startswith("/films/country/"):
@@ -75,13 +77,15 @@ def get_info(link):
     # Gets the duration
     p_html = html_soup.find(class_="text-link text-footer")
     list_duration = p_html.contents[0].split()
-    msg += ' '.join(list_duration[0:2]) + '\n'
+    msg += '**Length:** ' + ' '.join(list_duration[0:2]) + '\n'
 
     # Gets the total views
     views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
     msg += views_html['title']
 
-    return msg
+    info_embed.add_field(name='\u200b', value=msg)
+
+    return info_embed
 
 def get_favs(message):
     list_words_message = message.content.split()
@@ -139,12 +143,12 @@ async def on_message(message):
 
     if message.content.startswith('!'):
         msg = ""
-        if message.content.startswith('!help'):
+        if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
             msg += "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n"
             msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
             msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n"
             msg += "**!info**:  Display informations on a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
-            msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages."
+            msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
         elif message.content.startswith('!film ') or message.content.startswith('!movie '):
@@ -159,7 +163,7 @@ async def on_message(message):
             msg = search_letterboxd(message, "lists/")
         elif message.content.startswith('!info '):
             film_link = search_letterboxd(message, "films/")
-            msg = get_info(film_link) if len(film_link) > 0 else "Could not find anything."
+            msg = get_info(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find anything."
         elif message.content.startswith('!del'):
             command_to_erase = del_last_line(message.server.id)
             deleted_message = False
@@ -174,11 +178,14 @@ async def on_message(message):
                     await client.delete_message(log_message)
                     break
 
-        if len(msg) > 0:
+        if isinstance(msg, discord.Embed) or len(msg) > 0:
             with open('history_{}.txt'.format(message.server.id), 'a') as f:
                 f.write(message.content + '\n')
             limit_history(20, message.server.id)
-            await client.send_message(message.channel, msg)
+            if isinstance(msg, discord.Embed):
+                await client.send_message(message.channel, embed=msg)
+            else:
+                await client.send_message(message.channel, msg)
 
 
 @client.event
@@ -191,5 +198,7 @@ async def on_ready():
     for server in client.servers:
         print(server)
     print('------')
+
+    await client.change_presence(game=discord.Game(name='Say !helplb'))
 
 client.run(TOKEN)
