@@ -197,7 +197,7 @@ async def on_message(message):
             msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
             msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n"
             msg += "**!info**:  Display informations on a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
-            msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title.\nExample:  !review porkepik story floating weeds\nReturns Porkepik's review of A Story of Floating Weeds (1934)\n\n"
+            msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth returns Porkepik's review of A Story of Floating Weeds (1934)\n\n"
             msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
             msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
         elif message.content.startswith('!fav '):
@@ -218,7 +218,7 @@ async def on_message(message):
                 if film_link.startswith("https://letterboxd.com"):
                     split_film_link = film_link.split('/')
                     film = split_film_link[-1] if len(split_film_link[-1]) > 0 else split_film_link[-2]
-                    msg = get_review(film, list_cmd_words[1])
+                    msg = get_review(film, list_cmd_words[1].strip(','))
                 else:
                     msg = "Could not find the film."
             else:
