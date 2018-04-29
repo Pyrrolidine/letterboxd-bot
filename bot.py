@@ -5,20 +5,21 @@ TOKEN = 'PRIVATE-TOKEN'
 
 client = discord.Client()
 
-def search_letterboxd(message, search_type):
-    list_words_message = message.content.split()
+def search_letterboxd(item, search_type):
+    list_search_words = item.split()
     msg = "Could not find anything."
 
     # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
-    if list_words_message[-1].isdigit() and search_type == "films/":
+    if list_search_words[-1].isdigit() and search_type == "films/":
         try:
-            contents = urllib.request.urlopen("https://letterboxd.com/film/{0}".format('-'.join(list_words_message[1:]))).read().decode('utf-8')
-            return "https://letterboxd.com/film/{}".format('-'.join(list_words_message[1:]))
+            link = "https://letterboxd.com/film/{}".format('-'.join(list_search_words))
+            contents = urllib.request.urlopen(link).read().decode('utf-8')
+            return link
         except:
             pass
 
     try:
-        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_words_message[1:]))).read().decode('utf-8')
+        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_search_words))).read().decode('utf-8')
     except:
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
@@ -109,6 +110,46 @@ def get_favs(message):
 
     return msg
 
+def get_review(film, user):
+    msg = ""
+    film_name = ' '.join(film.split('-'))
+    link = "https://letterboxd.com/{0}/film/{1}/activity".format(user, film)
+
+    try:
+        contents = urllib.request.urlopen(link).read().decode('utf-8')
+    except:
+        msg = "{} doesn't exist.".format(user)
+        return msg
+
+    html_soup = BeautifulSoup(contents, "html.parser")
+    activity_html = html_soup.find('div', class_="activity-table")
+    if activity_html is None:
+        return "{0} has not seen {1}.".format(user, film_name)
+
+    rows_html = activity_html.find_all('section', class_="activity-row -basic")
+    list_link = list()
+    for row in rows_html:
+        summary_html = row.find('p', class_="activity-summary")
+        try:
+            if summary_html.contents[3].contents[1].contents[0][1:].startswith('reviewed'):
+                list_link.append(summary_html.contents[3]['href'])
+        except:
+            pass
+
+    no_embed = True if len(list_link) > 1 else False
+    for index, review_link in enumerate(list_link[::-1]):
+        if index > 3:
+            msg += "More reviews: <{}>".format(link)
+            break
+        if index == 0:
+            msg += "https://letterboxd.com{}\n".format(review_link)
+        else:
+            msg += "<https://letterboxd.com{}>\n".format(review_link)
+
+    if len(list_link) == 0:
+        return "{0} does not have a review for {1}.".format(user, film_name)
+    return msg
+
 def limit_history(max_size, server_id):
     with open('history_{}.txt'.format(server_id)) as f:
         lines = f.readlines()
@@ -150,30 +191,43 @@ async def on_message(message):
 
     if message.content.startswith('!'):
         msg = ""
+        list_cmd_words = message.content.split()
         if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
-            msg += "Hello, I'm LetterBot. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n"
+            msg += "Hello, I'm {}. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n".format(client.user.display_name)
             msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
             msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member.\n\n"
-            msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
             msg += "**!info**:  Display informations on a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
+            msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title.\nExample:  !review porkepik story floating weeds\nReturns Porkepik's review of A Story of Floating Weeds (1934)\n\n"
+            msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
             msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
         elif message.content.startswith('!fav '):
             msg = get_favs(message)
         elif message.content.startswith('!film ') or message.content.startswith('!movie '):
-            msg = search_letterboxd(message, "films/")
+            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
         elif message.content.startswith('!user '):
-            msg = search_letterboxd(message, "people/")
+            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "people/")
         elif message.content.startswith('!actor '):
-            msg = search_letterboxd(message, "actors/")
+            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "actors/")
         elif message.content.startswith('!director '):
-            msg = search_letterboxd(message, "directors/")
+            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "directors/")
         elif message.content.startswith('!list '):
-            msg = search_letterboxd(message, "lists/")
+            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "lists/")
+        elif message.content.startswith('!review '):
+            if len(list_cmd_words) > 2:
+                film_link = search_letterboxd(' '.join(list_cmd_words[2:]), "films/")
+                if film_link.startswith("https://letterboxd.com"):
+                    split_film_link = film_link.split('/')
+                    film = split_film_link[-1] if len(split_film_link[-1]) > 0 else split_film_link[-2]
+                    msg = get_review(film, list_cmd_words[1])
+                else:
+                    msg = "Could not find the film."
+            else:
+                msg = "This command requires at least 2 words, the first for the username, and at least one more for a film title."
         elif message.content == '!checklb':
             msg = check_lbxd()
         elif message.content.startswith('!info '):
-            film_link = search_letterboxd(message, "films/")
-            msg = get_info(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find anything."
+            film_link = search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
+            msg = get_info(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
         elif message.content.startswith('!del'):
             command_to_erase = del_last_line(message.server.id)
             deleted_message = False
