@@ -43,6 +43,7 @@ def search_letterboxd(item, search_type):
     return msg
 
 def get_info(link):
+    msg = ""
     list_words_link = link.split('/')
 
     contents = urllib.request.urlopen(link).read().decode('utf-8')
@@ -58,25 +59,30 @@ def get_info(link):
     image_url = poster_html.find('img', class_='image')['src']
 
     # Gets the director
-    msg = "**Director:** " + a_html[1].contents[0].contents[0] + '\n'
+    try:
+        msg += "**Director:** " + a_html[1].contents[0].contents[0] + '\n'
+    except:
+        pass
 
     # Gets the country
     div_html = html_soup.find('div', id='tab-details')
     details_html = div_html.find_all('a')
-    msg += "**Country:** "
+    country_str = "**Country:** "
     plural_country = 0
     for detail in details_html:
         if detail['href'].startswith("/films/country/"):
-            msg += "{}, ".format(detail.contents[0])
+            country_str += "{}, ".format(detail.contents[0])
             plural_country += 1
     if plural_country > 1:
-        msg = msg.replace('Country', 'Countries')
-    msg = msg[:-2] + '\n'
+        country_str = country_str.replace('Country', 'Countries')
+    if plural_country != 0:
+        msg = country_str[:-2] + '\n'
 
     # Gets the duration
     p_html = html_soup.find(class_="text-link text-footer")
     list_duration = p_html.contents[0].split()
-    msg += '**Length:** ' + ' '.join(list_duration[0:2]) + '\n'
+    if list_duration[1] == "mins":
+        msg += '**Length:** ' + ' '.join(list_duration[0:2]) + '\n'
 
     # Gets the total views
     views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
@@ -199,8 +205,7 @@ async def on_message(message):
             msg += "Hello, I'm {}. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n".format(client.user.display_name)
             msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
             msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.\n\n"
-            msg += "**!info**:  Display informations on a film. This command performs a search, meaning a partial title may work.\nExample: !info mood for love\n\n"
-            msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth returns Porkepik's review of A Story of Floating Weeds (1934)\n\n"
+            msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth return Porkepik's review of A Story of Floating Weeds (1934)\n\n"
             msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
             msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
         elif message.content.startswith('!fav '):
