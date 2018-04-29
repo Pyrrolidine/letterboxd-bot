@@ -88,8 +88,14 @@ def get_info(link):
     views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
     msg += "Watched by " + views_html.contents[0] + " members"
 
+    # Gets year
+    year = ""
+    try:
+        year = ' (' + a_html[0].contents[0] + ')'
+    except:
+        pass
     # Create an embed with title, url and thumbnail
-    info_embed = discord.Embed(title=info_h1.contents[0] + ' ({})'.format(a_html[0].contents[0]), description=msg, url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
+    info_embed = discord.Embed(title=info_h1.contents[0] + year, description=msg, url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
     info_embed.set_thumbnail(url=image_url)
 
     return info_embed
