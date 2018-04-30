@@ -54,7 +54,7 @@ def get_info(link):
     name_film = list_words_link[4]
     a_html = info_html.find_all('a')
 
-    # Get the image URL
+    # Gets the image URL
     poster_html = html_soup.find('div', id='poster-col')
     image_url = poster_html.find('img', class_='image')['src']
 
@@ -94,7 +94,7 @@ def get_info(link):
         year = ' (' + a_html[0].contents[0] + ')'
     except:
         pass
-    # Create an embed with title, url and thumbnail
+    # Creates an embed with title, url and thumbnail
     info_embed = discord.Embed(title=info_h1.contents[0] + year, description=msg, url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
     info_embed.set_thumbnail(url=image_url)
 
@@ -120,7 +120,7 @@ def get_favs(message):
     if len(a_html) > 0:
         msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words_message[1])
     for fav in a_html:
-        msg += fav['title']
+        msg += '**' + fav['title'] + '**'
         msg += ": <https://letterboxd.com{}>".format(fav['href'][:-1]) + '\n'
 
     return msg
@@ -130,6 +130,7 @@ def get_review(film, user):
     film_name = ' '.join(film.split('-'))
     link = "https://letterboxd.com/{0}/film/{1}/activity".format(user, film)
 
+    # Opens the activity page, if it fails, then the user doesn't exist because we already checked the film title in search_letterboxd
     try:
         contents = urllib.request.urlopen(link).read().decode('utf-8')
     except:
@@ -138,6 +139,7 @@ def get_review(film, user):
 
     html_soup = BeautifulSoup(contents, "html.parser")
     activity_html = html_soup.find('div', class_="activity-table")
+
     if activity_html is None:
         return "{0} has not seen {1}.".format(user, film_name)
 
@@ -151,6 +153,7 @@ def get_review(film, user):
         except:
             pass
 
+    # Iterates through the review links found, if there are more than 4, shares a link to the activity page and doesn't display anymore links
     for index, review_link in enumerate(list_link[::-1]):
         if index > 3:
             msg += "More reviews: <{}>".format(link)
@@ -165,6 +168,7 @@ def get_review(film, user):
     return msg
 
 def limit_history(max_size, server_id):
+    # If there are more than max_size lines in the command history file (unique to each servers), deletes the oldest
     with open('history_{}.txt'.format(server_id)) as f:
         lines = f.readlines()
     if len(lines) > max_size:
@@ -185,6 +189,7 @@ def del_last_line(server_id):
             command_to_erase = lines[-1][:-1]
             f.writelines(lines[:-1])
     except FileNotFoundError:
+        # Creates the file if it doesn't exist already
         with open('history_{}.txt'.format(server_id), 'w') as f:
             pass
 
@@ -253,6 +258,7 @@ async def on_message(message):
                     await client.delete_message(log_message)
                     break
 
+        # Checks if a message is an embed, and if it isn't empty before sending something
         if isinstance(msg, discord.Embed) or len(msg) > 0:
             with open('history_{}.txt'.format(message.server.id), 'a') as f:
                 f.write(message.content + '\n')
