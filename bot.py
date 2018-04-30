@@ -118,7 +118,7 @@ def get_favs(message):
         return "{} does not have favourites.".format(list_words_message[1])
 
     if len(a_html) > 0:
-        msg = "<https://letterboxd.com/{}> Letterboxd Favourite Films:\n\n".format(list_words_message[1])
+        msg = "**<https://letterboxd.com/{}>** Letterboxd Favourite Films:\n\n".format(list_words_message[1])
     for fav in a_html:
         msg += '**' + fav['title'] + '**'
         msg += ": <https://letterboxd.com{}>".format(fav['href'][:-1]) + '\n'
@@ -213,7 +213,7 @@ async def on_message(message):
         list_cmd_words = message.content.split()
         if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
             msg += "Hello, I'm {}. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n".format(client.user.display_name)
-            msg += "**!film/!movie/!user/!list/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
+            msg += "**!film/!movie/!user/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
             msg += "**!fav**:  Display the 4 favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.\n\n"
             msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth return Porkepik's review of A Story of Floating Weeds (1934)\n\n"
             msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
@@ -226,8 +226,6 @@ async def on_message(message):
             msg = search_letterboxd(' '.join(list_cmd_words[1:]), "actors/")
         elif message.content.startswith('!director '):
             msg = search_letterboxd(' '.join(list_cmd_words[1:]), "directors/")
-        elif message.content.startswith('!list '):
-            msg = search_letterboxd(' '.join(list_cmd_words[1:]), "lists/")
         elif message.content.startswith('!review '):
             if len(list_cmd_words) > 2:
                 film_link = search_letterboxd(' '.join(list_cmd_words[2:]), "films/")
