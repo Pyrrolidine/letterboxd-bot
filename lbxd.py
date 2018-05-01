@@ -97,11 +97,11 @@ def get_info_film(link):
     return info_embed
 
 def get_favs(message):
-    list_words_message = message.content.split()
+    user = message.content.split()[1]
     msg = "This user does not have any favourites."
 
     try:
-        contents = urllib.request.urlopen("https://letterboxd.com/{}".format(list_words_message[1])).read().decode('utf-8')
+        contents = urllib.request.urlopen("https://letterboxd.com/{}".format(user)).read().decode('utf-8')
     except:
         msg = "Could not find this user."
         return msg
@@ -111,10 +111,14 @@ def get_favs(message):
     a_html = fav_html.find_all('a')
 
     if 'title' not in a_html[0].attrs:
-        return "{} does not have favourites.".format(list_words_message[1])
+        return "{} does not have favourites.".format(user[1])
+
+    # Gets the display name
+    name_div_html = html_soup.find('div', class_='profile-person-info')
+    display_name = name_div_html.find('h1', class_='title-1').contents[0]
 
     if len(a_html) > 0:
-        msg = "**[{0}](https://letterboxd.com/{0}) Letterboxd Favourite Films**\n\n".format(list_words_message[1].capitalize())
+        msg = "**[{0}](https://letterboxd.com/{1}) Favourite Films**\n\n".format(display_name, user)
     for fav in a_html:
         msg += '[' + fav['title'] + ']'
         msg += "(https://letterboxd.com{})".format(fav['href'][:-1]) + '\n'
@@ -123,7 +127,7 @@ def get_favs(message):
     img_div_html = html_soup.find('div', class_='profile-avatar')
     img_link = img_div_html.contents[1].contents[1]['src']
 
-    fav_embed = discord.Embed(title='', description=msg, colour=0xd8b437)
+    fav_embed = discord.Embed(title='', url="https://letterboxd.com/{}".format(user), description=msg, colour=0xd8b437)
     fav_embed.set_thumbnail(url=img_link)
 
     return fav_embed
