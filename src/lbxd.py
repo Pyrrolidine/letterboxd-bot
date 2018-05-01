@@ -236,7 +236,7 @@ def limit_history(max_size, server_id):
             f.writelines(lines[1:])
 
 def del_last_line(server_id, channel_id):
-    command_to_erase = ""
+    msg_id_to_erase = ""
     try:
         with open('history_{}.txt'.format(server_id)) as f:
             lines = f.readlines()
@@ -247,15 +247,8 @@ def del_last_line(server_id, channel_id):
             f.seek(0)
             f.truncate()
             for index, line in enumerate(lines[::-1]):
-                if line.split('!')[0] == channel_id:
-                    is_command = False
-                    # Make sure any trailing ! in the command is kept
-                    for c in lines[-1-index]:
-                        if c == '!':
-                            is_command = True
-                        if is_command and c != '\n':
-                            command_to_erase += c
-                    lines.pop(-1-index)
+                if line.split(' ')[0] == channel_id:
+                    msg_id_to_erase = lines.pop(-1-index).split()[1]
                     break
             f.writelines(lines)
     except FileNotFoundError:
@@ -263,7 +256,7 @@ def del_last_line(server_id, channel_id):
         with open('history_{}.txt'.format(server_id), 'w') as f:
             pass
 
-    return command_to_erase
+    return msg_id_to_erase
 
 def check_lbxd():
     msg = "Letterboxd is up."

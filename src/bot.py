@@ -55,14 +55,14 @@ async def on_message(message):
                 await client.delete_message(log_message)
                 if len(command_to_erase) == 0:
                     break
-            if log_message.content == command_to_erase:
+            if log_message.id == command_to_erase:
                 await client.delete_message(log_message)
                 break
 
     # Checks if a message is an embed, and if it isn't empty before sending something
     if isinstance(msg, discord.Embed) or len(msg) > 0:
         with open('history_{}.txt'.format(message.server.id), 'a') as f:
-            f.write(message.channel.id + message.content + '\n')
+            f.write(message.channel.id + ' ' + message.id + '\n')
         lbxd.limit_history(20, message.server.id)
         if isinstance(msg, discord.Embed):
             await client.send_message(message.channel, embed=msg)
