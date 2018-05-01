@@ -8,14 +8,16 @@ def search_letterboxd(item, search_type):
     # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
     if list_search_words[-1].isdigit() and search_type == "films/":
         try:
-            link = "https://letterboxd.com/film/{}".format('-'.join(list_search_words))
+            path = urllib.parse.quote('-'.join(list_search_words))
+            link = "https://letterboxd.com/film/{}".format(path)
             contents = urllib.request.urlopen(link).read().decode('utf-8')
             return link
         except:
             pass
 
     try:
-        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, '+'.join(list_search_words))).read().decode('utf-8')
+        path = urllib.parse.quote('+'.join(list_search_words))
+        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, path)).read().decode('utf-8')
     except:
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
