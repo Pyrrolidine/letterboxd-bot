@@ -22,10 +22,8 @@ Returns an embed link to the Letterboxd member profile, displaying their feature
 
 **!review**
 
-Returns the review or a list of reviews from the specified user and film.
-
-Example: !review porkepik story floating weeds
-
+Returns the review or a list of reviews from the specified user and film.  
+Example: !review porkepik story floating weeds  
 Gets Porkepik's review of A Story of Floating Weeds (1934)
 
 **!checklb**
