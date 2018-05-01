@@ -1,4 +1,4 @@
-import discord, urllib.request, time
+import discord, urllib.request
 from bs4 import BeautifulSoup
 
 def search_letterboxd(item, search_type):
@@ -38,7 +38,7 @@ def search_letterboxd(item, search_type):
 
     return msg
 
-def get_info(link):
+def get_info_film(link):
     msg = ""
     list_words_link = link.split('/')
 
@@ -114,12 +114,19 @@ def get_favs(message):
         return "{} does not have favourites.".format(list_words_message[1])
 
     if len(a_html) > 0:
-        msg = "**<https://letterboxd.com/{}>** Letterboxd Favourite Films:\n\n".format(list_words_message[1])
+        msg = "**[{0}](https://letterboxd.com/{0}) Letterboxd Favourite Films**\n\n".format(list_words_message[1].capitalize())
     for fav in a_html:
-        msg += '**' + fav['title'] + '**'
-        msg += ": <https://letterboxd.com{}>".format(fav['href'][:-1]) + '\n'
+        msg += '[' + fav['title'] + ']'
+        msg += "(https://letterboxd.com{})".format(fav['href'][:-1]) + '\n'
 
-    return msg
+    # Gets the avatar
+    img_div_html = html_soup.find('div', class_='profile-avatar')
+    img_link = img_div_html.contents[1].contents[1]['src']
+
+    fav_embed = discord.Embed(title='', description=msg, colour=0xd8b437)
+    fav_embed.set_thumbnail(url=img_link)
+
+    return fav_embed
 
 def get_review(film, user):
     msg = ""
