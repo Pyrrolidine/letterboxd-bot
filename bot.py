@@ -43,7 +43,7 @@ async def on_message(message):
             msg = lbxd.check_lbxd()
         elif message.content.startswith('!film ') or message.content.startswith('!movie '):
             film_link = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
-            msg = lbxd.get_info(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
+            msg = lbxd.get_info_film(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
         elif message.content.startswith('!del'):
             command_to_erase = lbxd.del_last_line(message.server.id)
             deleted_message = False
