@@ -1,5 +1,4 @@
-import discord, urllib.request
-from bs4 import BeautifulSoup
+import discord, lbxd
 
 TOKEN = 'PRIVATE-TOKEN'
 
@@ -45,7 +44,7 @@ async def on_message(message):
             film_link = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
             msg = lbxd.get_info_film(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
         elif message.content.startswith('!del'):
-            command_to_erase = lbxd.del_last_line(message.server.id)
+            command_to_erase = lbxd.del_last_line(message.server.id, message.channel.id)
             deleted_message = False
             async for log_message in client.logs_from(message.channel, limit=30):
                 if log_message.author == client.user and deleted_message == False:
@@ -61,7 +60,7 @@ async def on_message(message):
         # Checks if a message is an embed, and if it isn't empty before sending something
         if isinstance(msg, discord.Embed) or len(msg) > 0:
             with open('history_{}.txt'.format(message.server.id), 'a') as f:
-                f.write(message.content + '\n')
+                f.write(message.channel.id + message.content + '\n')
             lbxd.limit_history(20, message.server.id)
             if isinstance(msg, discord.Embed):
                 await client.send_message(message.channel, embed=msg)

@@ -235,7 +235,7 @@ def limit_history(max_size, server_id):
         with open('history_{}.txt'.format(server_id), 'w') as f:
             f.writelines(lines[1:])
 
-def del_last_line(server_id):
+def del_last_line(server_id, channel_id):
     command_to_erase = ""
     try:
         with open('history_{}.txt'.format(server_id)) as f:
@@ -246,8 +246,18 @@ def del_last_line(server_id):
         with open('history_{}.txt'.format(server_id), 'a') as f:
             f.seek(0)
             f.truncate()
-            command_to_erase = lines[-1][:-1]
-            f.writelines(lines[:-1])
+            for index, line in enumerate(lines[::-1]):
+                if line.split('!')[0] == channel_id:
+                    is_command = False
+                    # Make sure any trailing ! in the command is kept
+                    for c in lines[-1-index]:
+                        if c == '!':
+                            is_command = True
+                        if is_command and c != '\n':
+                            command_to_erase += c
+                    lines.pop(-1-index)
+                    break
+            f.writelines(lines)
     except FileNotFoundError:
         # Creates the file if it doesn't exist already
         with open('history_{}.txt'.format(server_id), 'w') as f:
@@ -262,3 +272,4 @@ def check_lbxd():
     except urllib.error.HTTPError as e:
         msg = "Letterboxd is down."
     return msg
+
