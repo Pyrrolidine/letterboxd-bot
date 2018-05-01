@@ -27,8 +27,6 @@ def search_letterboxd(item, search_type):
 
     if search_type == "films/":
         search_html = results_html.find('span', class_="film-title-wrapper")
-    elif search_type == "people/":
-        search_html = results_html.find('div', class_="person-summary -search")
     else:
         search_html = results_html.find('h2', class_="title-2 prettify")
 
@@ -96,7 +94,7 @@ def get_info_film(link):
 
     return info_embed
 
-def get_favs(message):
+def get_user_info(message):
     user = message.content.split()[1]
     msg = "This user does not have any favourites."
 
@@ -107,30 +105,83 @@ def get_favs(message):
         return msg
 
     html_soup = BeautifulSoup(contents, "html.parser")
-    fav_html = html_soup.find(id="favourites")
-    a_html = fav_html.find_all('a')
-
-    if 'title' not in a_html[0].attrs:
-        return "{} does not have favourites.".format(user[1])
 
     # Gets the display name
     name_div_html = html_soup.find('div', class_='profile-person-info')
     display_name = name_div_html.find('h1', class_='title-1').contents[0]
 
+    msg = ""
+
+    # Gets metadata
+    metadata_html = html_soup.find('ul', class_='person-metadata')
+    if metadata_html is not None:
+        country = metadata_html.contents[1].contents[0]
+        try:
+            msg += '**' + country + '** -- '
+        except:
+            pass
+
+    # Gets amout of films viewed
+    nbfilms_html = html_soup.find('ul', class_='stats')
+    nbfilms = nbfilms_html.find('a').contents[0].contents[0]
+    msg += "**" + nbfilms + " films**\n"
+
+    # Gets favourites
+    fav_html = html_soup.find(id="favourites")
+    a_html = fav_html.find_all('a')
+
     if len(a_html) > 0:
-        msg = "**[{0}](https://letterboxd.com/{1}) Favourite Films**\n\n".format(display_name, user)
+        msg += '**Favourite Films**:\n'
     for fav in a_html:
         msg += '[' + fav['title'] + ']'
         msg += "(https://letterboxd.com{})".format(fav['href'][:-1]) + '\n'
 
     # Gets the avatar
     img_div_html = html_soup.find('div', class_='profile-avatar')
-    img_link = img_div_html.contents[1].contents[1]['src']
+    img_link = img_div_html.find('img')['src']
 
-    fav_embed = discord.Embed(title='', url="https://letterboxd.com/{}".format(user), description=msg, colour=0xd8b437)
-    fav_embed.set_thumbnail(url=img_link)
+    user_embed = discord.Embed(title=display_name, url="https://letterboxd.com/{}".format(user), description=msg, colour=0xd8b437)
+    user_embed.set_thumbnail(url=img_link)
 
-    return fav_embed
+    return user_embed
+
+def get_crew_info(crew_url):
+    msg = ""
+    contents = urllib.request.urlopen(crew_url).read().decode('utf-8')
+    html_soup = BeautifulSoup(contents, "html.parser")
+
+    # Gets the display name
+    name_div_html = html_soup.find('div', class_='contextual-title')
+    display_name = name_div_html.find('h1', class_='title-1 prettify').contents[2]
+
+    # Goes to the TMDB page
+    sidebar_html = html_soup.find('aside', class_='sidebar')
+    tmdb_url = sidebar_html.find('a', class_='micro-button')['href']
+    contents_tmdb = urllib.request.urlopen(tmdb_url).read().decode('utf-8')
+    tmdb_html_soup = BeautifulSoup(contents_tmdb, "html.parser")
+
+    # Gets informations
+    facts_html = tmdb_html_soup.find('section', class_='facts left_column')
+    if facts_html is not None:
+        infos_html = facts_html.find_all('p')
+        for info in infos_html:
+            try:
+                info_type = info.find('bdi').contents[0]
+                if info_type in ['Known Credits', 'Birthday', 'Day of Death', 'Place of Birth']:
+                    msg += "**" + info_type + "**: " + info.contents[1] + '\n'
+            except:
+                pass
+
+    crew_embed = discord.Embed(title=display_name, url=crew_url, description=msg, colour=0xd8b437)
+
+    # Gets the picture
+    try:
+        img_link = tmdb_html_soup.find('img', class_='poster')['src']
+        crew_embed.set_thumbnail(url=img_link)
+    except:
+        pass
+
+    return crew_embed
 
 def get_review(film, user):
     msg = ""
