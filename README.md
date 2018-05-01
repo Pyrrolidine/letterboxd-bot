@@ -18,12 +18,14 @@ Search the specified person and returns an embed link with informations.
 
 **!user**
 
-Returns an embed link to the Letterboxd member profile, and displaying their featured favourites.
+Returns an embed link to the Letterboxd member profile, displaying their featured favourites, location and number of films watched.
 
 **!review**
 
 Returns the review or a list of reviews from the specified user and film.
+
 Example: !review porkepik story floating weeds
+
 Gets Porkepik's review of A Story of Floating Weeds (1934)
 
 **!checklb**
