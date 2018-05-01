@@ -1,6 +1,7 @@
 import discord, lbxd
 
-TOKEN = 'PRIVATE-TOKEN'
+token_file = open('Token')
+TOKEN = token_file.readline().strip()
 
 client = discord.Client()
 
@@ -46,11 +47,11 @@ async def on_message(message):
         film_link = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
         msg = lbxd.get_info_film(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
     elif message.content.startswith('!del'):
+        await client.delete_message(message)
         command_to_erase = lbxd.del_last_line(message.server.id, message.channel.id)
         deleted_message = False
         async for log_message in client.logs_from(message.channel, limit=30):
             if log_message.author == client.user and deleted_message == False:
-                await client.delete_message(message)
                 deleted_message = True
                 await client.delete_message(log_message)
                 if len(command_to_erase) == 0:
