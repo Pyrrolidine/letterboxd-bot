@@ -1,4 +1,4 @@
-import discord, urllib.request, string
+import discord, urllib.request
 from bs4 import BeautifulSoup
 
 def search_letterboxd(item, search_type):
