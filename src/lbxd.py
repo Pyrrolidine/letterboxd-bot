@@ -156,6 +156,17 @@ def get_crew_info(crew_url):
     name_div_html = html_soup.find('div', class_='contextual-title')
     display_name = name_div_html.find('h1', class_='title-1 prettify').contents[2]
 
+    # Gets film credits, if the person has done at least 2 types of them
+    menu_html = html_soup.find('section', class_='smenu-wrapper smenu-wrapper-left')
+    has_multiple_jobs = False
+    if menu_html is not None:
+        has_multiple_jobs = True
+        jobs_html = list()
+        jobs_html.append(menu_html.find('span'))
+        jobs_html.extend(menu_html.find_all('a'))
+        for job in jobs_html:
+            msg += '**' + job.contents[0].strip() + '**: ' + job.contents[1].contents[0] + '\n'
+
     # Goes to the TMDB page
     sidebar_html = html_soup.find('aside', class_='sidebar')
     tmdb_url = sidebar_html.find('a', class_='micro-button')['href']
@@ -169,7 +180,7 @@ def get_crew_info(crew_url):
         for info in infos_html:
             try:
                 info_type = info.find('bdi').contents[0]
-                if info_type in ['Known Credits', 'Birthday', 'Day of Death', 'Place of Birth']:
+                if info_type in ['Birthday', 'Day of Death', 'Place of Birth'] or info_type == 'Known Credits' and not has_multiple_jobs:
                     msg += "**" + info_type + "**: " + info.contents[1] + '\n'
             except:
                 pass
