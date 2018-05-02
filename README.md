@@ -12,7 +12,7 @@ Display the commands with descriptions.
 
 Search a film on Letterboxd and returns an embed link with informations.
 A year can be specified with y: or year:.  
-Example: !film silence y:1971
+Example: !film silence y:1971  
 Returns the 1971's version, while not giving a year would return the Scorsese remake.
 
 **!director/!actor**
