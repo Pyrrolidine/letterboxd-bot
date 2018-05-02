@@ -17,7 +17,7 @@ async def on_message(message):
     list_cmd_words = message.content.split()
     if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
         msg += "Hello, I'm {}. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n".format(client.user.display_name)
-        msg += "**!film/!movie/!actor/!director**:  Search the specified item on Letterboxd and returns the first result.\n\n"
+        msg += "**!film/!movie/!actor/!director**:  Search the specified item on Letterboxd and returns the first result. You can specify a year for a film search by ending the command with y: or year:.\nExample:\n!film man knew too much y:1934\nReturns the 1934 original Hitchock film, not specifying the year returns the more popular 50's film.\n\n"
         msg += "**!user**:  Display informations and the featured favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.\n\n"
         msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth return Porkepik's review of A Story of Floating Weeds (1934)\n\n"
         msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
