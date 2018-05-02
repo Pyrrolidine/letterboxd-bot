@@ -37,7 +37,7 @@ Deletes the last message by the bot inside the channel. The bot needs the "manag
 ## To-Do
 
 Master branch:  
-- [ ] Make !review embed, displaying the date of the review and the rating, if one there is, instead of having only the first review embed.
+- [x] Make !review embed, displaying the date of the review and the rating, if one there is, instead of having only the first review embed.
 
 Experimental branch:  
 - [ ] Switch file history system to a database.
