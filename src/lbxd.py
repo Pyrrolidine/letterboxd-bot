@@ -165,11 +165,13 @@ def get_crew_info(crew_url):
         jobs_html.append(menu_html.find('span'))
         jobs_html.extend(menu_html.find_all('a'))
         for job in jobs_html:
-            msg += '**' + job.contents[0].strip() + '**: '
-            try:
-                msg += job.contents[1].contents[0] + '\n'
-            except:
-                msg += '1\n'
+            job_title = job.contents[0].strip()
+            if job_title in ['Director', 'Writer', 'Actor', 'Producer']:
+                msg += '**' + job_title + '**: '
+                try:
+                    msg += job.contents[1].contents[0] + '\n'
+                except:
+                    msg += '1\n'
 
     # Goes to the TMDB page
     sidebar_html = html_soup.find('aside', class_='sidebar')
