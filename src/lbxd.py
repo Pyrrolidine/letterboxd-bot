@@ -81,7 +81,7 @@ def get_info_film(link):
         msg += '**Length:** ' + ' '.join(list_duration[0:2]) + '\n'
 
     # Gets the total views
-    views_html = html_soup.find(class_="has-icon icon-watched icon-16 tooltip")
+    views_html = html_soup.find(class_="icon-watched")
     msg += "Watched by " + views_html.contents[0] + " members"
 
     # Gets year
@@ -204,45 +204,85 @@ def get_crew_info(crew_url):
 
 def get_review(film, user):
     msg = ""
-    film_name = ' '.join(film.split('-'))
     link = "https://letterboxd.com/{0}/film/{1}/activity".format(user, film)
 
     # Opens the activity page, if it fails, then the user doesn't exist because we already checked the film title in search_letterboxd
     try:
         contents = urllib.request.urlopen(link).read().decode('utf-8')
     except:
-        msg = "{} doesn't exist.".format(user)
-        return msg
+        return "{} doesn't exist.".format(user)
 
     html_soup = BeautifulSoup(contents, "html.parser")
     activity_html = html_soup.find('div', class_="activity-table")
+    name_html = html_soup.find('h1', class_='headline-2')
+    film_name = name_html.contents[3].contents[0]
 
     if activity_html is None:
         return "{0} has not seen {1}.".format(user, film_name)
 
     rows_html = activity_html.find_all('section', class_="activity-row -basic")
-    list_link = list()
+    try:
+        display_name = rows_html[0].find('a', class_='avatar').contents[1]['alt']
+    except:
+        pass
+
+    n_reviews = 0
+    review_link = ""
+
     for row in rows_html:
         summary_html = row.find('p', class_="activity-summary")
         try:
-            if summary_html.contents[3].contents[1].contents[0][1:].startswith('reviewed'):
-                list_link.append(summary_html.contents[3]['href'])
+            if summary_html.find('span', class_='context').contents[0].strip().startswith('reviewed'):
+                n_reviews += 1
+                if n_reviews > 5:
+                    msg += '[More reviews]({})'.format(link)
+                    break
+                rating = summary_html.find('span', class_="rating")
+                date = summary_html.find('span', class_="nobr")
+                review_link = "https://letterboxd.com" + summary_html.contents[3]['href']
+                msg += '[**Review**]({0}) '.format(review_link)
+                msg += rating.contents[0] + '  ' if rating is not None else ''
+                msg += date.contents[0] if date is not None else ''
+                msg += '\n'
+
+                # Gets a preview of the first review
+                if n_reviews == 1:
+                    review = ""
+                    review_contents = urllib.request.urlopen(review_link).read().decode('utf-8')
+                    review_soup = BeautifulSoup(review_contents, "html.parser")
+                    review_preview = review_soup.find('div', itemprop="reviewBody")
+                    for paragraph in review_preview.find_all('p'):
+                        for p_child in paragraph.children:
+                            if p_child.name is None:
+                                review += p_child
+                            else:
+                                try:
+                                    review += p_child.contents[0]
+                                except:
+                                    pass
+                    msg += '```' + review[:400]
+                    if len(review) > 400:
+                        msg += '...'
+                    msg += '```'
+
         except:
             pass
 
-    # Iterates through the review links found, if there are more than 4, shares a link to the activity page and doesn't display anymore links
-    for index, review_link in enumerate(list_link[::-1]):
-        if index > 3:
-            msg += "More reviews: <{}>".format(link)
-            break
-        if index == 0:
-            msg += "https://letterboxd.com{}\n".format(review_link)
-        else:
-            msg += "<https://letterboxd.com{}>\n".format(review_link)
-
-    if len(list_link) == 0:
+    if len(msg) == 0:
         return "{0} does not have a review for {1}.".format(user, film_name)
-    return msg
+
+    # Gets the film poster
+    poster_html = html_soup.find('section', class_='poster-list')
+    poster_url = poster_html.find('img')['src']
+
+    review_word = 'reviews' if n_reviews > 1 else 'review'
+    embed_link = link if n_reviews > 1 else review_link
+
+    review_embed = discord.Embed(title="{0} {1} of {2}".format(display_name, review_word, film_name), url=embed_link, colour=0xd8b437, description=msg)
+    review_embed.set_thumbnail(url=poster_url)
+
+    # Iterates through the review links found, if there are more than 4, shares a link to the activity page and doesn't display anymore links
+    return review_embed
 
 def limit_history(max_size, server_id):
     # If there are more than max_size lines in the command history file (unique to each servers), deletes the oldest
