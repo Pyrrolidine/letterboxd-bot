@@ -1,14 +1,18 @@
-import discord, urllib.request
+import discord, urllib.request, string
 from bs4 import BeautifulSoup
 
 def search_letterboxd(item, search_type):
     list_search_words = item.split()
     msg = "Could not find anything."
+    check_year = False
+
+    if list_search_words[-1].startswith('year:') or list_search_words[-1].startswith('y:'):
+        check_year = True
 
     # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
-    if list_search_words[-1].isdigit() and search_type == "films/":
+    if not check_year and list_search_words[-1].isdigit() and search_type == "films/":
         try:
-            path = urllib.parse.quote('-'.join(list_search_words))
+            path = urllib.parse.quote('-'.join(list_search_words).lower())
             link = "https://letterboxd.com/film/{}".format(path)
             contents = urllib.request.urlopen(link).read().decode('utf-8')
             return link
@@ -16,24 +20,37 @@ def search_letterboxd(item, search_type):
             pass
 
     try:
-        path = urllib.parse.quote('+'.join(list_search_words))
+        if check_year:
+            path = urllib.parse.quote('+'.join(list_search_words[:-1]))
+        else:
+            path = urllib.parse.quote('+'.join(list_search_words))
         contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, path)).read().decode('utf-8')
     except:
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
 
-    # Gets the first result in the list
+    # Fetch the results, if none then exits
     results_html = html_soup.find('ul', class_="results")
     if results_html is None:
         return msg
 
     if search_type == "films/":
-        search_html = results_html.find('span', class_="film-title-wrapper")
+        if check_year:
+            search_html = results_html.find_all('li')
+            for index, search in enumerate(search_html):
+                if index > 3:
+                    break
+                film_html = search.find('span', class_="film-title-wrapper")
+                year = film_html.find('small', class_='metadata').find('a').contents[0]
+                test = ""
+                if year == list_search_words[-1].split(':')[-1]:
+                    link = film_html.find('a')['href']
+                    return "https://letterboxd.com{}".format(link)
+        film_html = results_html.find('span', class_='film-title-wrapper')
     else:
         search_html = results_html.find('h2', class_="title-2 prettify")
 
-    a_link = search_html.find('a')
-    link = a_link['href']
+    link = film_html.find('a')['href']
     msg = "https://letterboxd.com{}".format(link)
 
     return msg
