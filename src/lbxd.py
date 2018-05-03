@@ -281,40 +281,39 @@ def get_review(film, user):
 
     for row in rows_html:
         summary_html = row.find('p', class_="activity-summary")
-        try:
-            if summary_html.find('span', class_='context').contents[0]\
-                    .strip().startswith('reviewed'):
-                n_reviews += 1
-                # Shares a link to the activity page if more than 5 reviews
-                if n_reviews > 5:
-                    msg += '[More reviews]({})'.format(link)
-                    break
-                rating = summary_html.find('span', class_="rating")
-                date = summary_html.find('span', class_="nobr")
-                review_link = "https://letterboxd.com"\
-                    + summary_html.contents[3]['href']
-                msg += '[**Review**]({0}) '.format(review_link)
-                msg += rating.contents[0] + '  ' if rating is not None else ''
-                msg += date.contents[0] if date is not None else ''
-                msg += '\n'
+        activity_type = summary_html.find('span', class_='context')
+        if activity_type is None:
+            break
 
-                # Gets a preview of the first review
-                if n_reviews == 1:
-                    review = ""
-                    review_contents = urllib.request.urlopen(review_link)\
-                        .read().decode('utf-8')
-                    review_soup = BeautifulSoup(review_contents, "html.parser")
-                    review_preview = review_soup.find('div',
-                                                      itemprop="reviewBody")
-                    for paragraph in review_preview.find_all('p'):
-                        review += paragraph.get_text() + '\n'
-                    msg += '```' + review[:400]
-                    if len(review) > 400:
-                        msg += '...'
-                    msg += '```'
+        if activity_type.get_text().strip().startswith('reviewed'):
+            n_reviews += 1
+            # Shares a link to the activity page if more than 5 reviews
+            if n_reviews > 5:
+                msg += '[More reviews]({})'.format(link)
+                break
+            rating = summary_html.find('span', class_="rating")
+            date = summary_html.find('span', class_="nobr")
+            review_link = "https://letterboxd.com"\
+                + summary_html.contents[3]['href']
+            msg += '[**Review**]({0}) '.format(review_link)
+            msg += rating.contents[0] + '  ' if rating is not None else ''
+            msg += date.contents[0] if date is not None else ''
+            msg += '\n'
 
-        except:
-            pass
+            # Gets a preview of the first review
+            if n_reviews == 1:
+                review = ""
+                review_contents = urllib.request.urlopen(review_link)\
+                    .read().decode('utf-8')
+                review_soup = BeautifulSoup(review_contents, "html.parser")
+                review_preview = review_soup.find('div',
+                                                  itemprop="reviewBody")
+                for paragraph in review_preview.find_all('p'):
+                    review += paragraph.get_text() + '\n'
+                msg += '```' + review[:400]
+                if len(review) > 400:
+                    msg += '...'
+                msg += '```'
 
     if len(msg) == 0:
         return "{0} does not have a review for {1}.".format(user, film_name)
