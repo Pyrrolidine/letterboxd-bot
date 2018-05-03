@@ -14,7 +14,7 @@ async def on_message(message):
 
     # Redirects PMs to me
     if message.channel.is_private:
-        await client.send_message(porkepik, message.content)
+        await client.send_message(porkepik, str(message.author) + '\n__Message__:\n\n' + message.content)
         return
 
     if not message.content.startswith('!'):
