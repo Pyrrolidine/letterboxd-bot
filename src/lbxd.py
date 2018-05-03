@@ -23,7 +23,7 @@ def search_letterboxd(item, search_type):
             link = "https://letterboxd.com/film/{}".format(path)
             contents = urllib.request.urlopen(link).read().decode('utf-8')
             return link
-        except:
+        except urllib.error.HTTPError:
             pass
 
     try:
@@ -34,7 +34,7 @@ def search_letterboxd(item, search_type):
         contents = urllib.request.urlopen("https://letterboxd.com/search{0}{1}"
                                           .format(search_type, path))\
                                  .read().decode('utf-8')
-    except:
+    except urllib.error.HTTPError:
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
 
@@ -136,7 +136,7 @@ def get_user_info(message):
     try:
         contents = urllib.request.urlopen("https://letterboxd.com/{}"
                                           .format(user)).read().decode('utf-8')
-    except:
+    except urllib.error.HTTPError:
         msg = "Could not find this user."
         return msg
 
@@ -254,7 +254,7 @@ def get_review(film, user):
     # We already checked the film title in search_letterboxd
     try:
         contents = urllib.request.urlopen(link).read().decode('utf-8')
-    except:
+    except urllib.error.HTTPError:
         return "{} doesn't exist.".format(user)
 
     html_soup = BeautifulSoup(contents, "html.parser")
@@ -369,6 +369,6 @@ def check_lbxd():
     msg = "Letterboxd is up."
     try:
         urllib.request.urlopen("https://letterboxd.com")
-    except urllib.error.HTTPError as e:
+    except urllib.error.HTTPError:
         msg = "Letterboxd is down."
     return msg
