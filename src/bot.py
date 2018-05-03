@@ -4,10 +4,17 @@ token_file = open('Token')
 TOKEN = token_file.readline().strip()
 
 client = discord.Client()
+porkepik = discord.User()
+porkepik.id = '81412646271717376'
 
 @client.event
 async def on_message(message):
     if message.author == client.user:
+        return
+
+    # Redirects PMs to me
+    if message.channel.is_private:
+        await client.send_message(porkepik, message.content)
         return
 
     if not message.content.startswith('!'):
