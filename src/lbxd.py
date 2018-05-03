@@ -72,11 +72,10 @@ def get_info_film(link):
 
     contents = urllib.request.urlopen(link).read().decode('utf-8')
     html_soup = BeautifulSoup(contents, "html.parser")
-    info_html = html_soup.find(id="featured-film-header")
+    info_html = html_soup.find('section', id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
     name_film = list_words_link[4]
-    a_html = info_html.find_all('a')
 
     # Gets the image URL
     poster_html = html_soup.find('div', id='poster-col')
@@ -84,8 +83,9 @@ def get_info_film(link):
 
     # Gets the director
     try:
-        msg += "**Director:** " + a_html[1].contents[0].contents[0] + '\n'
-    except:
+        director = info_html.find('a', itemprop='director').find('span')
+        msg += "**Director:** " + director.contents[0] + '\n'
+    except AttributeError:
         pass
 
     # Gets the country
@@ -113,11 +113,13 @@ def get_info_film(link):
     msg += "Watched by " + views_html.contents[0] + " members"
 
     # Gets year
-    year = ""
+    year = ''
     try:
-        year = ' (' + a_html[0].contents[0] + ')'
-    except:
+        year_html = info_html.find('small', itemprop='datePublished').find('a')
+        year = ' (' + year_html.contents[0] + ')'
+    except AttributeError:
         pass
+
     # Creates an embed with title, url and thumbnail
     info_embed = discord.Embed(title=info_h1.contents[0] + year,
                                description=msg,
@@ -151,10 +153,12 @@ def get_user_info(message):
     # Gets metadata
     metadata_html = html_soup.find('ul', class_='person-metadata')
     if metadata_html is not None:
-        country = metadata_html.contents[1].contents[0]
         try:
-            msg += '**' + country + '** -- '
-        except:
+            location = metadata_html.find('li', class_='icon-location')\
+                    .get_text()
+            if isinstance(location, str):
+                msg += '**' + location + '** -- '
+        except AttributeError:
             pass
 
     # Gets amout of films viewed
@@ -210,7 +214,7 @@ def get_crew_info(crew_url):
                 msg += '**' + job_title + '**: '
                 try:
                     msg += job.contents[1].contents[0] + '\n'
-                except:
+                except IndexError:
                     msg += '1\n'
 
     # Goes to the TMDB page
@@ -226,12 +230,12 @@ def get_crew_info(crew_url):
         for info in infos_html:
             try:
                 info_type = info.find('bdi').contents[0]
-                if info_type in ['Birthday', 'Day of Death', 'Place of Birth']\
-                    or info_type == 'Known Credits'\
-                        and not has_multiple_jobs:
-                    msg += "**" + info_type + "**: " + info.contents[1] + '\n'
-            except:
-                pass
+            except AttributeError:
+                continue
+            if info_type in ['Birthday', 'Day of Death', 'Place of Birth']\
+                    and info.contents[1].strip() != '-'\
+               or info_type == 'Known Credits' and not has_multiple_jobs:
+                msg += "**" + info_type + "**: " + info.contents[1] + '\n'
 
     crew_embed = discord.Embed(title=display_name, url=crew_url,
                                description=msg, colour=0xd8b437)
@@ -240,7 +244,7 @@ def get_crew_info(crew_url):
     try:
         img_link = tmdb_html_soup.find('img', class_='poster')['src']
         crew_embed.set_thumbnail(url=img_link)
-    except:
+    except TypeError:
         pass
 
     return crew_embed
@@ -269,7 +273,7 @@ def get_review(film, user):
     try:
         display_name = rows_html[0].find('a', class_='avatar')\
                 .contents[1]['alt']
-    except:
+    except AttributeError:
         pass
 
     n_reviews = 0
