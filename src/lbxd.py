@@ -1,17 +1,23 @@
-import discord, urllib.request
+import discord
+import urllib.request
 from bs4 import BeautifulSoup
+
 
 def search_letterboxd(item, search_type):
     list_search_words = item.split()
     msg = "Could not find anything."
     check_year = False
 
-    if list_search_words[-1].startswith('year:') or list_search_words[-1].startswith('y:') \
-            or list_search_words[-1][0] == '(' and list_search_words[-1][-1] == ')':
+    if list_search_words[-1].startswith('year:') \
+            or list_search_words[-1].startswith('y:') \
+            or list_search_words[-1][0] == '(' \
+            and list_search_words[-1][-1] == ')':
         check_year = True
 
-    # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
-    if not check_year and list_search_words[-1].isdigit() and search_type == "films/":
+    # If searching a film, and the last word is made of digits:
+    # checks whether a film page link exists using name-digits
+    if not check_year and list_search_words[-1].isdigit() \
+            and search_type == "/films/":
         try:
             path = urllib.parse.quote('-'.join(list_search_words).lower())
             link = "https://letterboxd.com/film/{}".format(path)
@@ -25,7 +31,9 @@ def search_letterboxd(item, search_type):
             path = urllib.parse.quote('+'.join(list_search_words[:-1]))
         else:
             path = urllib.parse.quote('+'.join(list_search_words))
-        contents = urllib.request.urlopen("https://letterboxd.com/search/{0}{1}".format(search_type, path)).read().decode('utf-8')
+        contents = urllib.request.urlopen("https://letterboxd.com/search{0}{1}"
+                                          .format(search_type, path))\
+                                 .read().decode('utf-8')
     except:
         return msg
     html_soup = BeautifulSoup(contents, "html.parser")
@@ -35,16 +43,17 @@ def search_letterboxd(item, search_type):
     if results_html is None:
         return msg
 
-    if search_type == "films/":
+    if search_type == "/films/":
         if check_year:
             films_html = results_html.find_all('li')
             for index, search in enumerate(films_html):
                 if index > 4:
                     break
                 film_html = search.find('span', class_="film-title-wrapper")
-                year = film_html.find('small', class_='metadata').find('a').contents[0]
-                test = ""
-                if year == list_search_words[-1].split(':')[-1].strip('(').strip(')'):
+                year = film_html.find('small', class_='metadata')\
+                    .find('a').contents[0]
+                if year == list_search_words[-1].split(':')[-1]\
+                        .strip('(').strip(')'):
                     link = film_html.find('a')['href']
                     return "https://letterboxd.com{}".format(link)
         search_html = results_html.find('span', class_='film-title-wrapper')
@@ -55,6 +64,7 @@ def search_letterboxd(item, search_type):
     msg = "https://letterboxd.com{}".format(link)
 
     return msg
+
 
 def get_info_film(link):
     msg = ""
@@ -109,17 +119,23 @@ def get_info_film(link):
     except:
         pass
     # Creates an embed with title, url and thumbnail
-    info_embed = discord.Embed(title=info_h1.contents[0] + year, description=msg, url="https://letterboxd.com/film/{}".format(name_film.lower()), colour=0xd8b437)
+    info_embed = discord.Embed(title=info_h1.contents[0] + year,
+                               description=msg,
+                               url="https://letterboxd.com/film/{}"
+                               .format(name_film.lower()),
+                               colour=0xd8b437)
     info_embed.set_thumbnail(url=image_url)
 
     return info_embed
+
 
 def get_user_info(message):
     user = message.content.split()[1]
     msg = "This user does not have any favourites."
 
     try:
-        contents = urllib.request.urlopen("https://letterboxd.com/{}".format(user)).read().decode('utf-8')
+        contents = urllib.request.urlopen("https://letterboxd.com/{}"
+                                          .format(user)).read().decode('utf-8')
     except:
         msg = "Could not find this user."
         return msg
@@ -160,10 +176,14 @@ def get_user_info(message):
     img_div_html = html_soup.find('div', class_='profile-avatar')
     img_link = img_div_html.find('img')['src']
 
-    user_embed = discord.Embed(title=display_name, url="https://letterboxd.com/{}".format(user), description=msg, colour=0xd8b437)
+    user_embed = discord.Embed(title=display_name,
+                               url="https://letterboxd.com/{}".format(user),
+                               description=msg,
+                               colour=0xd8b437)
     user_embed.set_thumbnail(url=img_link)
 
     return user_embed
+
 
 def get_crew_info(crew_url):
     msg = ""
@@ -172,10 +192,12 @@ def get_crew_info(crew_url):
 
     # Gets the display name
     name_div_html = html_soup.find('div', class_='contextual-title')
-    display_name = name_div_html.find('h1', class_='title-1 prettify').contents[2]
+    display_name = name_div_html.find('h1',
+                                      class_='title-1 prettify').contents[2]
 
     # Gets film credits, if the person has done at least 2 types of them
-    menu_html = html_soup.find('section', class_='smenu-wrapper smenu-wrapper-left')
+    menu_html = html_soup.find('section',
+                               class_='smenu-wrapper smenu-wrapper-left')
     has_multiple_jobs = False
     if menu_html is not None:
         has_multiple_jobs = True
@@ -204,12 +226,15 @@ def get_crew_info(crew_url):
         for info in infos_html:
             try:
                 info_type = info.find('bdi').contents[0]
-                if info_type in ['Birthday', 'Day of Death', 'Place of Birth'] or info_type == 'Known Credits' and not has_multiple_jobs:
+                if info_type in ['Birthday', 'Day of Death', 'Place of Birth']\
+                    or info_type == 'Known Credits'\
+                        and not has_multiple_jobs:
                     msg += "**" + info_type + "**: " + info.contents[1] + '\n'
             except:
                 pass
 
-    crew_embed = discord.Embed(title=display_name, url=crew_url, description=msg, colour=0xd8b437)
+    crew_embed = discord.Embed(title=display_name, url=crew_url,
+                               description=msg, colour=0xd8b437)
 
     # Gets the picture
     try:
@@ -220,11 +245,13 @@ def get_crew_info(crew_url):
 
     return crew_embed
 
+
 def get_review(film, user):
     msg = ""
     link = "https://letterboxd.com/{0}/film/{1}/activity".format(user, film)
 
-    # Opens the activity page, if it fails, then the user doesn't exist because we already checked the film title in search_letterboxd
+    # Opens the activity page, if it fails, the user doesn't exist
+    # We already checked the film title in search_letterboxd
     try:
         contents = urllib.request.urlopen(link).read().decode('utf-8')
     except:
@@ -240,7 +267,8 @@ def get_review(film, user):
 
     rows_html = activity_html.find_all('section', class_="activity-row -basic")
     try:
-        display_name = rows_html[0].find('a', class_='avatar').contents[1]['alt']
+        display_name = rows_html[0].find('a', class_='avatar')\
+                .contents[1]['alt']
     except:
         pass
 
@@ -250,14 +278,17 @@ def get_review(film, user):
     for row in rows_html:
         summary_html = row.find('p', class_="activity-summary")
         try:
-            if summary_html.find('span', class_='context').contents[0].strip().startswith('reviewed'):
+            if summary_html.find('span', class_='context').contents[0]\
+                    .strip().startswith('reviewed'):
                 n_reviews += 1
+                # Shares a link to the activity page if more than 5 reviews
                 if n_reviews > 5:
                     msg += '[More reviews]({})'.format(link)
                     break
                 rating = summary_html.find('span', class_="rating")
                 date = summary_html.find('span', class_="nobr")
-                review_link = "https://letterboxd.com" + summary_html.contents[3]['href']
+                review_link = "https://letterboxd.com"\
+                    + summary_html.contents[3]['href']
                 msg += '[**Review**]({0}) '.format(review_link)
                 msg += rating.contents[0] + '  ' if rating is not None else ''
                 msg += date.contents[0] if date is not None else ''
@@ -266,9 +297,11 @@ def get_review(film, user):
                 # Gets a preview of the first review
                 if n_reviews == 1:
                     review = ""
-                    review_contents = urllib.request.urlopen(review_link).read().decode('utf-8')
+                    review_contents = urllib.request.urlopen(review_link)\
+                        .read().decode('utf-8')
                     review_soup = BeautifulSoup(review_contents, "html.parser")
-                    review_preview = review_soup.find('div', itemprop="reviewBody")
+                    review_preview = review_soup.find('div',
+                                                      itemprop="reviewBody")
                     for paragraph in review_preview.find_all('p'):
                         review += paragraph.get_text() + '\n'
                     msg += '```' + review[:400]
@@ -289,19 +322,24 @@ def get_review(film, user):
     review_word = 'reviews' if n_reviews > 1 else 'review'
     embed_link = link if n_reviews > 1 else review_link
 
-    review_embed = discord.Embed(title="{0} {1} of {2}".format(display_name, review_word, film_name), url=embed_link, colour=0xd8b437, description=msg)
+    review_embed = discord.Embed(title="{0} {1} of {2}".format(display_name,
+                                 review_word, film_name),
+                                 url=embed_link, colour=0xd8b437,
+                                 description=msg)
     review_embed.set_thumbnail(url=poster_url)
 
-    # Iterates through the review links found, if there are more than 4, shares a link to the activity page and doesn't display anymore links
     return review_embed
 
+
 def limit_history(max_size, server_id):
-    # If there are more than max_size lines in the command history file (unique to each servers), deletes the oldest
+    # If there are more than max_size lines
+    # in the command history file (unique to each servers), deletes the oldest
     with open('history_{}.txt'.format(server_id)) as f:
         lines = f.readlines()
     if len(lines) > max_size:
         with open('history_{}.txt'.format(server_id), 'w') as f:
             f.writelines(lines[1:])
+
 
 def del_last_line(server_id, channel_id):
     msg_id_to_erase = ""
@@ -326,11 +364,11 @@ def del_last_line(server_id, channel_id):
 
     return msg_id_to_erase
 
+
 def check_lbxd():
     msg = "Letterboxd is up."
     try:
-        content = urllib.request.urlopen("https://letterboxd.com")
+        urllib.request.urlopen("https://letterboxd.com")
     except urllib.error.HTTPError as e:
         msg = "Letterboxd is down."
     return msg
-

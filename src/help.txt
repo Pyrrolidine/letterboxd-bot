@@ -1,0 +1,34 @@
+Hello, I'm LetterboxdBot. My owner is Porkepik#2664.
+I'm still experimental and I would appreciate feedback.
+
+---------------
+Commands
+---------------
+
+**!film/!movie/!f <film-name> (<year>)**
+
+Search a film on Letterboxd. The year is optional and can also be specified with y: instead of parentheses.
+__Example__: !film man knew too much y:1934
+Returns the 1934 original Hitchock film, not specifying the year returns the more popular 50's film.
+
+**!director/!d/!actor/!a <name>**
+
+Search a filmmaker or an actor.
+
+**!user/!u <username>**
+
+Display informations and the featured favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.
+
+**!review/!r <username> <film-name> (<year>)**
+
+Display the reviews of a film from a specified user. The year is optional.
+__Example__: !review porkepik floating weeds (1934)
+Returns Porkepik's review of A Story of Floating Weeds (1934)
+
+**!checklb**
+
+Check if letterboxd.com is down.
+
+**!del**
+
+Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission.
