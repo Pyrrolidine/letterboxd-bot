@@ -16,21 +16,23 @@ async def on_message(message):
     msg = ""
     list_cmd_words = message.content.split()
     if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
-        msg += "Hello, I'm {}. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback.\n\n__Commands__:\n\n".format(client.user.display_name)
-        msg += "**!film/!movie/!actor/!director**:  Search the specified item on Letterboxd and returns the first result. You can specify a year for a film search by ending the command with y: or year:.\nExample:\n!film man knew too much y:1934\nReturns the 1934 original Hitchock film, not specifying the year returns the more popular 50's film.\n\n"
-        msg += "**!user**:  Display informations and the featured favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.\n\n"
-        msg += "**!review**: Display the reviews of a film from a specified user. The first word should be the username, then keywords for the film title. An optional comma can be added after the username for readability.\nExample:\n!review porkepik story floating weeds\n!review porkepik, story floating weeds\nBoth return Porkepik's review of A Story of Floating Weeds (1934)\n\n"
-        msg += "**!checklb**: Check letterboxd.com to see if the website is down.\n\n"
-        msg += "**!del**:  Delete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
-    elif message.content.startswith('!user ') or message.content.startswith('!fav '):
+        msg += "Hello, I'm LetterboxdBot. My owner is Porkepik#2664.\nI'm still experimental and I would appreciate feedback."
+        msg += "\n\n---------------\nCommands\n---------------\n\n"
+        msg += "**!film/!movie/!f <film-name> y:<year>**\n\nSearch a film on Letterboxd. The year is optional.\n__Example__: !film man knew too much y:1934\nReturns the 1934 original Hitchock film, not specifying the year returns the more popular 50's film.\n\n"
+        msg += "**!director/!d/!actor/!a <name>**\n\nSearch a filmmaker or an actor.\n\n"
+        msg += "**!user/!u <username>**\n\nDisplay informations and the featured favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.\n\n"
+        msg += "**!review/!r <username> <film-name> y:<year>**\n\nDisplay the reviews of a film from a specified user. The year is optional.\n__Example__: !review porkepik floating weeds y:1934\nReturns Porkepik's review of A Story of Floating Weeds (1934)\n\n"
+        msg += "**!checklb**\n\nCheck letterboxd.com to see if the website is down.\n\n"
+        msg += "**!del**\n\nDelete the last message the bot sent within a limit of the last 30 messages. The bot requires the \"manage messages\" permission."
+    elif message.content.startswith('!user ') or message.content.startswith('!fav ') or message.content.startswith('!u '):
         msg = lbxd.get_user_info(message)
-    elif message.content.startswith('!actor '):
+    elif message.content.startswith('!actor ') or message.content.startswith('!a '):
         actor_url = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]), "actors/")
         msg = lbxd.get_crew_info(actor_url) if actor_url.startswith('https://letterboxd.com') else "Could not find this actor."
-    elif message.content.startswith('!director '):
+    elif message.content.startswith('!director ') or message.content.startswith('!d '):
         director_url = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]), "directors/")
         msg = lbxd.get_crew_info(director_url) if director_url.startswith('https://letterboxd.com') else "Could not find this director."
-    elif message.content.startswith('!review '):
+    elif message.content.startswith('!review ') or message.content.startswith('!r '):
         if len(list_cmd_words) > 2:
             film_link = lbxd.search_letterboxd(' '.join(list_cmd_words[2:]), "films/")
             if film_link.startswith("https://letterboxd.com"):
@@ -43,7 +45,7 @@ async def on_message(message):
             msg = "This command requires at least 2 words, the first for the username, and at least one more for a film title."
     elif message.content == '!checklb':
         msg = lbxd.check_lbxd()
-    elif message.content.startswith('!film ') or message.content.startswith('!movie '):
+    elif message.content.startswith('!film ') or message.content.startswith('!movie ') or message.content.startswith('!f '):
         film_link = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]), "films/")
         msg = lbxd.get_info_film(film_link) if film_link.startswith('https://letterboxd.com') else "Could not find the film."
     elif message.content.startswith('!del'):

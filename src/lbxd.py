@@ -36,8 +36,8 @@ def search_letterboxd(item, search_type):
 
     if search_type == "films/":
         if check_year:
-            search_html = results_html.find_all('li')
-            for index, search in enumerate(search_html):
+            films_html = results_html.find_all('li')
+            for index, search in enumerate(films_html):
                 if index > 3:
                     break
                 film_html = search.find('span', class_="film-title-wrapper")
@@ -46,11 +46,11 @@ def search_letterboxd(item, search_type):
                 if year == list_search_words[-1].split(':')[-1]:
                     link = film_html.find('a')['href']
                     return "https://letterboxd.com{}".format(link)
-        film_html = results_html.find('span', class_='film-title-wrapper')
+        search_html = results_html.find('span', class_='film-title-wrapper')
     else:
         search_html = results_html.find('h2', class_="title-2 prettify")
 
-    link = film_html.find('a')['href']
+    link = search_html.find('a')['href']
     msg = "https://letterboxd.com{}".format(link)
 
     return msg
