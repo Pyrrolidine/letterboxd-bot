@@ -6,7 +6,8 @@ def search_letterboxd(item, search_type):
     msg = "Could not find anything."
     check_year = False
 
-    if list_search_words[-1].startswith('year:') or list_search_words[-1].startswith('y:'):
+    if list_search_words[-1].startswith('year:') or list_search_words[-1].startswith('y:') \
+            or list_search_words[-1][0] == '(' and list_search_words[-1][-1] == ')':
         check_year = True
 
     # If searching a film, and the last word is made of digits, checks whether a film page link exists using the name with a year of release or number
@@ -38,12 +39,12 @@ def search_letterboxd(item, search_type):
         if check_year:
             films_html = results_html.find_all('li')
             for index, search in enumerate(films_html):
-                if index > 3:
+                if index > 4:
                     break
                 film_html = search.find('span', class_="film-title-wrapper")
                 year = film_html.find('small', class_='metadata').find('a').contents[0]
                 test = ""
-                if year == list_search_words[-1].split(':')[-1]:
+                if year == list_search_words[-1].split(':')[-1].strip('(').strip(')'):
                     link = film_html.find('a')['href']
                     return "https://letterboxd.com{}".format(link)
         search_html = results_html.find('span', class_='film-title-wrapper')
