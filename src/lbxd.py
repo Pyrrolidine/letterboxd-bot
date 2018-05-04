@@ -39,7 +39,7 @@ def search_letterboxd(item, search_type):
             return "Could not find the film."
         else:
             print('Error Code:', err.code, 'URL:', err.geturl())
-            return "Letterboxd.com is down"
+            return "There was a problem trying to access Letterboxd.com"
     html_soup = BeautifulSoup(contents, "html.parser")
 
     # Fetch the results, if none then exits
@@ -146,7 +146,7 @@ def get_user_info(message):
             return "Could not find this user."
         else:
             print('Error Code:', err.code, 'URL:', err.geturl())
-            return "Letterboxd.com is down."
+            return "There was a problem trying to access Letterboxd.com"
 
     html_soup = BeautifulSoup(contents, "html.parser")
 
@@ -270,7 +270,7 @@ def get_review(film, user):
             return "{} doesn't exist.".format(user)
         else:
             print('Error Code:', err.code, 'URL:', err.geturl())
-            return "Letterboxd.com is down."
+            return "There was a problem trying to access Letterboxd.com"
 
     html_soup = BeautifulSoup(contents, "html.parser")
     activity_html = html_soup.find('div', class_="activity-table")
