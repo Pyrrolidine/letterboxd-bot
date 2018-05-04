@@ -326,7 +326,7 @@ def get_review(film, user):
         review_soup = BeautifulSoup(review_contents, "html.parser")
         review_preview = review_soup.find('div', itemprop="reviewBody")
         for paragraph in review_preview.find_all('p'):
-            review += paragraph.get_text() + '\n'
+            review += paragraph.get_text('\n') + '\n'
         msg += '```' + review[:400]
         if len(review) > 400:
             msg += '...'
