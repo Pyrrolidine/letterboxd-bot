@@ -2,6 +2,9 @@
 
 This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests such as getting the page of a film, crew person, user or review.
 
+![Screenshot Letterboxd Bot 1](img/lbxdbot1.png)
+![Screenshot Letterboxd Bot 2](img/lbxdbot2.png)
+
 ## Commands
 
 **!helplb**
