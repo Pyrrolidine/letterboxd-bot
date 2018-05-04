@@ -1,5 +1,5 @@
 Hello, I'm LetterboxdBot. My owner is Porkepik#2664.
-I'm still experimental and I would appreciate feedback.
+Don't hesitate to PM me for feedback or bug reports, it will be redirected to the developer.
 
 ---------------
 Commands
