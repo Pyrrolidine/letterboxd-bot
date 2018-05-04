@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 def search_letterboxd(item, search_type):
     list_search_words = item.split()
-    msg = "Could not find anything."
+    msg = ""
     check_year = False
 
     if list_search_words[-1].startswith('year:') \
@@ -34,14 +34,18 @@ def search_letterboxd(item, search_type):
         contents = urllib.request.urlopen("https://letterboxd.com/search{0}{1}"
                                           .format(search_type, path))\
                                  .read().decode('utf-8')
-    except urllib.error.HTTPError:
-        return msg
+    except urllib.error.HTTPError as err:
+        if err.code == 404:
+            return "Could not find the film."
+        else:
+            print('Error Code:', err.code, 'URL:', err.geturl())
+            return "Letterboxd.com is down"
     html_soup = BeautifulSoup(contents, "html.parser")
 
     # Fetch the results, if none then exits
     results_html = html_soup.find('ul', class_="results")
     if results_html is None:
-        return msg
+        return "No results were found with this search."
 
     if search_type == "/films/":
         if check_year:
@@ -133,14 +137,16 @@ def get_info_film(link):
 
 def get_user_info(message):
     user = message.content.split()[1]
-    msg = "This user does not have any favourites."
 
     try:
         contents = urllib.request.urlopen("https://letterboxd.com/{}"
                                           .format(user)).read().decode('utf-8')
-    except urllib.error.HTTPError:
-        msg = "Could not find this user."
-        return msg
+    except urllib.error.HTTPError as err:
+        if err.code == 404:
+            return "Could not find this user."
+        else:
+            print('Error Code:', err.code, 'URL:', err.geturl())
+            return "Letterboxd.com is down."
 
     html_soup = BeautifulSoup(contents, "html.parser")
 
@@ -258,8 +264,13 @@ def get_review(film, user):
     # We already checked the film title in search_letterboxd
     try:
         contents = urllib.request.urlopen(link).read().decode('utf-8')
-    except urllib.error.HTTPError:
-        return "{} doesn't exist.".format(user)
+    except urllib.error.HTTPError as err:
+        print(link)
+        if err.code == 404:
+            return "{} doesn't exist.".format(user)
+        else:
+            print('Error Code:', err.code, 'URL:', err.geturl())
+            return "Letterboxd.com is down."
 
     html_soup = BeautifulSoup(contents, "html.parser")
     activity_html = html_soup.find('div', class_="activity-table")
@@ -307,8 +318,11 @@ def get_review(film, user):
             continue
 
         review = ""
-        review_contents = urllib.request.urlopen(review_link)\
-            .read().decode('utf-8')
+        try:
+            review_contents = urllib.request.urlopen(review_link)\
+                .read().decode('utf-8')
+        except urllib.error.HTTPError:
+            continue
         review_soup = BeautifulSoup(review_contents, "html.parser")
         review_preview = review_soup.find('div', itemprop="reviewBody")
         for paragraph in review_preview.find_all('p'):

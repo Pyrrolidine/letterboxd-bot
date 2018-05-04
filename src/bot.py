@@ -57,16 +57,18 @@ async def on_message(message):
     elif list_cmd_words[0] in ['!actor', '!a']:
         actor_url = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]),
                                            "/actors/")
-        msg = lbxd.get_crew_info(actor_url) \
-            if actor_url.startswith('https://letterboxd.com') \
-            else "Could not find this actor."
+        if actor_url.startswith('https://'):
+            msg = lbxd.get_crew_info(actor_url)
+        else:
+            msg = actor_url
 
     elif list_cmd_words[0] in ['!director', '!d']:
         director_url = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]),
                                               "/directors/")
-        msg = lbxd.get_crew_info(director_url) \
-            if director_url.startswith('https://letterboxd.com') \
-            else "Could not find this director."
+        if director_url.startswith('https://'):
+            msg = lbxd.get_crew_info(director_url)
+        else:
+            msg = director_url
 
     elif list_cmd_words[0] in ['!review', '!r']:
         if len(list_cmd_words) > 2:
@@ -74,12 +76,13 @@ async def on_message(message):
                                                "/films/")
             if film_link.startswith("https://letterboxd.com"):
                 split_film_link = film_link.split('/')
-                film = split_film_link[-1] \
-                    if len(split_film_link[-1]) > 0 \
-                    else split_film_link[-2]
+                if len(split_film_link[-1]) > 0:
+                    film = split_film_link[-1]
+                else:
+                    film = split_film_link[-2]
                 msg = lbxd.get_review(film, list_cmd_words[1].strip(','))
             else:
-                msg = "Could not find the film."
+                msg = film_link
         else:
             msg = "This command requires at least 2 words,"
             msg += " the first for the username, and at least one more"
@@ -88,9 +91,10 @@ async def on_message(message):
     elif list_cmd_words[0] in ['!film', '!movie', '!f']:
         film_link = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]),
                                            "/films/")
-        msg = lbxd.get_info_film(film_link) \
-            if film_link.startswith('https://letterboxd.com') \
-            else "Could not find the film."
+        if film_link.startswith('https://'):
+            msg = lbxd.get_info_film(film_link)
+        else:
+            msg = film_link
 
     # Checks if a message is an embed and isn't empty before sending something
     if isinstance(msg, discord.Embed) or len(msg) > 0:
