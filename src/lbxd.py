@@ -339,7 +339,9 @@ def get_review(film, user):
         for br in review_preview.find_all('br'):
             br.replace_with('\n')
         for paragraph in review_preview.find_all('p'):
-            for text in paragraph.get_text().split('\n'):
+            for index, text in enumerate(paragraph.get_text().split('\n')):
+                if index > 10:
+                    break
                 review += text.strip() + '\n'
             review += '\n'
         msg += '```' + review[:400].strip()
