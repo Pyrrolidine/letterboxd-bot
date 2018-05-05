@@ -228,7 +228,14 @@ def get_crew_info(crew_url):
     # Goes to the TMDB page
     sidebar_html = html_soup.find('aside', class_='sidebar')
     tmdb_url = sidebar_html.find('a', class_='micro-button')['href']
-    contents_tmdb = urllib.request.urlopen(tmdb_url).read().decode('utf-8')
+    try:
+        contents_tmdb = urllib.request.urlopen(tmdb_url).read().decode('utf-8')
+    except urllib.error.HTTPError as err:
+        if err.code == 404:
+            return "This person does not have a TMDb page."
+        else:
+            print('Error Code:', err.code, 'URL:', err.geturl())
+            return "There was a problem trying to access TMDb"
     tmdb_html_soup = BeautifulSoup(contents_tmdb, "html.parser")
 
     # Gets informations
