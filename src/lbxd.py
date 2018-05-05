@@ -8,12 +8,13 @@ def search_letterboxd(item, search_type):
     msg = ""
     check_year = False
 
-    if list_search_words[-1].startswith('year:') \
-            or list_search_words[-1].startswith('y:') \
-            or list_search_words[-1][0] == '(' \
-            and list_search_words[-1][-1] == ')' \
-            and list_search_words[-1][1:-1].isdigit():
-        check_year = True
+    if search_type == '/films/':
+        if list_search_words[-1].startswith('year:') \
+                or list_search_words[-1].startswith('y:') \
+                or list_search_words[-1][0] == '(' \
+                and list_search_words[-1][-1] == ')' \
+                and list_search_words[-1][1:-1].isdigit():
+            check_year = True
 
     # If searching a film, and the last word is made of digits:
     # checks whether a film page link exists using name-digits
@@ -266,7 +267,6 @@ def get_review(film, user):
     try:
         contents = urllib.request.urlopen(link).read().decode('utf-8')
     except urllib.error.HTTPError as err:
-        print(link)
         if err.code == 404:
             return "{} doesn't exist.".format(user)
         else:
@@ -326,8 +326,12 @@ def get_review(film, user):
             continue
         review_soup = BeautifulSoup(review_contents, "html.parser")
         review_preview = review_soup.find('div', itemprop="reviewBody")
+        for br in review_preview.find_all('br'):
+            br.replace_with('\n')
         for paragraph in review_preview.find_all('p'):
-            review += paragraph.get_text('\n') + '\n'
+            for text in paragraph.get_text().split('\n'):
+                review += text.strip() + '\n'
+            review += '\n'
         msg += '```' + review[:400]
         if len(review) > 400:
             msg += '...'
