@@ -342,7 +342,7 @@ def get_review(film, user):
             for text in paragraph.get_text().split('\n'):
                 review += text.strip() + '\n'
             review += '\n'
-        msg += '```' + review[:400]
+        msg += '```' + review[:400].strip()
         if len(review) > 400:
             msg += '...'
         msg += '```'
