@@ -56,8 +56,11 @@ def search_letterboxd(item, search_type):
                 if index > 4:
                     break
                 film_html = search.find('span', class_="film-title-wrapper")
-                year = film_html.find('small', class_='metadata')\
-                    .find('a').contents[0]
+                year_html = film_html.find('small', class_='metadata')
+                if year_html is not None:
+                    year = year_html.find('a').contents[0]
+                else:
+                    continue
                 if year == list_search_words[-1].split(':')[-1]\
                         .strip('(').strip(')'):
                     link = film_html.find('a')['href']
