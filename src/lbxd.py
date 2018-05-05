@@ -11,7 +11,8 @@ def search_letterboxd(item, search_type):
     if list_search_words[-1].startswith('year:') \
             or list_search_words[-1].startswith('y:') \
             or list_search_words[-1][0] == '(' \
-            and list_search_words[-1][-1] == ')':
+            and list_search_words[-1][-1] == ')' \
+            and list_search_words[-1][1:-1].isdigit():
         check_year = True
 
     # If searching a film, and the last word is made of digits:
