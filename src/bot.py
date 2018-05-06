@@ -62,6 +62,10 @@ async def on_message(message):
         else:
             msg = actor_url
 
+    elif list_cmd_words[0] in ['!l', '!list']:
+        msg = lbxd.find_list(list_cmd_words[1].strip(','),
+                             ' '.join(list_cmd_words[2:]))
+
     elif list_cmd_words[0] in ['!director', '!d']:
         director_url = lbxd.search_letterboxd(' '.join(list_cmd_words[1:]),
                                               "/directors/")

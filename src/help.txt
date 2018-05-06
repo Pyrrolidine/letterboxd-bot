@@ -25,6 +25,10 @@ Display the reviews of a film from a specified user. The year is optional.
 __Example__: !review porkepik floating weeds (1934)
 Returns Porkepik's review of A Story of Floating Weeds (1934)
 
+**!list/!l <username> <list-name>**
+
+Display the list by the specified user.
+
 **!checklb**
 
 Check if letterboxd.com is down.

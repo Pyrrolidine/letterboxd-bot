@@ -32,6 +32,10 @@ Returns the review or a list of reviews from the specified user and film. The ye
 Example: !review porkepik floating weeds (1934)  
 Returns Porkepik's review of A Story of Floating Weeds (1934)
 
+**!list/!l \<username> \<list-name>**
+
+Returns an embed of the list by the specified user.
+
 **!checklb**
 
 Checks if Letterboxd.com is down.

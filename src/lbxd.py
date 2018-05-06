@@ -41,7 +41,7 @@ def search_letterboxd(item, search_type):
                      .format(search_type, path))
         page.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        if err.code == 404:
+        if page.status_code == 404:
             return "Could not find the film."
         else:
             print(err)
@@ -153,7 +153,7 @@ def get_user_info(message):
         page = s.get("https://letterboxd.com/{}".format(user))
         page.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        if err.code == 404:
+        if page.status_code == 404:
             return "Could not find this user."
         else:
             print(err)
@@ -245,7 +245,7 @@ def get_crew_info(crew_url):
         page_tmdb = s.get(tmdb_url)
         page_tmdb.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        if err.code == 404:
+        if page_tmdb.status_code == 404:
             return "This person does not have a TMDb page."
         else:
             print(err)
@@ -289,7 +289,7 @@ def get_review(film, user):
         page = s.get(link)
         page.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        if err.code == 404:
+        if page.status_code == 404:
             return "{} doesn't exist.".format(user)
         else:
             print(err)
@@ -342,7 +342,6 @@ def get_review(film, user):
         if n_reviews > 1:
             continue
 
-        review = ""
         try:
             page_review = s.get(review_link)
             page_review.raise_for_status()
@@ -351,18 +350,7 @@ def get_review(film, user):
         review_only = SoupStrainer('div', itemprop="reviewBody")
         review_preview = BeautifulSoup(page_review.text, "lxml",
                                        parse_only=review_only)
-        for br in review_preview.find_all('br'):
-            br.replace_with('\n')
-        for paragraph in review_preview.find_all('p'):
-            for index, text in enumerate(paragraph.get_text().split('\n')):
-                if index > 10:
-                    break
-                review += text.strip() + '\n'
-            review += '\n'
-        msg += '\n```' + review[:400].strip()
-        if len(review) > 400:
-            msg += '...'
-        msg += '```'
+        msg += format_text(review_preview, 400)
 
     if len(msg) == 0:
         return "{0} does not have a review for {1}.".format(user, film_name)
@@ -381,6 +369,114 @@ def get_review(film, user):
     review_embed.set_thumbnail(url=poster_url)
 
     return review_embed
+
+
+def find_list(user, name):
+    msg = ""
+    link = "https://letterboxd.com/{}/lists/".format(user)
+    try:
+        page_test = s.get(link)
+        page_test.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        if page_test.status_code == 404:
+            return "{} does not exist.".format(user)
+        else:
+            print(err)
+            return "There was a problem trying to access Letterboxd.com"
+
+    list_name = ""
+    list_link = ""
+    nb_films = ""
+    i = 1
+    match = False
+
+    while i <= 15:
+        try:
+            page = s.get(link + 'page/{}'.format(i))
+            page.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            return "There was a problem trying to access Letterboxd.com"
+
+        lists_only = SoupStrainer('section', class_='list-set')
+        lists_html = BeautifulSoup(page.text, 'lxml',
+                                   parse_only=lists_only)
+
+        user_lists = lists_html.find_all('div', class_='film-list-summary')
+        if not len(user_lists):
+            break
+
+        for user_list in user_lists:
+            list_name = user_list.find('h2').get_text().strip()
+            list_link = "https://letterboxd.com" + user_list.find('a')['href']
+            nb_films = user_list.find('small').get_text()
+
+            for word in name.lower().split():
+                if word in list_name.lower():
+                    match = True
+                else:
+                    match = False
+                    break
+
+            if match:
+                film_poster_link = user_list.parent\
+                                  .find('li')['data-target-link']
+                i = 20
+                break
+        i += 1
+
+    if i < 20:
+        return "Could not find a list matching those keywords " \
+               "within the first 15 pages."
+
+    try:
+        page = s.get(list_link)
+        page.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+        return "There was a problem trying to access Letterboxd.com"
+
+    only_lst = SoupStrainer('section',
+                            class_='section col-17 col-main overflow clearfix')
+    list_page_html = BeautifulSoup(page.text, 'lxml',
+                                   parse_only=only_lst)
+
+    display_name = list_page_html.find('a', class_='name').contents[0]
+
+    # Gets the description
+    msg += "By **" + display_name.strip() + '**\n' + nb_films + '\n'
+    description = list_page_html.find('div', class_='body-text')
+    msg += format_text(description, 300)
+
+    # Gets the thumbnail
+    poster_link = "https://letterboxd.com" + film_poster_link + 'image-150'
+    poster_page = s.get(poster_link)
+    poster_html = BeautifulSoup(poster_page.text, 'lxml')
+    poster_url = poster_html.find('img')['src']
+
+    list_embed = discord.Embed(title=list_name, url=list_link,
+                               colour=0xd8b437, description=msg)
+    list_embed.set_thumbnail(url=poster_url)
+
+    return list_embed
+
+
+def format_text(html, max_char):
+    temp_text = '```'
+    for br in html.find_all('br'):
+        br.replace_with('\n')
+    for paragraph in html.find_all('p'):
+        for index, line in enumerate(paragraph.get_text().split('\n')):
+            if index > 10:
+                break
+            temp_text += line.strip() + '\n'
+        temp_text += '\n'
+
+    text = '\n' + temp_text[:max_char].strip()
+    if len(temp_text) > max_char:
+        text += '...'
+    text += '```'
+    return text
 
 
 def limit_history(max_size, server_id):
