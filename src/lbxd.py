@@ -449,7 +449,8 @@ def find_list(user, name):
     # Gets the description
     msg += "By **" + display_name.strip() + '**\n' + nb_films + '\n'
     description = list_page_html.find('div', class_='body-text')
-    msg += format_text(description, 300)
+    if description is not None:
+        msg += format_text(description, 300)
 
     # Gets the thumbnail
     poster_link = "https://letterboxd.com" + film_poster_link + 'image-150'
