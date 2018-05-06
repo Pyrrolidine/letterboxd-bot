@@ -48,10 +48,9 @@ def search_letterboxd(item, search_type):
             return "There was a problem trying to access Letterboxd.com"
 
     # Fetch the results, if none then exits
-    results_only = SoupStrainer('ul', class_="results")
-    results_html = BeautifulSoup(page.text, "lxml",
-                                 parse_only=results_only)
-    if not len(results_html):
+    html_soup = BeautifulSoup(page.text, "lxml")
+    results_html = html_soup.find('ul', class_='results')
+    if results_html is None:
         return "No results were found with this search."
 
     if search_type == "/films/":
