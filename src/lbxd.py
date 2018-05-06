@@ -25,7 +25,8 @@ def search_letterboxd(item, search_type):
             and search_type == "/films/":
         try:
             path = urllib.parse.quote('-'.join(list_search_words).lower())
-            page = s.get("https://letterboxd.com/film/{}".format(path))
+            link = "https://letterboxd.com/film/{}".format(path)
+            s.get(link)
             return link
         except requests.exceptions.HTTPError:
             pass

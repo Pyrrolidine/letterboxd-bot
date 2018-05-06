@@ -3,3 +3,5 @@ aiohttp
 websockets
 chardet
 BeautifulSoup4
+requests
+lxml
