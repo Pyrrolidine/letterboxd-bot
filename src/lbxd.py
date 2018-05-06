@@ -112,6 +112,7 @@ def get_info_film(link):
         if detail['href'].startswith("/films/country/"):
             country_str += "{}, ".format(detail.contents[0])
             plural_country += 1
+            break
     if plural_country > 1:
         country_str = country_str.replace('Country', 'Countries')
     if plural_country != 0:
