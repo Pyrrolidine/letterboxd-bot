@@ -1,6 +1,6 @@
 import discord
 import urllib.request
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, SoupStrainer
 
 
 def search_letterboxd(item, search_type):
@@ -42,11 +42,12 @@ def search_letterboxd(item, search_type):
         else:
             print('Error Code:', err.code, 'URL:', err.geturl())
             return "There was a problem trying to access Letterboxd.com"
-    html_soup = BeautifulSoup(contents, "html.parser")
 
     # Fetch the results, if none then exits
-    results_html = html_soup.find('ul', class_="results")
-    if results_html is None:
+    results_only = SoupStrainer('ul', class_="results")
+    results_html = BeautifulSoup(contents, "lxml",
+                                 parse_only=results_only)
+    if not len(results_html):
         return "No results were found with this search."
 
     if search_type == "/films/":
@@ -80,7 +81,9 @@ def get_info_film(link):
     list_words_link = link.split('/')
 
     contents = urllib.request.urlopen(link).read().decode('utf-8')
-    html_soup = BeautifulSoup(contents, "html.parser")
+    contents_only = SoupStrainer('div', id='film-page-wrapper')
+    html_soup = BeautifulSoup(contents, "lxml",
+                              parse_only=contents_only)
     info_html = html_soup.find('section', id="featured-film-header")
     info_h1 = info_html.find(class_="headline-1 js-widont prettify")
 
@@ -153,7 +156,9 @@ def get_user_info(message):
             print('Error Code:', err.code, 'URL:', err.geturl())
             return "There was a problem trying to access Letterboxd.com"
 
-    html_soup = BeautifulSoup(contents, "html.parser")
+    contents_only = SoupStrainer('div', class_='content-wrap')
+    html_soup = BeautifulSoup(contents, "lxml",
+                              parse_only=contents_only)
 
     # Gets the display name
     name_div_html = html_soup.find('div', class_='profile-person-info')
@@ -203,7 +208,9 @@ def get_user_info(message):
 def get_crew_info(crew_url):
     msg = ""
     contents = urllib.request.urlopen(crew_url).read().decode('utf-8')
-    html_soup = BeautifulSoup(contents, "html.parser")
+    contents_only = SoupStrainer('div', class_='content-wrap')
+    html_soup = BeautifulSoup(contents, "lxml",
+                              parse_only=contents_only)
 
     # Gets the display name
     name_div_html = html_soup.find('div', class_='contextual-title')
@@ -239,7 +246,7 @@ def get_crew_info(crew_url):
         else:
             print('Error Code:', err.code, 'URL:', err.geturl())
             return "There was a problem trying to access TMDb"
-    tmdb_html_soup = BeautifulSoup(contents_tmdb, "html.parser")
+    tmdb_html_soup = BeautifulSoup(contents_tmdb, "lxml")
 
     # Gets informations
     facts_html = tmdb_html_soup.find('section', class_='facts left_column')
@@ -283,7 +290,9 @@ def get_review(film, user):
             print('Error Code:', err.code, 'URL:', err.geturl())
             return "There was a problem trying to access Letterboxd.com"
 
-    html_soup = BeautifulSoup(contents, "html.parser")
+    contents_only = SoupStrainer('div', class_="content-wrap")
+    html_soup = BeautifulSoup(contents, "lxml",
+                                  parse_only=contents_only)
     activity_html = html_soup.find('div', class_="activity-table")
     name_html = html_soup.find('h1', class_='headline-2')
     film_name = name_html.contents[3].contents[0]
@@ -334,8 +343,9 @@ def get_review(film, user):
                 .read().decode('utf-8')
         except urllib.error.HTTPError:
             continue
-        review_soup = BeautifulSoup(review_contents, "html.parser")
-        review_preview = review_soup.find('div', itemprop="reviewBody")
+        review_only = SoupStrainer('div', itemprop="reviewBody")
+        review_preview = BeautifulSoup(review_contents, "lxml",
+                                       parse_only=review_only)
         for br in review_preview.find_all('br'):
             br.replace_with('\n')
         for paragraph in review_preview.find_all('p'):
