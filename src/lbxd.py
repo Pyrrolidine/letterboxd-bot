@@ -37,7 +37,7 @@ def search_letterboxd(item, search_type):
             path = urllib.parse.quote('+'.join(list_search_words[:-1]))
         else:
             path = urllib.parse.quote('+'.join(list_search_words))
-        page = s.get("https://letterboxd.com/search{0}{1}"\
+        page = s.get("https://letterboxd.com/search{0}{1}"
                      .format(search_type, path))
         page.raise_for_status()
     except requests.exceptions.HTTPError as err:
@@ -297,7 +297,7 @@ def get_review(film, user):
 
     contents_only = SoupStrainer('div', class_="content-wrap")
     html_soup = BeautifulSoup(page.text, "lxml",
-                                  parse_only=contents_only)
+                              parse_only=contents_only)
     activity_html = html_soup.find('div', class_="activity-table")
     name_html = html_soup.find('h1', class_='headline-2')
     film_name = name_html.contents[3].contents[0]
