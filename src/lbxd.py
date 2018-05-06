@@ -192,8 +192,11 @@ def get_user_info(message):
     if len(a_html) > 0:
         msg += '**Favourite Films**:\n'
     for fav in a_html:
-        msg += '[' + fav['title'] + ']'
-        msg += "(https://letterboxd.com{})".format(fav['href'][:-1]) + '\n'
+        try:
+            msg += '[' + fav['title'] + ']'
+            msg += "(https://letterboxd.com{})".format(fav['href'][:-1]) + '\n'
+        except KeyError:
+            msg = "**" + nbfilms + " films**\n"
 
     # Gets the avatar
     img_div_html = html_soup.find('div', class_='profile-avatar')
