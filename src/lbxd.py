@@ -26,7 +26,8 @@ def search_letterboxd(item, search_type):
         try:
             path = urllib.parse.quote('-'.join(list_search_words).lower())
             link = "https://letterboxd.com/film/{}".format(path)
-            s.get(link)
+            page = s.get(link)
+            page.raise_for_status()
             return link
         except requests.exceptions.HTTPError:
             pass
@@ -38,6 +39,7 @@ def search_letterboxd(item, search_type):
             path = urllib.parse.quote('+'.join(list_search_words))
         page = s.get("https://letterboxd.com/search{0}{1}"\
                      .format(search_type, path))
+        page.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.code == 404:
             return "Could not find the film."
@@ -150,6 +152,7 @@ def get_user_info(message):
 
     try:
         page = s.get("https://letterboxd.com/{}".format(user))
+        page.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.code == 404:
             return "Could not find this user."
@@ -241,6 +244,7 @@ def get_crew_info(crew_url):
     tmdb_url = sidebar_html.find('a', class_='micro-button')['href']
     try:
         page_tmdb = s.get(tmdb_url)
+        page_tmdb.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.code == 404:
             return "This person does not have a TMDb page."
@@ -284,6 +288,7 @@ def get_review(film, user):
     # We already checked the film title in search_letterboxd
     try:
         page = s.get(link)
+        page.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if err.code == 404:
             return "{} doesn't exist.".format(user)
@@ -341,6 +346,7 @@ def get_review(film, user):
         review = ""
         try:
             page_review = s.get(review_link)
+            page_review.raise_for_status()
         except requests.exceptions.HTTPError:
             continue
         review_only = SoupStrainer('div', itemprop="reviewBody")
@@ -415,7 +421,8 @@ def del_last_line(server_id, channel_id):
 def check_lbxd():
     msg = "Letterboxd is up."
     try:
-        s.get("https://letterboxd.com")
+        page = s.get("https://letterboxd.com")
+        page.raise_for_status()
     except requests.exceptions.HTTPError:
         msg = "Letterboxd is down."
     return msg
