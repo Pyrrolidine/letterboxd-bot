@@ -228,10 +228,9 @@ def get_crew_info(crew_url):
             job_title = job.contents[0].strip()
             if job_title in ['Director', 'Writer', 'Actor', 'Producer']:
                 msg += '**' + job_title + '**: '
-                try:
-                    msg += job.contents[1].contents[0] + '\n'
-                except IndexError:
-                    msg += '1\n'
+                nb_credits = job.find('small')
+                msg += '1' if nb_credits is None else nb_credits.get_text()
+                msg += '\n'
 
     # Goes to the TMDB page
     sidebar_html = html_soup.find('aside', class_='sidebar')
@@ -265,11 +264,9 @@ def get_crew_info(crew_url):
                                description=msg, colour=0xd8b437)
 
     # Gets the picture
-    try:
-        img_link = tmdb_html_soup.find('img', class_='poster')['src']
-        crew_embed.set_thumbnail(url=img_link)
-    except TypeError:
-        pass
+    img_html = tmdb_html_soup.find('img', class_='poster')
+    if img_html is not None:
+        crew_embed.set_thumbnail(url=img_link['src'])
 
     return crew_embed
 
@@ -337,7 +334,7 @@ def get_review(film, user):
             page_review.raise_for_status()
         except requests.exceptions.HTTPError:
             continue
-        review_only = SoupStrainer('div', class_='review body-text'\
+        review_only = SoupStrainer('div', class_='review body-text'
                                                  ' -prose -hero -loose')
         review_preview = BeautifulSoup(page_review.text, "lxml",
                                        parse_only=review_only)
