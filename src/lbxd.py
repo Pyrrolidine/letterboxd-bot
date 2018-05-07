@@ -351,10 +351,16 @@ def get_review(film, user):
             page_review.raise_for_status()
         except requests.exceptions.HTTPError:
             continue
-        review_only = SoupStrainer('div', itemprop="reviewBody")
+        review_only = SoupStrainer('div', class_='review body-text'\
+                                                 ' -prose -hero -loose')
         review_preview = BeautifulSoup(page_review.text, "lxml",
                                        parse_only=review_only)
-        msg += format_text(review_preview, 400)
+        if review_preview.find('div', class_='contains-spoilers') is not None:
+            spoiler_warning = "This review may contain spoilers."
+            msg += '\n```' + spoiler_warning + '```'
+        else:
+            review_text = review_preview.find('div', itemprop='reviewBody')
+            msg += format_text(review_text, 400)
 
     if len(msg) == 0:
         return "{0} does not have a review for {1}.".format(user, film_name)
