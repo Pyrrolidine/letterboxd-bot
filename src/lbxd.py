@@ -266,7 +266,7 @@ def get_crew_info(crew_url):
     # Gets the picture
     img_html = tmdb_html_soup.find('img', class_='poster')
     if img_html is not None:
-        crew_embed.set_thumbnail(url=img_link['src'])
+        crew_embed.set_thumbnail(url=img_html['src'])
 
     return crew_embed
 
