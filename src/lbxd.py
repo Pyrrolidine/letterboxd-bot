@@ -19,19 +19,6 @@ def search_letterboxd(item, search_type):
                 and list_search_words[-1][1:-1].isdigit():
             check_year = True
 
-    # If searching a film, and the last word is made of digits:
-    # checks whether a film page link exists using name-digits
-    if not check_year and list_search_words[-1].isdigit() \
-            and search_type == "/films/":
-        try:
-            path = urllib.parse.quote('-'.join(list_search_words).lower())
-            link = "https://letterboxd.com/film/{}".format(path)
-            page = s.get(link)
-            page.raise_for_status()
-            return link
-        except requests.exceptions.HTTPError:
-            pass
-
     try:
         if check_year:
             path = urllib.parse.quote('+'.join(list_search_words[:-1]))
