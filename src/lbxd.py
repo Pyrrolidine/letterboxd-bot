@@ -97,10 +97,9 @@ def get_info_film(link):
     image_url = poster_html.find('img', class_='image')['src']
 
     # Gets the director
-    director_html = info_html.find('a', itemprop='director')
-    if director_html is not None:
-        director = director_html.find('span')
-        msg += "**Director:** " + director.contents[0] + '\n'
+    dir_html = info_html.find('a', itemprop='director')
+    if dir_html is not None:
+        msg += "**Director:** " + dir_html.find('span').contents[0] + '\n'
 
     # Gets the country
     div_html = html_soup.find('div', id='tab-details')
@@ -170,13 +169,11 @@ def get_user_info(message):
     # Gets metadata
     metadata_html = html_soup.find('ul', class_='person-metadata')
     if metadata_html is not None:
-        try:
-            location = metadata_html.find('li', class_='icon-location')\
-                    .get_text()
+        location_html = metadata_html.find('li', class_='icon-location')
+        if location_html is not None:
+            location = location_html.get_text()
             if isinstance(location, str):
                 msg += '**' + location + '** -- '
-        except AttributeError:
-            pass
 
     # Gets amout of films viewed
     nbfilms_html = html_soup.find('ul', class_='stats')
@@ -187,14 +184,11 @@ def get_user_info(message):
     fav_html = html_soup.find(id="favourites")
     a_html = fav_html.find_all('a')
 
-    if len(a_html) > 0:
+    if a_html[0].get('title') is not None:
         msg += '**Favourite Films**:\n'
-    for fav in a_html:
-        try:
+        for fav in a_html:
             msg += '[' + fav['title'] + ']'
             msg += "(https://letterboxd.com{})".format(fav['href'][:-1]) + '\n'
-        except KeyError:
-            msg = "**" + nbfilms + " films**\n"
 
     # Gets the avatar
     img_div_html = html_soup.find('div', class_='profile-avatar')
@@ -258,10 +252,10 @@ def get_crew_info(crew_url):
     if facts_html is not None:
         infos_html = facts_html.find_all('p')
         for info in infos_html:
-            try:
-                info_type = info.find('bdi').contents[0]
-            except AttributeError:
+            info_type_html = info.find('bdi')
+            if info_type_html is None:
                 continue
+            info_type = info_type_html.get_text()
             if info_type in ['Birthday', 'Day of Death', 'Place of Birth']\
                     and info.contents[1].strip() != '-'\
                or info_type == 'Known Credits' and not has_multiple_jobs:
@@ -307,11 +301,6 @@ def get_review(film, user):
         return "{0} has not seen {1}.".format(user, film_name)
 
     rows_html = activity_html.find_all('section', class_="activity-row -basic")
-
-    # Gets the display name, if it exists
-    display_name_html = rows_html[0].find('a', class_='avatar')
-    if display_name_html is not None:
-        display_name = display_name_html.contents[1]['alt']
 
     n_reviews = 0
     review_link = ""
@@ -361,6 +350,9 @@ def get_review(film, user):
 
     if len(msg) == 0:
         return "{0} does not have a review for {1}.".format(user, film_name)
+
+    # Gets the display name, if it exists
+    display_name = rows_html[0].find('a', class_='avatar').contents[1]['alt']
 
     # Gets the film poster
     poster_html = html_soup.find('section', class_='poster-list')
