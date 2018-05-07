@@ -97,11 +97,10 @@ def get_info_film(link):
     image_url = poster_html.find('img', class_='image')['src']
 
     # Gets the director
-    try:
-        director = info_html.find('a', itemprop='director').find('span')
+    director_html = info_html.find('a', itemprop='director')
+    if director_html is not None:
+        director = director_html.find('span')
         msg += "**Director:** " + director.contents[0] + '\n'
-    except AttributeError:
-        pass
 
     # Gets the country
     div_html = html_soup.find('div', id='tab-details')
@@ -130,11 +129,9 @@ def get_info_film(link):
 
     # Gets year
     year = ''
-    try:
-        year_html = info_html.find('small', itemprop='datePublished').find('a')
-        year = ' (' + year_html.contents[0] + ')'
-    except AttributeError:
-        pass
+    year_html = info_html.find('small', itemprop='datePublished')
+    if year_html is not None:
+        year = ' (' + year_html.find('a').contents[0] + ')'
 
     # Creates an embed with title, url and thumbnail
     info_embed = discord.Embed(title=info_h1.contents[0] + year,
@@ -310,11 +307,11 @@ def get_review(film, user):
         return "{0} has not seen {1}.".format(user, film_name)
 
     rows_html = activity_html.find_all('section', class_="activity-row -basic")
-    try:
-        display_name = rows_html[0].find('a', class_='avatar')\
-                .contents[1]['alt']
-    except AttributeError:
-        pass
+
+    # Gets the display name, if it exists
+    display_name_html = rows_html[0].find('a', class_='avatar')
+    if display_name_html is not None:
+        display_name = display_name_html.contents[1]['alt']
 
     n_reviews = 0
     review_link = ""
