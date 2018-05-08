@@ -374,7 +374,7 @@ def find_list(user, name):
     i = 1
     match = False
 
-    while i <= 15:
+    while i <= 10:
         try:
             page = s.get(link + 'page/{}'.format(i))
             page.raise_for_status()
@@ -411,7 +411,7 @@ def find_list(user, name):
 
     if i < 20:
         return "Could not find a list matching those keywords " \
-               "within the first 15 pages."
+               "within the first 10 pages."
 
     try:
         page = s.get(list_link)
