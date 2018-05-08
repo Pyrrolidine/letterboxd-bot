@@ -10,8 +10,6 @@ def search_letterboxd(item, search_type):
     list_search_words = item.split()
     msg = ""
     check_year = False
-    user_year = list_search_words[-1].split(':')[-1]\
-                                     .strip('(').strip(')')
 
     if search_type == '/films/':
         if list_search_words[-1].startswith('year:') \
@@ -19,6 +17,8 @@ def search_letterboxd(item, search_type):
                 or list_search_words[-1][0] == '(' \
                 and list_search_words[-1][-1] == ')' \
                 and list_search_words[-1][1:-1].isdigit():
+            user_year = list_search_words[-1].split(':')[-1]\
+                                             .strip('(').strip(')')
             check_year = True
 
     try:
