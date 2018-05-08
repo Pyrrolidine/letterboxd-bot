@@ -45,9 +45,7 @@ def search_letterboxd(item, search_type):
     if search_type == "/films/":
         if check_year:
             films_html = results_html.find_all('li')
-            for index, search in enumerate(films_html):
-                if index > 19:
-                    break
+            for search in films_html:
                 film_html = search.find('span', class_="film-title-wrapper")
                 year_html = film_html.find('small', class_='metadata')
                 if year_html is not None:
