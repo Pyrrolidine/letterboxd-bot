@@ -42,7 +42,7 @@ async def on_message(message):
             if log_message.author == client.user and not deleted_message:
                 deleted_message = True
                 await client.delete_message(log_message)
-                if len(command_to_erase) == 0:
+                if not len(command_to_erase):
                     break
             if log_message.id == command_to_erase:
                 await client.delete_message(log_message)

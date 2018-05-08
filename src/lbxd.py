@@ -491,9 +491,7 @@ def del_last_line(server_id, channel_id):
                     break
             f.writelines(lines)
     except FileNotFoundError:
-        # Creates the file if it doesn't exist already
-        with open('history_{}.txt'.format(server_id), 'w') as f:
-            pass
+        open('history_{}.txt'.format(server_id), 'w')
 
     return msg_id_to_erase
 
