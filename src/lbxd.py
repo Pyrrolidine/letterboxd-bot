@@ -10,6 +10,8 @@ def search_letterboxd(item, search_type):
     list_search_words = item.split()
     msg = ""
     check_year = False
+    user_year = list_search_words[-1].split(':')[-1]\
+                                     .strip('(').strip(')')
 
     if search_type == '/films/':
         if list_search_words[-1].startswith('year:') \
@@ -44,7 +46,7 @@ def search_letterboxd(item, search_type):
         if check_year:
             films_html = results_html.find_all('li')
             for index, search in enumerate(films_html):
-                if index > 4:
+                if index > 19:
                     break
                 film_html = search.find('span', class_="film-title-wrapper")
                 year_html = film_html.find('small', class_='metadata')
@@ -52,10 +54,10 @@ def search_letterboxd(item, search_type):
                     year = year_html.find('a').contents[0]
                 else:
                     continue
-                if year == list_search_words[-1].split(':')[-1]\
-                        .strip('(').strip(')'):
+                if year == user_year:
                     link = film_html.find('a')['href']
                     return "https://letterboxd.com{}".format(link)
+            return "There is no result matching the year {}.".format(user_year)
         search_html = results_html.find('span', class_='film-title-wrapper')
     else:
         search_html = results_html.find('h2', class_="title-2 prettify")
@@ -498,10 +500,9 @@ def del_last_line(server_id, channel_id):
 
 
 def check_lbxd():
-    msg = "Letterboxd is up."
     try:
         page = s.get("https://letterboxd.com")
         page.raise_for_status()
+        return "Letterboxd is up."
     except requests.exceptions.HTTPError:
-        msg = "Letterboxd is down."
-    return msg
+        return "Letterboxd is down."
