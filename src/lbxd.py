@@ -55,7 +55,8 @@ def search_letterboxd(item, search_type):
                 if year == user_year:
                     link = film_html.find('a')['href']
                     return "https://letterboxd.com{}".format(link)
-            return "There is no result matching the year {}.".format(user_year)
+            return "There is no result matching the year "\
+                   "{} within the first page.".format(user_year)
         search_html = results_html.find('span', class_='film-title-wrapper')
     else:
         search_html = results_html.find('h2', class_="title-2 prettify")
