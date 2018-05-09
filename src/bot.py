@@ -26,7 +26,7 @@ async def on_message(message):
     msg = ""
     list_cmd_words = message.content.split()
 
-    if message.content in ['!helplb', '!helpletterboxd', '!helplbxd']:
+    if message.content == '!helplb':
         help_file = open('help.txt')
         msg = ''.join(help_file.readlines())
 
@@ -51,7 +51,7 @@ async def on_message(message):
     elif len(list_cmd_words) < 2:
         return
 
-    elif list_cmd_words[0] in ['!user', '!fav', '!u']:
+    elif list_cmd_words[0] in ['!user', '!u']:
         msg = lbxd.get_user_info(message)
 
     elif list_cmd_words[0] in ['!actor', '!a']:
@@ -62,7 +62,7 @@ async def on_message(message):
         else:
             msg = actor_url
 
-    elif list_cmd_words[0] in ['!l', '!list']:
+    elif list_cmd_words[0] in ['!list', '!l']:
         if len(list_cmd_words) > 2:
             msg = lbxd.find_list(list_cmd_words[1].strip(','),
                                  ' '.join(list_cmd_words[2:]))
