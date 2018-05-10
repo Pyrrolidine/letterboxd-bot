@@ -91,18 +91,19 @@ def get_info_film(link):
 
     # Gets the country
     div_html = html_soup.find('div', id='tab-details')
-    details_html = div_html.find_all('a')
-    country_str = "**Country:** "
-    plural_country = 0
-    for detail in details_html:
-        if detail['href'].startswith("/films/country/"):
-            country_str += "{}, ".format(detail.contents[0])
-            plural_country += 1
-            break
-    if plural_country > 1:
-        country_str = country_str.replace('Country', 'Countries')
-    if plural_country != 0:
-        msg += country_str[:-2] + '\n'
+    if div_html is not None:
+        details_html = div_html.find_all('a')
+        country_str = "**Country:** "
+        plural_country = 0
+        for detail in details_html:
+            if detail['href'].startswith("/films/country/"):
+                country_str += "{}, ".format(detail.contents[0])
+                plural_country += 1
+                break
+        if plural_country > 1:
+            country_str = country_str.replace('Country', 'Countries')
+        if plural_country != 0:
+            msg += country_str[:-2] + '\n'
 
     # Gets the duration
     p_html = html_soup.find(class_="text-link text-footer")
