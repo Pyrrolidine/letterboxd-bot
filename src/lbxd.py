@@ -8,7 +8,6 @@ s = requests.Session()
 
 def search_letterboxd(item, search_type):
     list_search_words = item.split()
-    msg = ""
     check_year = False
 
     if search_type == '/films/':
@@ -20,12 +19,10 @@ def search_letterboxd(item, search_type):
             user_year = list_search_words[-1].split(':')[-1]\
                                              .strip('(').strip(')')
             check_year = True
+            list_search_words = list_search_words[:-1]
 
     try:
-        if check_year:
-            path = urllib.parse.quote('+'.join(list_search_words[:-1]))
-        else:
-            path = urllib.parse.quote('+'.join(list_search_words))
+        path = urllib.parse.quote('+'.join(list_search_words))
         page = s.get("https://letterboxd.com/search{0}{1}"
                      .format(search_type, path))
         page.raise_for_status()
@@ -62,9 +59,7 @@ def search_letterboxd(item, search_type):
         search_html = results_html.find('h2', class_="title-2 prettify")
 
     link = search_html.find('a')['href']
-    msg = "https://letterboxd.com{}".format(link)
-
-    return msg
+    return "https://letterboxd.com{}".format(link)
 
 
 def get_info_film(link):

@@ -1,5 +1,5 @@
-Hello, I'm LetterboxdBot. My owner is Porkepik#2664.
-Don't hesitate to PM the bot to share feedback or bug reports, it will be redirected to the developer.
+Hello, I'm LetterboxdBot. My developer is Porkepik#2664.
+Don't hesitate to PM the bot to share feedback or bug reports.
 
 **!film/!movie/!f <film-name> (<year>)**
 
@@ -31,4 +31,4 @@ Checks if letterboxd.com is down.
 
 **!del**
 
-Deletes the last message the bot sent within a limit of the last 30 messages. The command requires the \"manage messages\" permission.
+Deletes the last message the bot sent within a limit of the last 30 messages. The command expects the bot to have the \"manage messages\" permission.
