@@ -10,24 +10,29 @@ bot = commands.Bot(command_prefix='!', case_insensitive=True,
 bot.remove_command('help')
 
 
+async def send_msg(ctx, msg):
+    message = ctx.message
+    if isinstance(msg, discord.Embed):
+        await ctx.send(embed=msg)
+    else:
+        await ctx.send(msg)
+    if not isinstance(message.channel, discord.DMChannel):
+        with open('history_{}.txt'.format(message.guild.id), 'a') as f:
+            f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
+        lbxd.limit_history(30, str(message.guild.id))
+
+
 @bot.command()
 async def helplb(ctx):
     help_file = open('help.txt')
     msg = ''.join(help_file.readlines())
-    await ctx.send(msg)
+    await send_msg(ctx, msg)
 
 
 @bot.command()
 async def checklb(ctx):
     msg = lbxd.check_lbxd()
-    await ctx.send(msg)
-
-
-async def send_msg(ctx, msg):
-    if isinstance(msg, discord.Embed):
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
+    await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['u'])
@@ -96,8 +101,8 @@ async def review(ctx, user, *args):
 async def delete(ctx):
     message = ctx.message
     await message.delete()
-    command_to_erase = lbxd.del_last_line(message.guild.id,
-                                          message.channel.id)
+    command_to_erase = lbxd.del_last_line(str(message.guild.id),
+                                          str(message.channel.id))
     deleted_message = False
     async for log_message in ctx.channel.history(limit=30):
         if log_message.author == bot.user and not deleted_message:
@@ -131,10 +136,6 @@ async def on_message(message):
 
     if message.content.startswith('!'):
         await bot.process_commands(message)
-        if not isinstance(message.channel, discord.DMChannel):
-            with open('history_{}.txt'.format(message.guild.id), 'a') as f:
-                f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
-            lbxd.limit_history(30, message.guild.id)
     else:
         # Redirects PMs to me
         if isinstance(message.channel, discord.DMChannel):

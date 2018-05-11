@@ -472,17 +472,18 @@ def del_last_line(server_id, channel_id):
     try:
         with open('history_{}.txt'.format(server_id)) as f:
             lines = f.readlines()
-            if len(lines) == 0:
+            if not len(lines):
                 return ""
 
         with open('history_{}.txt'.format(server_id), 'a') as f:
             f.seek(0)
             f.truncate()
             for index, line in enumerate(lines[::-1]):
-                if line.split(' ')[0] == str(channel_id):
+                if line.split()[0] == channel_id:
                     msg_id_to_erase = lines.pop(-1-index).split()[1]
+                    if len(lines):
+                        f.writelines(lines)
                     break
-            f.writelines(lines)
     except FileNotFoundError:
         open('history_{}.txt'.format(server_id), 'w')
 
