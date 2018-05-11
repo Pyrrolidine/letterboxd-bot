@@ -94,15 +94,14 @@ def get_info_film(link):
     if div_html is not None:
         details_html = div_html.find_all('a')
         country_str = "**Country:** "
-        plural_country = 0
+        nb_countries = 0
         for detail in details_html:
             if detail['href'].startswith("/films/country/"):
                 country_str += "{}, ".format(detail.contents[0])
-                plural_country += 1
-                break
-        if plural_country > 1:
+                nb_countries += 1
+        if nb_countries > 1:
             country_str = country_str.replace('Country', 'Countries')
-        if plural_country != 0:
+        if nb_countries:
             msg += country_str[:-2] + '\n'
 
     # Gets the duration
