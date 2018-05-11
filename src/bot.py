@@ -23,13 +23,17 @@ async def checklb(ctx):
     await ctx.send(msg)
 
 
-@bot.command(aliases=['u'])
-async def user(ctx, arg):
-    msg = lbxd.get_user_info(arg)
+async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
+
+
+@bot.command(aliases=['u'])
+async def user(ctx, arg):
+    msg = lbxd.get_user_info(arg)
+    await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['a'])
@@ -37,10 +41,7 @@ async def actor(ctx, *, arg):
     msg = lbxd.search_letterboxd(arg, "/actors/")
     if msg.startswith('https://'):
         msg = lbxd.get_crew_info(msg)
-    if isinstance(msg, discord.Embed):
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
+    await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['d'])
@@ -48,10 +49,7 @@ async def director(ctx, *, arg):
     msg = lbxd.search_letterboxd(arg, "/directors/")
     if msg.startswith('https://'):
         msg = lbxd.get_crew_info(msg)
-    if isinstance(msg, discord.Embed):
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
+    await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['movie', 'f'])
@@ -59,48 +57,38 @@ async def film(ctx, *, arg):
     msg = lbxd.search_letterboxd(arg, "/films/")
     if msg.startswith('https://'):
         msg = lbxd.get_info_film(msg)
-    if isinstance(msg, discord.Embed):
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
+    await send_msg(ctx, msg)
+
+
+async def check_if_two_args(ctx):
+    msg = ctx.message.content.split()
+    if len(msg) < 3:
+        await ctx.send('This command requires at least 2 parameters.')
+    return len(msg) > 2
 
 
 @bot.command(aliases=['l'])
+@commands.check(check_if_two_args)
 async def list(ctx, user, *args):
-    if len(args):
-        msg = lbxd.find_list(user.strip(','), ' '.join(str(i) for i in args))
-    else:
-        msg = "This command requires at least 2 words,"
-        msg += " the first for the username, and at least one more"
-        msg += " for a list title."
-    if isinstance(msg, discord.Embed):
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
+    msg = lbxd.find_list(user.strip(','), ' '.join(str(i) for i in args))
+    await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['r'])
+@commands.check(check_if_two_args)
 async def review(ctx, user, *args):
-    if len(args):
-        film_link = lbxd.search_letterboxd(' '.join(str(i) for i in args),
-                                           "/films/")
-        if film_link.startswith("https://letterboxd.com"):
-            split_film_link = film_link.split('/')
-            if len(split_film_link[-1]) > 0:
-                film = split_film_link[-1]
-            else:
-                film = split_film_link[-2]
-            msg = lbxd.get_review(film, user.strip(','))
+    film_link = lbxd.search_letterboxd(' '.join(str(i) for i in args),
+                                       "/films/")
+    if film_link.startswith("https://letterboxd.com"):
+        split_film_link = film_link.split('/')
+        if len(split_film_link[-1]) > 0:
+            film = split_film_link[-1]
         else:
-            msg = film_link
+            film = split_film_link[-2]
+        msg = lbxd.get_review(film, user.strip(','))
     else:
-        msg = "This command requires at least 2 words,"
-        msg += " the first for the username, and at least one more"
-        msg += " for a film title."
-    if isinstance(msg, discord.Embed):
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
+        msg = film_link
+    await send_msg(ctx, msg)
 
 
 @bot.command(name='del')
@@ -129,7 +117,8 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send('{} is needed to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
-    elif isinstance(error, commands.CommandNotFound):
+    elif isinstance(error, commands.CommandNotFound)\
+            or isinstance(error, commands.CheckFailure):
         pass
     else:
         raise error
@@ -152,17 +141,6 @@ async def on_message(message):
             porkepik = await bot.get_user_info(81412646271717376)
             await porkepik.send('`' + str(message.author)
                                 + '`\n\n' + message.content)
-
-
-@bot.event
-async def on_message_edit(before, after):
-    if after.author == bot.user:
-        return
-
-    if isinstance(after.channel, discord.DMChannel):
-        porkepik = await bot.get_user_info(81412646271717376)
-        await porkepik.send('**Edit**:\n`' + str(after.author)
-                            + '`\n\n' + after.content)
 
 
 @bot.event
