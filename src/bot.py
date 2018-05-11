@@ -121,7 +121,6 @@ async def on_message_edit(before, after):
     if after.channel.is_private:
         await client.send_message(porkepik, '**Edit**:\n`' + str(after.author)
                                   + '`\n\n' + after.content)
-        return
 
 
 @client.event
