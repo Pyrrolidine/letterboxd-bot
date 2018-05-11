@@ -126,9 +126,7 @@ def get_info_film(link):
     return info_embed
 
 
-def get_user_info(message):
-    user = message.content.split()[1]
-
+def get_user_info(user):
     try:
         page = s.get("https://letterboxd.com/{}".format(user))
         page.raise_for_status()
