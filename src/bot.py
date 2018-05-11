@@ -7,6 +7,7 @@ TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
                    activity=discord.Game('Say !helplb'))
+bot.remove_command('help')
 
 
 @bot.command()
@@ -33,11 +34,9 @@ async def user(ctx, arg):
 
 @bot.command(aliases=['a'])
 async def actor(ctx, *, arg):
-    actor_url = lbxd.search_letterboxd(arg, "/actors/")
-    if actor_url.startswith('https://'):
-        msg = lbxd.get_crew_info(actor_url)
-    else:
-        msg = actor_url
+    msg = lbxd.search_letterboxd(arg, "/actors/")
+    if msg.startswith('https://'):
+        msg = lbxd.get_crew_info(msg)
     if isinstance(msg, discord.Embed):
         await ctx.send(embed=msg)
     else:
@@ -46,11 +45,9 @@ async def actor(ctx, *, arg):
 
 @bot.command(aliases=['d'])
 async def director(ctx, *, arg):
-    director_url = lbxd.search_letterboxd(arg, "/directors/")
-    if director_url.startswith('https://'):
-        msg = lbxd.get_crew_info(director_url)
-    else:
-        msg = director_url
+    msg = lbxd.search_letterboxd(arg, "/directors/")
+    if msg.startswith('https://'):
+        msg = lbxd.get_crew_info(msg)
     if isinstance(msg, discord.Embed):
         await ctx.send(embed=msg)
     else:
@@ -59,11 +56,9 @@ async def director(ctx, *, arg):
 
 @bot.command(aliases=['movie', 'f'])
 async def film(ctx, *, arg):
-    film_link = lbxd.search_letterboxd(arg, "/films/")
-    if film_link.startswith('https://'):
-        msg = lbxd.get_info_film(film_link)
-    else:
-        msg = film_link
+    msg = lbxd.search_letterboxd(arg, "/films/")
+    if msg.startswith('https://'):
+        msg = lbxd.get_info_film(msg)
     if isinstance(msg, discord.Embed):
         await ctx.send(embed=msg)
     else:
@@ -134,6 +129,8 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send('{} is needed to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, commands.CommandNotFound):
+        pass
     else:
         raise error
 
