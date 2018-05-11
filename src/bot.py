@@ -11,11 +11,14 @@ bot.remove_command('help')
 
 
 async def send_msg(ctx, msg):
-    message = ctx.message
+    keep_history(ctx.message)
     if isinstance(msg, discord.Embed):
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
+
+
+def keep_history(message):
     if not isinstance(message.channel, discord.DMChannel):
         with open('history_{}.txt'.format(message.guild.id), 'a') as f:
             f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
@@ -117,6 +120,7 @@ async def delete(ctx):
 
 @bot.event
 async def on_command_error(ctx, error):
+    keep_history(ctx.message)
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
     elif isinstance(error, commands.BotMissingPermissions):
@@ -134,9 +138,8 @@ async def on_message(message):
     if message.author == bot.user:
         return
 
-    if message.content.startswith('!'):
-        await bot.process_commands(message)
-    else:
+    await bot.process_commands(message)
+    if not message.content.startswith('!'):
         # Redirects PMs to me
         if isinstance(message.channel, discord.DMChannel):
             porkepik = await bot.get_user_info(81412646271717376)
