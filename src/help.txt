@@ -1,3 +1,5 @@
+**This bot is currently under major rewriting to fit newer libraries versions, bugs and issues previously not existing could appear.**
+
 Hello, I'm LetterboxdBot. My developer is Porkepik#2664.
 Don't hesitate to PM the bot to share feedback or bug reports.
 

@@ -481,7 +481,7 @@ def del_last_line(server_id, channel_id):
             f.seek(0)
             f.truncate()
             for index, line in enumerate(lines[::-1]):
-                if line.split(' ')[0] == channel_id:
+                if line.split(' ')[0] == str(channel_id):
                     msg_id_to_erase = lines.pop(-1-index).split()[1]
                     break
             f.writelines(lines)

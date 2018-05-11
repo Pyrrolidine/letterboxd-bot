@@ -1,23 +1,23 @@
 import discord
+from discord.ext import commands
 import lbxd
 
 token_file = open('Token')
 TOKEN = token_file.readline().strip()
 
-client = discord.Client()
-porkepik = discord.User()
-porkepik.id = '81412646271717376'
+bot = commands.Bot(command_prefix='!', case_insensitive=True)
 
 
-@client.event
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
 
     # Redirects PMs to me
-    if message.channel.is_private:
-        await client.send_message(porkepik, '`' + str(message.author)
-                                  + '`\n\n' + message.content)
+    if isinstance(message.channel, discord.DMChannel):
+        porkepik = await bot.get_user_info(81412646271717376)
+        await porkepik.send('`' + str(message.author)
+                            + '`\n\n' + message.content)
         return
 
     if not message.content.startswith('!'):
@@ -34,18 +34,18 @@ async def on_message(message):
         msg = lbxd.check_lbxd()
 
     elif message.content == '!del':
-        await client.delete_message(message)
-        command_to_erase = lbxd.del_last_line(message.server.id,
+        await message.delete()
+        command_to_erase = lbxd.del_last_line(message.guild.id,
                                               message.channel.id)
         deleted_message = False
-        async for log_message in client.logs_from(message.channel, limit=30):
-            if log_message.author == client.user and not deleted_message:
+        async for log_message in message.channel.history(limit=30):
+            if log_message.author == bot.user and not deleted_message:
                 deleted_message = True
-                await client.delete_message(log_message)
+                await log_message.delete()
                 if not len(command_to_erase):
                     break
-            if log_message.id == command_to_erase:
-                await client.delete_message(log_message)
+            if str(log_message.id) == command_to_erase:
+                await log_message.delete()
                 break
 
     elif len(list_cmd_words) < 2:
@@ -107,29 +107,30 @@ async def on_message(message):
 
     # Checks if a message is an embed and isn't empty before sending something
     if isinstance(msg, discord.Embed) or len(msg) > 0:
-        with open('history_{}.txt'.format(message.server.id), 'a') as f:
-            f.write(message.channel.id + ' ' + message.id + '\n')
-        lbxd.limit_history(20, message.server.id)
+        with open('history_{}.txt'.format(message.guild.id), 'a') as f:
+            f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
+        lbxd.limit_history(20, message.guild.id)
         if isinstance(msg, discord.Embed):
-            await client.send_message(message.channel, embed=msg)
+            await message.channel.send(embed=msg)
         else:
-            await client.send_message(message.channel, msg)
+            await message.channel.send(msg)
 
 
-@client.event
+@bot.event
 async def on_message_edit(before, after):
-    if after.channel.is_private:
-        await client.send_message(porkepik, '**Edit**:\n`' + str(after.author)
+    if isinstance(after.channel, discord.DMChannel):
+        porkepik = await bot.get_user_info(81412646271717376)
+        await porkepik.send('**Edit**:\n`' + str(after.author)
                                   + '`\n\n' + after.content)
 
 
-@client.event
+@bot.event
 async def on_ready():
     print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print(bot.user.name)
+    print(bot.user.id)
     print('------')
 
-    await client.change_presence(game=discord.Game(name='Say !helplb'))
+    bot.activity = discord.Game(name='Say !helplb')
 
-client.run(TOKEN)
+bot.run(TOKEN)
