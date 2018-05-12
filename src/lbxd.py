@@ -207,7 +207,7 @@ def get_crew_info(crew_url):
     # Gets the movie credits
     try:
         person_credits = s.get(api_url + "/movie_credits?api_key={}"
-                                      .format(api_key))
+                               .format(api_key))
         person_credits.raise_for_status()
     except requests.exceptions.HTTPError as err:
         if person_credits.status_code == 404:
