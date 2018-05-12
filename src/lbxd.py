@@ -213,41 +213,56 @@ def get_crew_info(crew_url):
                 msg += '1' if nb_credits is None else nb_credits.get_text()
                 msg += '\n'
 
-    # Goes to the TMDB page
+    # Fetch TMDb informations
+    api_file = open('TMDbAPI')
+    api_key = api_file.readline().strip()
     sidebar_html = html_soup.find('aside', class_='sidebar')
     tmdb_url = sidebar_html.find('a', class_='micro-button')['href']
+    tmdb_id = tmdb_url.split('/')[-2]
+    api_url = "https://api.themoviedb.org/3/person/{}".format(tmdb_id)
     try:
-        page_tmdb = s.get(tmdb_url)
-        page_tmdb.raise_for_status()
+        person_tmdb = s.get(api_url + "?api_key={}".format(api_key))
+        person_tmdb.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        if page_tmdb.status_code == 404:
+        if person_tmdb.status_code == 404:
             return "This person does not have a TMDb page."
         else:
             print(err)
             return "There was a problem trying to access TMDb"
-    tmdb_html_soup = BeautifulSoup(page_tmdb.text, "lxml")
 
-    # Gets informations
-    facts_html = tmdb_html_soup.find('section', class_='facts left_column')
-    if facts_html is not None:
-        infos_html = facts_html.find_all('p')
-        for info in infos_html:
-            info_type_html = info.find('bdi')
-            if info_type_html is None:
-                continue
-            info_type = info_type_html.get_text()
-            if info_type in ['Birthday', 'Day of Death', 'Place of Birth']\
-                    and info.contents[1].strip() != '-'\
-               or info_type == 'Known Credits' and not has_multiple_jobs:
-                msg += "**" + info_type + "**: " + info.contents[1] + '\n'
+    for element in person_tmdb.json():
+        if person_tmdb.json()[element] is None:
+            continue
+        if element == 'birthday':
+            msg += "**Birthday**: " + person_tmdb.json()[element] + '\n'
+        elif element == 'deathday':
+            msg += "**Day of Death**: " + person_tmdb.json()[element] + '\n'
+        elif element == 'place_of_birth':
+            msg += "**Place of Birth**: " + person_tmdb.json()[element]
 
     crew_embed = discord.Embed(title=display_name, url=crew_url,
                                description=msg, colour=0xd8b437)
 
     # Gets the picture
-    img_html = tmdb_html_soup.find('img', class_='poster')
-    if img_html is not None:
-        crew_embed.set_thumbnail(url=img_html['src'])
+    try:
+        person_img = s.get(api_url + "/images?api_key={}".format(api_key))
+        person_img.raise_for_status()
+        img_url = "https://image.tmdb.org/t/p/w200"
+        highest_vote = 0
+        for img in person_img.json()['profiles']:
+            if img['vote_average'] > highest_vote:
+                highest_vote = img['vote_average']
+        for index, img in enumerate(person_img.json()['profiles']):
+            if img['vote_average'] == highest_vote:
+                img_url += img['file_path']
+                break
+        crew_embed.set_thumbnail(url=img_url)
+    except requests.exceptions.HTTPError as err:
+        if person_tmdb.status_code == 404:
+            pass
+        else:
+            print(err)
+            return "There was a problem trying to access TMDb"
 
     return crew_embed
 

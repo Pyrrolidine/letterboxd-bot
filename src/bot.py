@@ -102,10 +102,9 @@ async def review(ctx, user, *args):
 @bot.command(name='del')
 @commands.bot_has_permissions(manage_messages=True)
 async def delete(ctx):
-    message = ctx.message
-    await message.delete()
-    command_to_erase = lbxd.del_last_line(str(message.guild.id),
-                                          str(message.channel.id))
+    await ctx.message.delete()
+    command_to_erase = lbxd.del_last_line(str(ctx.message.guild.id),
+                                          str(ctx.message.channel.id))
     deleted_message = False
     async for log_message in ctx.channel.history(limit=30):
         if log_message.author == bot.user and not deleted_message:
@@ -124,7 +123,7 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
     elif isinstance(error, commands.BotMissingPermissions):
-        await ctx.send('{} is needed to use this command.'
+        await ctx.send('The bot needs the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):

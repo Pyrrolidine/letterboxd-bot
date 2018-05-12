@@ -2,3 +2,4 @@ history_*.txt
 __pycache__/
 .idea/
 Token
+TMDbAPI
