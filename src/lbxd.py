@@ -196,23 +196,6 @@ def get_crew_info(crew_url):
     display_name = name_div_html.find('h1',
                                       class_='title-1 prettify').contents[2]
 
-    # Gets film credits, if the person has done at least 2 types of them
-    menu_html = html_soup.find('section',
-                               class_='smenu-wrapper smenu-wrapper-left')
-    has_multiple_jobs = False
-    if menu_html is not None:
-        has_multiple_jobs = True
-        jobs_html = list()
-        jobs_html.append(menu_html.find('span'))
-        jobs_html.extend(menu_html.find_all('a'))
-        for job in jobs_html:
-            job_title = job.contents[0].strip()
-            if job_title in ['Director', 'Writer', 'Actor', 'Producer']:
-                msg += '**' + job_title + '**: '
-                nb_credits = job.find('small')
-                msg += '1' if nb_credits is None else nb_credits.get_text()
-                msg += '\n'
-
     # Fetch TMDb informations
     api_file = open('TMDbAPI')
     api_key = api_file.readline().strip()
@@ -220,15 +203,43 @@ def get_crew_info(crew_url):
     tmdb_url = sidebar_html.find('a', class_='micro-button')['href']
     tmdb_id = tmdb_url.split('/')[-2]
     api_url = "https://api.themoviedb.org/3/person/{}".format(tmdb_id)
+
+    # Gets the movie credits
     try:
-        person_tmdb = s.get(api_url + "?api_key={}".format(api_key))
-        person_tmdb.raise_for_status()
+        person_credits = s.get(api_url + "/movie_credits?api_key={}"
+                                      .format(api_key))
+        person_credits.raise_for_status()
     except requests.exceptions.HTTPError as err:
-        if person_tmdb.status_code == 404:
+        if person_credits.status_code == 404:
             return "This person does not have a TMDb page."
         else:
             print(err)
             return "There was a problem trying to access TMDb"
+
+    director_credits = 0
+    writer_credits = 0
+    for crew_credit in person_credits.json()['crew']:
+        if crew_credit['job'] == 'Director':
+            director_credits += 1
+        elif crew_credit['job'] == 'Writer':
+            writer_credits += 1
+
+    if director_credits:
+        msg += "**Director**: " + str(director_credits) + '\n'
+    if writer_credits:
+        msg += "**Writer**: " + str(writer_credits) + '\n'
+
+    acting_credits = len(person_credits.json()['cast'])
+    if acting_credits:
+        msg += "**Actor**: " + str(acting_credits) + '\n'
+
+    # Gets the details
+    try:
+        person_tmdb = s.get(api_url + "?api_key={}".format(api_key))
+        person_tmdb.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+        return "There was a problem trying to access TMDb"
 
     for element in person_tmdb.json():
         if person_tmdb.json()[element] is None:
