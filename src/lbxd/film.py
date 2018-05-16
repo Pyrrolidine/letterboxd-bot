@@ -99,14 +99,12 @@ class Film(object):
                 if index:
                     description = description.replace('Country**',
                                                       'Countries**')
-                    description.replace('Country', 'Countries')
                     description += ', '
                 description += country['name']
         if self.runtime is not None:
             description += '\n**Length**: ' + str(self.runtime) + ' mins\n'
             if self.runtime == 1:
                  description = description.replace('mins', 'min')
-                description.replace('mins', 'min')
 
         return description
 
