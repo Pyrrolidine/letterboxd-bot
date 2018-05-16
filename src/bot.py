@@ -22,7 +22,7 @@ def keep_history(message):
     if not isinstance(message.channel, discord.DMChannel):
         with open('history_{}.txt'.format(message.guild.id), 'a') as f:
             f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
-        lbxd.limit_history(30, str(message.guild.id))
+        lbxd.core.limit_history(30, str(message.guild.id))
 
 
 @bot.command()
@@ -34,37 +34,47 @@ async def helplb(ctx):
 
 @bot.command()
 async def checklb(ctx):
-    msg = lbxd.check_lbxd()
+    msg = lbxd.core.check_lbxd()
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['u'])
 async def user(ctx, arg):
-    msg = lbxd.get_user_info(arg)
+    try:
+        cmd_user = lbxd.user.User(arg)
+        msg = cmd_user.create_embed()
+    except lbxd.lbxd_errors.LbxdErrors as err:
+        msg = err
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['a'])
 async def actor(ctx, *, arg):
-    msg = lbxd.search_letterboxd(arg, "/actors/")
-    if msg.startswith('https://'):
-        msg = lbxd.get_crew_info(msg)
+    try:
+        actor = lbxd.crew.Crew(arg, "/actors/")
+        msg = actor.create_embed()
+    except lbxd.lbxd_errors.LbxdErrors as err:
+        msg = err
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['d'])
 async def director(ctx, *, arg):
-    msg = lbxd.search_letterboxd(arg, "/directors/")
-    if msg.startswith('https://'):
-        msg = lbxd.get_crew_info(msg)
+    try:
+        director = lbxd.crew.Crew(arg, "/directors/")
+        msg = director.create_embed()
+    except lbxd.lbxd_errors.LbxdErrors as err:
+        msg = err
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['movie', 'f'])
 async def film(ctx, *, arg):
-    msg = lbxd.search_letterboxd(arg, "/films/")
-    if msg.startswith('https://'):
-        msg = lbxd.get_info_film(msg)
+    try:
+        cmd_film = lbxd.film.Film(arg)
+        msg = cmd_film.create_embed()
+    except lbxd.lbxd_errors.LbxdErrors as err:
+        msg = err
     await send_msg(ctx, msg)
 
 
@@ -78,24 +88,24 @@ async def check_if_two_args(ctx):
 @bot.command(aliases=['l'])
 @commands.check(check_if_two_args)
 async def list(ctx, user, *args):
-    msg = lbxd.find_list(user.strip(','), ' '.join(str(i) for i in args))
+    try:
+        cmd_list = lbxd.list_.List(user.strip(','),
+                                   ' '.join(str(i) for i in args))
+        msg = cmd_list.create_embed()
+    except lbxd.lbxd_errors.LbxdErrors as err:
+        msg = err
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['r'])
 @commands.check(check_if_two_args)
 async def review(ctx, user, *args):
-    film_link = lbxd.search_letterboxd(' '.join(str(i) for i in args),
-                                       "/films/")
-    if film_link.startswith("https://letterboxd.com"):
-        split_film_link = film_link.split('/')
-        if len(split_film_link[-1]) > 0:
-            film = split_film_link[-1]
-        else:
-            film = split_film_link[-2]
-        msg = lbxd.get_review(film, user.strip(','))
-    else:
-        msg = film_link
+    try:
+        cmd_film = lbxd.film.Film(' '.join(str(i) for i in args), False)
+        cmd_review = lbxd.review.Review(user.strip(','), cmd_film)
+        msg = cmd_review.create_embed()
+    except lbxd.lbxd_errors.LbxdErrors as err:
+        msg = err
     await send_msg(ctx, msg)
 
 
@@ -103,8 +113,8 @@ async def review(ctx, user, *args):
 @commands.bot_has_permissions(manage_messages=True)
 async def delete(ctx):
     await ctx.message.delete()
-    command_to_erase = lbxd.del_last_line(str(ctx.message.guild.id),
-                                          str(ctx.message.channel.id))
+    command_to_erase = lbxd.core.del_last_line(str(ctx.message.guild.id),
+                                               str(ctx.message.channel.id))
     deleted_message = False
     async for log_message in ctx.channel.history(limit=30):
         if log_message.author == bot.user and not deleted_message:
