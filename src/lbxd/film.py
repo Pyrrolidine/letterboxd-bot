@@ -97,14 +97,22 @@ class Film(object):
             description += '**Country**: '
             for index, country in enumerate(self.countries):
                 if index:
+<<<<<<< HEAD
                     description = description.replace('Country**',
                                                       'Countries**')
+=======
+                    description.replace('Country', 'Countries')
+>>>>>>> 29755050591b9a74ade90ed8497af60923ab16a7
                     description += ', '
                 description += country['name']
         if self.runtime is not None:
             description += '\n**Length**: ' + str(self.runtime) + ' mins\n'
             if self.runtime == 1:
+<<<<<<< HEAD
                  description = description.replace('mins', 'min')
+=======
+                description.replace('mins', 'min')
+>>>>>>> 29755050591b9a74ade90ed8497af60923ab16a7
 
         return description
 
