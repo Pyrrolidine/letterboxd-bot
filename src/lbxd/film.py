@@ -132,8 +132,11 @@ class Film(object):
         return "Watched by " + views_html.contents[0] + " members"
 
     def get_poster(self):
-        page = s.get(self.lbxd_url + 'image-150')
-        page.raise_for_status()
+        try:
+            page = s.get(self.lbxd_url + 'image-150')
+            page.raise_for_status()
+        except page.status_code == 404:
+            raise LbxdNotFound("This film doesn't have a Letterboxd page.")
         image_html = BeautifulSoup(page.text, 'lxml')
         return image_html.find('img')['src']
 
