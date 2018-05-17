@@ -101,10 +101,12 @@ class Film(object):
                                                       'Countries**')
                     description += ', '
                 description += country['name']
+            description += '\n'
         if self.runtime is not None:
-            description += '\n**Length**: ' + str(self.runtime) + ' mins\n'
+            description += '**Length**: ' + str(self.runtime) + ' mins'
             if self.runtime == 1:
                  description = description.replace('mins', 'min')
+            description += '\n'
 
         return description
 
