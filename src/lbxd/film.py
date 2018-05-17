@@ -105,7 +105,7 @@ class Film(object):
         if self.runtime is not None:
             description += '**Length**: ' + str(self.runtime) + ' mins'
             if self.runtime == 1:
-                 description = description.replace('mins', 'min')
+                description = description.replace('mins', 'min')
             description += '\n'
 
         return description

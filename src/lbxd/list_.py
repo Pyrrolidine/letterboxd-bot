@@ -51,7 +51,7 @@ class List(object):
                     list_link = "https://letterboxd.com"\
                                 + user_list.parent.find('a')['href']
                     self.poster_link = user_list.parent.parent\
-                                      .find('li')['data-target-link']
+                        .find('li')['data-target-link']
                     i = 20
                     break
             i += 1
