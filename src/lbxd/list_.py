@@ -32,15 +32,12 @@ class List(object):
             lists_html = BeautifulSoup(page.text, 'lxml',
                                        parse_only=lists_only)
 
-            user_lists = lists_html.find_all('div', class_='film-list-summary')
+            user_lists = lists_html.find_all('h2', class_='title-2 prettify')
             if not len(user_lists):
                 break
 
             for user_list in user_lists:
-                self.list_name = user_list.find('h2').get_text().strip()
-                list_link = "https://letterboxd.com"\
-                            + user_list.find('a')['href']
-                self.nb_films = user_list.find('small').get_text()
+                self.list_name = user_list.get_text().strip()
 
                 for word in keywords.lower().split():
                     if word in self.list_name.lower():
@@ -50,7 +47,10 @@ class List(object):
                         break
 
                 if match:
-                    self.poster_link = user_list.parent\
+                    self.nb_films = user_list.parent.find('small').get_text()
+                    list_link = "https://letterboxd.com"\
+                                + user_list.parent.find('a')['href']
+                    self.poster_link = user_list.parent.parent\
                                       .find('li')['data-target-link']
                     i = 20
                     break
