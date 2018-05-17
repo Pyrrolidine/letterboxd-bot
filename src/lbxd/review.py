@@ -109,9 +109,6 @@ class Review(object):
                                      url=embed_link, colour=0xd8b437,
                                      description=self.description)
 
-        if self.film.poster_path is not None:
-            poster_url = "https://image.tmdb.org/t/p/w200" \
-                         + self.film.poster_path
-            review_embed.set_thumbnail(url=poster_url)
+        review_embed.set_thumbnail(url=self.film.poster_path)
 
         return review_embed

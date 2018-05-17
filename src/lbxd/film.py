@@ -10,6 +10,7 @@ class Film(object):
         search_response = self.load_tmdb_search(keywords)
         self.tmdb_id = self.get_tmdb_id(search_response)
         lbxd_page = self.get_lbxd_page()
+        self.poster_path = self.get_poster()
         if with_info:
             self.description = self.get_credits()
             self.description += self.get_details()
@@ -46,7 +47,6 @@ class Film(object):
         if len(search_response.json()['results']):
             film_json = search_response.json()['results'][0]
             self.title = film_json['title']
-            self.poster_path = film_json['poster_path']
             return str(film_json['id'])
         else:
             raise LbxdNotFound("There were no results with this search.")
@@ -131,13 +131,17 @@ class Film(object):
         views_html = stats_html.find(class_="icon-watched")
         return "Watched by " + views_html.contents[0] + " members"
 
+    def get_poster(self):
+        page = s.get(self.lbxd_url + 'image-150')
+        page.raise_for_status()
+        image_html = BeautifulSoup(page.text, 'lxml')
+        return image_html.find('img')['src']
+
     def create_embed(self):
         title = self.title
         title += ' (' + self.year + ')' if len(self.year) else ''
         film_embed = discord.Embed(title=title, description=self.description,
                                    url=self.lbxd_url, colour=0xd8b437)
-        if self.poster_path is not None:
-            poster_url = "https://image.tmdb.org/t/p/w200" + self.poster_path
-            film_embed.set_thumbnail(url=poster_url)
+        film_embed.set_thumbnail(url=self.poster_path)
 
         return film_embed
