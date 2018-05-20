@@ -135,8 +135,12 @@ class Film(object):
         try:
             page = s.get(self.lbxd_url + 'image-150')
             page.raise_for_status()
-        except page.status_code == 404:
-            raise LbxdNotFound("This film doesn't have a Letterboxd page.")
+        except requests.exceptions.HTTPError as err:
+            if page.status_code == 404:
+                raise LbxdNotFound("This film doesn't have a Letterboxd page.")
+            print(err)
+            raise LbxdServerError("There was a problem trying to access "
+                                  + "Letterboxd.")
         image_html = BeautifulSoup(page.text, 'lxml')
         return image_html.find('img')['src']
 
