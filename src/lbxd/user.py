@@ -6,6 +6,7 @@ import os
 class User(object):
 
     def __init__(self, username):
+        self.img_cmd = 'convert '
         self.user = username.lower()
         self.url = "https://letterboxd.com/{}".format(username)
         self.profile_html = self.load_profile()
@@ -16,7 +17,7 @@ class User(object):
         if not os.path.exists(username):
             os.popen('mkdir ' + self.user)
         self.description += self.get_favourites()
-        if self.img_cmd != 'convert ':
+        if len(self.fav_posters_link):
             self.fav_img_link = self.upload_imgur()
         os.popen('rm -r ' + self.user)
 
@@ -58,34 +59,39 @@ class User(object):
         fav_text = ''
         fav_html = self.profile_html.find(id="favourites")
         a_html = fav_html.find_all('a')
-        self.img_cmd = 'convert '
         self.fav_posters = ''
+        self.fav_posters_link = list()
 
         if a_html[0].get('title') is not None:
             fav_text += '**Favourite Films**:\n'
-            for index, fav in enumerate(a_html):
+            for fav in a_html:
                 fav_text += '[' + fav['title'] + ']'
                 fav_link = 'https://letterboxd.com{}'.format(fav['href'][:-1])
                 page = s.get(fav_link + '/image-150')
                 fav_pic_html = BeautifulSoup(page.text, 'lxml')
-                fav_pic_link = fav_pic_html.find('img')['src']
-                if 'empty-poster' not in fav_pic_link:
+                temp_link = fav_pic_html.find('img')['src']
+                if 'empty-poster' not in temp_link:
+                    self.fav_posters_link.append(temp_link)
                     self.fav_posters += fav['href'][:-1]
-                    img_data = s.get(fav_pic_link).content
-                    temp_fav = '{0}/fav{1}.jpg'.format(self.user, index)
-                    with open(temp_fav, 'wb') as handler:
-                        handler.write(img_data)
-                    self.img_cmd += '{0}/fav{1}.jpg '.format(self.user, index)
                 fav_text += "(https://letterboxd.com{})"\
                             .format(fav['href'][:-1]) + '\n'
 
         return fav_text
+
+    def download_fav_posters(self):
+        for index, fav_poster in enumerate(self.fav_posters_link):
+            img_data = s.get(fav_poster).content
+            temp_fav = '{0}/fav{1}.jpg'.format(self.user, index)
+            self.img_cmd += temp_fav + ' '
+            with open(temp_fav, 'wb') as handler:
+                handler.write(img_data)
 
     def upload_imgur(self):
         check_album = self.update_favs()
         if len(check_album):
             return check_album
         else:
+            self.download_fav_posters()
             self.img_cmd += "+append {}/fav.jpg".format(self.user)
             img_magick = subprocess.call(self.img_cmd, shell=True)
             pic = open('{}/fav.jpg'.format(self.user), 'rb')
@@ -121,7 +127,7 @@ class User(object):
                                    description=self.description,
                                    colour=0xd8b437)
         user_embed.set_thumbnail(url=self.avatar_url)
-        if self.img_cmd != 'convert ':
+        if len(self.fav_posters_link):
             user_embed.set_image(url=self.fav_img_link)
 
         return user_embed
