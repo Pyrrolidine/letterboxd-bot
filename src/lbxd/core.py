@@ -6,8 +6,10 @@ from .lbxd_errors import *
 
 api_file = open('TMDbAPI')
 api_key = api_file.readline().strip()
+api_file.close()
 imgur_file = open('Imgur')
 imgur_token = imgur_file.readline().strip()
+imgur_file.close()
 token_header = {'Authorization': 'Bearer {}'.format(imgur_token)}
 s = requests.Session()
 

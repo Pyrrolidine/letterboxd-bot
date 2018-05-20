@@ -7,8 +7,10 @@ class Film(object):
         self.has_year = False
         self.year = ''
         self.input_year = self.check_year(keywords)
-        search_response = self.load_tmdb_search(keywords)
-        self.tmdb_id = self.get_tmdb_id(search_response)
+        self.tmdb_id = self.check_if_fixed_search(keywords)
+        if not len(self.tmdb_id):
+            search_response = self.load_tmdb_search(keywords)
+            self.tmdb_id = self.get_tmdb_id(search_response)
         lbxd_page = self.get_lbxd_page()
         self.poster_path = self.get_poster()
         if with_info:
@@ -24,6 +26,17 @@ class Film(object):
             if last_word.isdigit():
                 self.has_year = True
                 return last_word
+
+    def check_if_fixed_search(self, keywords):
+        with open('film_search_fix.txt') as fix_file:
+            for line in fix_file:
+                for title in line.strip().split('/'):
+                    if title.lower() == keywords.lower():
+                        id_line = next(fix_file).strip().split('/')
+                        self.title = id_line[1]
+                        return id_line[0]
+        return ''
+
 
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
