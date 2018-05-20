@@ -37,7 +37,6 @@ class Film(object):
                         return id_line[0]
         return ''
 
-
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
                   + api_key

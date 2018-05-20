@@ -93,7 +93,7 @@ class User(object):
         else:
             self.download_fav_posters()
             self.img_cmd += "+append {}/fav.jpg".format(self.user)
-            img_magick = subprocess.call(self.img_cmd, shell=True)
+            subprocess.call(self.img_cmd, shell=True)
             pic = open('{}/fav.jpg'.format(self.user), 'rb')
             bin_pic = pic.read()
             data_img = {'image': bin_pic, 'album': 'UkyHMMy'}
