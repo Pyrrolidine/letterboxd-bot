@@ -1,16 +1,24 @@
 from .core import *
+import subprocess
+import os
 
 
 class User(object):
 
     def __init__(self, username):
+        self.user = username.lower()
         self.url = "https://letterboxd.com/{}".format(username)
         self.profile_html = self.load_profile()
         self.display_name = self.get_display_name()
         self.description = self.get_metadata()
         self.description += self.get_nb_films_viewed()
-        self.description += self.get_favourites()
         self.avatar_url = self.get_avatar()
+        if not os.path.exists(username):
+            os.popen('mkdir ' + self.user)
+        self.description += self.get_favourites()
+        if self.img_cmd != 'convert ':
+            self.fav_img_link = self.upload_imgur()
+        os.popen('rm -r ' + self.user)
 
     def load_profile(self):
         try:
@@ -50,15 +58,59 @@ class User(object):
         fav_text = ''
         fav_html = self.profile_html.find(id="favourites")
         a_html = fav_html.find_all('a')
+        self.img_cmd = 'convert '
+        self.fav_posters = ''
 
         if a_html[0].get('title') is not None:
             fav_text += '**Favourite Films**:\n'
-            for fav in a_html:
+            for index, fav in enumerate(a_html):
                 fav_text += '[' + fav['title'] + ']'
+                fav_link = 'https://letterboxd.com{}'.format(fav['href'][:-1])
+                page = s.get(fav_link + '/image-150')
+                fav_pic_html = BeautifulSoup(page.text, 'lxml')
+                fav_pic_link = fav_pic_html.find('img')['src']
+                if 'empty-poster' not in fav_pic_link:
+                    self.fav_posters += fav['href'][:-1]
+                    img_data = s.get(fav_pic_link).content
+                    temp_fav = '{0}/fav{1}.jpg'.format(self.user, index)
+                    with open(temp_fav, 'wb') as handler:
+                        handler.write(img_data)
+                    self.img_cmd += '{0}/fav{1}.jpg '.format(self.user, index)
                 fav_text += "(https://letterboxd.com{})"\
                             .format(fav['href'][:-1]) + '\n'
 
         return fav_text
+
+    def upload_imgur(self):
+        check_album = self.update_favs()
+        if len(check_album):
+            return check_album
+        else:
+            self.img_cmd += "+append {}/fav.jpg".format(self.user)
+            img_magick = subprocess.call(self.img_cmd, shell=True)
+            pic = open('{}/fav.jpg'.format(self.user), 'rb')
+            bin_pic = pic.read()
+            data_img = {'image': bin_pic, 'album': 'UkyHMMy'}
+            data_img['title'] = self.user
+            data_img['description'] = self.fav_posters
+            api_upload = 'https://api.imgur.com/3/image'
+            imgur_upload = s.post(api_upload, headers=token_header,
+                                  data=data_img)
+            return imgur_upload.json()['data']['link']
+
+    def update_favs(self):
+        album_api = 'https://api.imgur.com/3/album/UkyHMMy/images'
+        fav_album = s.get(album_api, headers=token_header)
+        for fav_set in fav_album.json()['data']:
+            if fav_set['title'] == self.user:
+                if not fav_set['description'] == self.fav_posters:
+                    delete_imgur = 'https://api.imgur.com/3/image/'
+                    s.delete(delete_imgur + fav_set['deletehash'],
+                             headers=token_header)
+                    return ''
+                else:
+                    return fav_set['link']
+        return ''
 
     def get_avatar(self):
         img_div_html = self.profile_html.find('div', class_='profile-avatar')
@@ -69,5 +121,7 @@ class User(object):
                                    description=self.description,
                                    colour=0xd8b437)
         user_embed.set_thumbnail(url=self.avatar_url)
+        if self.img_cmd != 'convert ':
+            user_embed.set_image(url=self.fav_img_link)
 
         return user_embed
