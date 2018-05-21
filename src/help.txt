@@ -24,4 +24,4 @@ Displays the list by the specified user.
 Checks if letterboxd.com is down.
 
 **!del**
-Deletes the last message the bot sent within a limit of the last 30 messages. The command expects the bot to have the \"manage messages\" permission.
+Deletes the last message the bot sent within a limit of the last 30 messages. The command needs the bot to have the \"manage messages\" permission.

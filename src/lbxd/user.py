@@ -106,7 +106,12 @@ class User(object):
 
     def update_favs(self):
         album_api = 'https://api.imgur.com/3/album/UkyHMMy/images'
-        fav_album = s.get(album_api, headers=token_header)
+        try:
+            fav_album = s.get(album_api, headers=token_header)
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            raise LbxdServerError('There was a problem trying to access'
+                                  + ' Imgur')
         for fav_set in fav_album.json()['data']:
             if fav_set['title'] == self.user:
                 if not fav_set['description'] == self.fav_posters:
