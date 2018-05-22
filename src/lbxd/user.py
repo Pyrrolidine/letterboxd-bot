@@ -29,11 +29,7 @@ class User(object):
             return
         if not os.path.exists(username):
             os.popen('mkdir ' + self.user)
-        if cloudinary.api.ping()['status'] != 'ok':
-            self.description += '\nCloudinary was not reachable, the'
-                                + ' favourites cannot be displayed.'
-        else:
-            self.fav_img_link = self.upload_cloudinary()
+        self.fav_img_link = self.upload_cloudinary()
         os.popen('rm -r ' + self.user)
 
     def load_profile(self):
@@ -117,16 +113,14 @@ class User(object):
             return result['url']
 
     def update_favs(self):
-        fav_album = cloudinary.api.resources(type='upload', prefix='bot favs')
-        for fav_set in fav_album['resources']:
-            if fav_set['public_id'].split('/')[1] == self.user:
-                details_id = urllib.parse.quote(fav_set['public_id']
-                                                .encode('utf-8'), '')
-                details = cloudinary.api.resource(details_id)
-                if not details['tags'][0] == self.fav_posters:
-                    return ''
-                else:
-                    return fav_set['url']
+        details_id = urllib.parse.quote(('bot favs/' + self.user)
+                                        .encode('utf-8'), '')
+        try:
+            details = cloudinary.api.resource(details_id)
+            if details['tags'][0] == self.fav_posters:
+                return details['url']
+        except cloudinary.api.NotFound:
+            pass
         return ''
 
     def get_avatar(self):
