@@ -42,9 +42,7 @@ class Film(object):
                   + api_key
         if self.has_year:
             keywords = ' '.join(keywords.split()[:-1])
-        keywords = keywords.replace("’", "").replace("'", "")
-        query = urllib.parse.quote_plus(keywords)
-        api_url += "&query=" + query
+        api_url += "&query=" + keywords.replace("’", "")
         api_url += "&year=" + self.input_year if self.has_year else ''
 
         try:
