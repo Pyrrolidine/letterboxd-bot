@@ -24,10 +24,15 @@ class User(object):
         self.description = self.get_metadata()
         self.description += self.get_nb_films_viewed()
         self.avatar_url = self.get_avatar()
+        self.description += self.get_favourites()
+        if not len(self.fav_posters_link):
+            return
         if not os.path.exists(username):
             os.popen('mkdir ' + self.user)
-        self.description += self.get_favourites()
-        if len(self.fav_posters_link):
+        if cloudinary.api.ping()['status'] != 'ok':
+            self.description += '\nCloudinary was not reachable, the'
+                                + ' favourites cannot be displayed.'
+        else:
             self.fav_img_link = self.upload_cloudinary()
         os.popen('rm -r ' + self.user)
 
@@ -114,10 +119,10 @@ class User(object):
     def update_favs(self):
         fav_album = cloudinary.api.resources(type='upload', prefix='bot favs')
         for fav_set in fav_album['resources']:
-            details_id = urllib.parse.quote(fav_set['public_id']
-                                            .encode('utf-8'), '')
-            details = cloudinary.api.resource(details_id)
             if fav_set['public_id'].split('/')[1] == self.user:
+                details_id = urllib.parse.quote(fav_set['public_id']
+                                                .encode('utf-8'), '')
+                details = cloudinary.api.resource(details_id)
                 if not details['tags'][0] == self.fav_posters:
                     return ''
                 else:
