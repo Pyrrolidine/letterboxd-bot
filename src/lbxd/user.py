@@ -1,6 +1,16 @@
 from .core import *
 import subprocess
 import os
+import cloudinary
+import cloudinary.uploader
+
+with open('Cloudinary') as cloudinary_file:
+    lines = cloudinary_file.readlines()
+    cloudinary.config(
+        cloud_name=lines[0].strip(),
+        api_key=lines[1].strip(),
+        api_secret=lines[2].strip()
+    )
 
 
 class User(object):
@@ -18,7 +28,7 @@ class User(object):
             os.popen('mkdir ' + self.user)
         self.description += self.get_favourites()
         if len(self.fav_posters_link):
-            self.fav_img_link = self.upload_imgur()
+            self.fav_img_link = self.upload_cloudinary()
         os.popen('rm -r ' + self.user)
 
     def load_profile(self):
@@ -86,7 +96,7 @@ class User(object):
             with open(temp_fav, 'wb') as handler:
                 handler.write(img_data)
 
-    def upload_imgur(self):
+    def upload_cloudinary(self):
         check_album = self.update_favs()
         if len(check_album):
             return check_album
@@ -94,33 +104,24 @@ class User(object):
             self.download_fav_posters()
             self.img_cmd += "+append {}/fav.jpg".format(self.user)
             subprocess.call(self.img_cmd, shell=True)
-            pic = open('{}/fav.jpg'.format(self.user), 'rb')
-            bin_pic = pic.read()
-            data_img = {'image': bin_pic, 'album': 'UkyHMMy'}
-            data_img['title'] = self.user
-            data_img['description'] = self.fav_posters
-            api_upload = 'https://api.imgur.com/3/image'
-            imgur_upload = s.post(api_upload, headers=token_header,
-                                  data=data_img)
-            return imgur_upload.json()['data']['link']
+            with open('{}/fav.jpg'.format(self.user), 'rb') as pic:
+                bin_pic = pic.read()
+            result = cloudinary.uploader.upload(bin_pic, public_id=self.user,
+                                                folder='bot favs',
+                                                tags=self.fav_posters)
+            return result['url']
 
     def update_favs(self):
-        album_api = 'https://api.imgur.com/3/album/UkyHMMy/images'
-        try:
-            fav_album = s.get(album_api, headers=token_header)
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError('There was a problem trying to access'
-                                  + ' Imgur')
-        for fav_set in fav_album.json()['data']:
-            if fav_set['title'] == self.user:
-                if not fav_set['description'] == self.fav_posters:
-                    delete_imgur = 'https://api.imgur.com/3/image/'
-                    s.delete(delete_imgur + fav_set['deletehash'],
-                             headers=token_header)
+        fav_album = cloudinary.api.resources(type='upload', prefix='bot favs')
+        for fav_set in fav_album['resources']:
+            details_id = urllib.parse.quote(fav_set['public_id']
+                                            .encode('utf-8'), '')
+            details = cloudinary.api.resource(details_id)
+            if fav_set['public_id'].split('/')[1] == self.user:
+                if not details['tags'][0] == self.fav_posters:
                     return ''
                 else:
-                    return fav_set['link']
+                    return fav_set['url']
         return ''
 
     def get_avatar(self):

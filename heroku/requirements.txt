@@ -5,3 +5,4 @@ chardet
 BeautifulSoup4
 requests
 lxml
+cloudinary
