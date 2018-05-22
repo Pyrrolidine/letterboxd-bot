@@ -22,7 +22,7 @@ def keep_history(message):
     if not isinstance(message.channel, discord.DMChannel):
         with open('history_{}.txt'.format(message.guild.id), 'a') as f:
             f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
-        lbxd.core.limit_history(30, str(message.guild.id))
+        lbxd.utils.limit_history(30, str(message.guild.id))
 
 
 @bot.command()
@@ -34,7 +34,7 @@ async def helplb(ctx):
 
 @bot.command()
 async def checklb(ctx):
-    msg = lbxd.core.check_lbxd()
+    msg = lbxd.utils.check_lbxd()
     await send_msg(ctx, msg)
 
 
@@ -113,7 +113,7 @@ async def review(ctx, user, *args):
 @commands.bot_has_permissions(manage_messages=True)
 async def delete(ctx):
     await ctx.message.delete()
-    command_to_erase = lbxd.core.del_last_line(str(ctx.message.guild.id),
+    command_to_erase = lbxd.utils.del_last_line(str(ctx.message.guild.id),
                                                str(ctx.message.channel.id))
     deleted_message = False
     async for log_message in ctx.channel.history(limit=30):
