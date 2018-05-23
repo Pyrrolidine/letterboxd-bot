@@ -14,8 +14,10 @@ class Film(object):
         lbxd_page = self.get_lbxd_page()
         self.poster_path = self.get_poster()
         if with_info:
-            self.description = self.get_credits()
-            self.description += self.get_details()
+            tmdb_info = self.load_details()
+            self.description = self.get_original_title(tmdb_info)
+            self.description += self.get_credits()
+            self.description += self.get_details(tmdb_info)
             self.description += self.get_views(lbxd_page)
 
     def check_year(self, keywords):
@@ -86,7 +88,7 @@ class Film(object):
             return description + '\n'
         return ''
 
-    def get_details(self):
+    def load_details(self):
         api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
         api_url += "?api_key=" + api_key
         try:
@@ -97,12 +99,22 @@ class Film(object):
             print('LINK:' + api_url)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
+        return tmdb_info
+
+    def get_original_title(self, tmdb_info):
+        self.original_title = tmdb_info.json()['original_title']
+        if self.original_title != self.title:
+            return '**Original Title**: ' + self.original_title + '\n'
+        return ''
+
+    def get_details(self, tmdb_info):
         self.release_date = tmdb_info.json()['release_date']
         if self.release_date is not None:
             self.year = self.release_date.split('-')[0]
 
         self.runtime = tmdb_info.json()['runtime']
         self.countries = tmdb_info.json()['production_countries']
+
         description = ''
         if len(self.countries):
             description += '**Country**: '
