@@ -5,13 +5,19 @@ class Film(object):
 
     def __init__(self, keywords, with_info=True):
         self.has_year = False
+        self.fix_search = False
         self.year = ''
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
-        if not len(self.tmdb_id):
+        if not self.fix_search:
             search_response = self.load_tmdb_search(keywords)
-            self.tmdb_id = self.get_tmdb_id(search_response)
+            if not self.has_year:
+                self.lbxd_id = self.load_lbxd_search(keywords)
+            else:
+                self.tmdb_id = self.get_tmdb_id(search_response)
         lbxd_page = self.get_lbxd_page()
+        if not self.has_year and not self.fix_search:
+            self.tmdb_id = self.get_tmdb_id_from_lbxd(lbxd_page)
         self.poster_path = self.get_poster()
         if with_info:
             tmdb_info = self.load_details()
@@ -36,8 +42,30 @@ class Film(object):
                     if title.lower() == keywords.lower():
                         id_line = next(fix_file).strip().split('/')
                         self.title = id_line[1]
+                        self.fix_search = True
                         return id_line[0]
         return ''
+
+    def load_lbxd_search(self, keywords):
+        try:
+            path = urllib.parse.quote_plus(keywords)
+            page = s.get("https://letterboxd.com/search/films/{}"
+                         .format(path))
+            page.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            raise LbxdServerError("There was a problem trying to access "
+                                  + "Letterboxd.")
+
+        first_result = SoupStrainer('div', class_='film-detail-content')
+        result_html = BeautifulSoup(page.text, 'lxml', parse_only=first_result)
+        result_link = result_html.find('a')
+        if result_link is not None:
+            if not self.fix_search:
+                self.title = result_link.contents[0].strip()
+            return result_link['href']
+        else:
+            raise LbxdNotFound("There were no results with this search.")
 
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
@@ -53,13 +81,13 @@ class Film(object):
             return search_results
         except requests.exceptions.HTTPError as err:
             print(err)
-            print('LINK:' + api_url)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
     def get_tmdb_id(self, search_response):
         if len(search_response.json()['results']):
             film_json = search_response.json()['results'][0]
-            self.title = film_json['title']
+            if self.has_year:
+                self.title = film_json['title']
             return str(film_json['id'])
         else:
             raise LbxdNotFound("There were no results with this search.")
@@ -72,7 +100,6 @@ class Film(object):
             tmdb_credits.raise_for_status()
         except requests.exceptions.HTTPError as err:
             print(err)
-            print('LINK:' + api_url)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
         description = "**Director**: "
@@ -96,7 +123,6 @@ class Film(object):
             tmdb_info.raise_for_status()
         except requests.exceptions.HTTPError as err:
             print(err)
-            print('LINK:' + api_url)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
         return tmdb_info
@@ -134,7 +160,10 @@ class Film(object):
         return description
 
     def get_lbxd_page(self):
-        lbxd_link = "https://letterboxd.com/tmdb/" + self.tmdb_id
+        if self.has_year or self.fix_search:
+            lbxd_link = "https://letterboxd.com/tmdb/" + self.tmdb_id
+        else:
+            lbxd_link = "https://letterboxd.com" + self.lbxd_id
         try:
             page = s.get(lbxd_link)
             page.raise_for_status()
@@ -147,10 +176,16 @@ class Film(object):
                                   + "Letterboxd.")
         return page
 
+    def get_tmdb_id_from_lbxd(self, page):
+        links_only = SoupStrainer('p', class_="text-link text-footer")
+        links_html = BeautifulSoup(page.text, 'lxml', parse_only=links_only)
+        for link in links_html.find_all('a'):
+            if link['href'].startswith('https://www.themovie'):
+                return link['href'].split('/')[-2]
+
     def get_views(self, page):
         stats_only = SoupStrainer('ul', class_='film-stats')
         stats_html = BeautifulSoup(page.text, "lxml", parse_only=stats_only)
-
         views_html = stats_html.find(class_="icon-watched")
         return "Watched by " + views_html.contents[0] + " members"
 
