@@ -4,7 +4,8 @@ from .core import *
 class List(object):
 
     def __init__(self, username, keywords):
-        self.lists_url = "https://letterboxd.com/" + username + "/lists/"
+        self.user = username
+        self.lists_url = "https://letterboxd.com/" + self.user + "/lists/"
         self.nb_films = ''
         self.poster_link = ''
         self.url = self.find_list(keywords)
@@ -23,7 +24,8 @@ class List(object):
                 page.raise_for_status()
             except requests.exceptions.HTTPError as err:
                 if page.status_code == 404:
-                    raise LbxdNotFound('The user does not exist.')
+                    raise LbxdNotFound("The user **" + self.user
+                                       + "** doesn't exist.")
                 print(err)
                 raise LbxdServerError("There was a problem trying to access "
                                       + "Letterboxd.com.")
