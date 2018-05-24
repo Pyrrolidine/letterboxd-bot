@@ -38,7 +38,8 @@ class User(object):
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             if page.status_code == 404:
-                raise LbxdNotFound('Could not find this user.')
+                raise LbxdNotFound("The user **" + self.user
+                                   + "** doesn't exist.")
             print(err)
             raise LbxdServerError('There was a problem trying to access'
                                   + ' Letterboxd.com')

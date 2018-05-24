@@ -27,8 +27,8 @@ class Review(object):
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             if page.status_code == 404:
-                raise LbxdNotFound('The user ' + self.username
-                                   + "doesn't exist")
+                raise LbxdNotFound("The user **" + self.username
+                                   + "** doesn't exist.")
             print(err)
             raise LbxdServerError('There was a problem trying to access '
                                   + 'Letterboxd.com')

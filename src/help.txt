@@ -3,8 +3,7 @@ Don't hesitate to PM the bot to share feedback or bug reports.
 
 **!film/!movie/!f <film-name> (<year>)**
 Searches a film on Letterboxd. The year is optional and can also be specified with y: instead of parentheses.
-__Example__: !film man knew too much (1934)
-Returns the 1934 original Hitchock film, not specifying the year returns the more popular 50's film.
+__Example__: !f man knew too much (1934)
 
 **!director/!d/!actor/!a <name>**
 Searches a filmmaker or an actor.
@@ -14,8 +13,7 @@ Displays informations and the featured favourite films of a Letterboxd member. I
 
 **!review/!r <username> <film-name> (<year>)**
 Displays the reviews of a film from a specified user. The year is optional.
-__Example__: !review porkepik floating weeds y:1934
-Returns Porkepik's review of A Story of Floating Weeds (1934)
+__Example__: !r porkepik floating weeds y:1934
 
 **!list/!l <username> <list-name>**
 Displays the list by the specified user.
@@ -24,4 +22,4 @@ Displays the list by the specified user.
 Checks if letterboxd.com is down.
 
 **!del**
-Deletes the last message the bot sent within a limit of the last 30 messages. The command needs the bot to have the \"manage messages\" permission.
+Deletes the last message the bot sent in a channel. The command needs the bot to have the \"manage messages\" permission.
