@@ -11,10 +11,9 @@ class Film(object):
         self.tmdb_id = self.check_if_fixed_search(keywords)
         if not self.fix_search:
             search_response = self.load_tmdb_search(keywords)
+            self.tmdb_id = self.get_tmdb_id(search_response)
             if not self.has_year:
                 self.lbxd_id = self.load_lbxd_search(keywords)
-            else:
-                self.tmdb_id = self.get_tmdb_id(search_response)
         lbxd_page = self.get_lbxd_page()
         if not self.has_year and not self.fix_search:
             self.tmdb_id = self.get_tmdb_id_from_lbxd(lbxd_page)
