@@ -1,25 +1,14 @@
-Hello, I'm LetterboxdBot. My developer is Porkepik#2664.
-Don't hesitate to PM the bot to share feedback or bug reports.
-
-**!film/!movie/!f <film-name> (<year>)**
-Searches a film on Letterboxd. The year is optional and can also be specified with y: instead of parentheses.
-__Example__: !f man knew too much (1934)
-
-**!director/!d/!actor/!a <name>**
+!film/!movie/!f <film-name> (<year>)
+Searches a film on Letterboxd. The year is optional.
+!director/!d/!actor/!a <name>
 Searches a filmmaker or an actor.
-
-**!user/!u <username>**
-Displays informations and the featured favourite films of a Letterboxd member. It requires the Letterboxd username, not the display name.
-
-**!review/!r <username> <film-name> (<year>)**
+!user/!u <username>
+Displays informations and the featured favourite films of a Letterboxd member.
+!review/!r <username> <film-name> (<year>)
 Displays the reviews of a film from a specified user. The year is optional.
-__Example__: !r porkepik floating weeds y:1934
-
-**!list/!l <username> <list-name>**
+!list/!l <username> <list-name>
 Displays the list by the specified user.
-
-**!checklb**
+!checklb
 Checks if letterboxd.com is down.
-
-**!del**
+!del
 Deletes the last message the bot sent in a channel. The command needs the bot to have the \"manage messages\" permission.

@@ -27,9 +27,19 @@ def keep_history(message):
 
 @bot.command()
 async def helplb(ctx):
-    help_file = open('help.txt')
-    msg = ''.join(help_file.readlines())
-    await send_msg(ctx, msg)
+    with open('help.txt') as help_f:
+        help_embed = discord.Embed(colour=0xd8b437)
+        help_embed.set_author(name="LetterboxdBot",
+                              icon_url="https://i.imgur.com/5VALKVy.jpg",
+                              url="https://gitlab.com/Porkepik/"
+                                   + "PublicLetterboxdDiscordBot")
+        help_embed.set_footer(text="Created by Porkepik#2664",
+                              icon_url="https://i.imgur.com/li4cLpd.png")
+        for line in help_f:
+            if not line.startswith('!'):
+                continue
+            help_embed.add_field(name=line, value=next(help_f), inline=False)
+    await send_msg(ctx, help_embed)
 
 
 @bot.command()
