@@ -38,6 +38,6 @@ def check_lbxd():
     try:
         page = s.get("https://letterboxd.com")
         page.raise_for_status()
-        return "Letterboxd is up."
+        return ":white_check_mark: Letterboxd is up."
     except requests.exceptions.HTTPError:
-        return "Letterboxd is down."
+        return ":x: Letterboxd is down."
