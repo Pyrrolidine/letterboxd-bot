@@ -1,4 +1,5 @@
 import discord
+import time
 from discord.ext import commands
 import lbxd
 
@@ -8,11 +9,24 @@ TOKEN = token_file.readline().strip()
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
                    activity=discord.Game('!helplb - v1.1.0'))
 bot.remove_command('help')
+start_time = 0
+
+
+@bot.before_invoke
+async def before_invoke(ctx):
+    global start_time
+    start_time = time.perf_counter()
 
 
 async def send_msg(ctx, msg):
     keep_history(ctx.message)
     if isinstance(msg, discord.Embed):
+        global start_time
+        # Checks if the command took more than 5 seconds
+        if time.perf_counter() - start_time > 5:
+            msg.set_footer(text="The command was slow to respond."
+                                + " This may be due to a server issue "
+                                + "by a third-party service.")
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
