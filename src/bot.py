@@ -6,7 +6,7 @@ token_file = open('Token')
 TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('Say !helplb'))
+                   activity=discord.Game('!helplb - v1.1.0'))
 bot.remove_command('help')
 
 
@@ -124,7 +124,7 @@ async def review(ctx, user, *args):
 async def delete(ctx):
     await ctx.message.delete()
     command_to_erase = lbxd.utils.del_last_line(str(ctx.message.guild.id),
-                                               str(ctx.message.channel.id))
+                                                str(ctx.message.channel.id))
     deleted_message = False
     async for log_message in ctx.channel.history(limit=30):
         if log_message.author == bot.user and not deleted_message:
