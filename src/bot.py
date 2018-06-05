@@ -26,7 +26,7 @@ async def send_msg(ctx, msg):
         if time.perf_counter() - start_time > 5:
             msg.set_footer(text="The bot was slow to respond."
                                 + " This may be due to a server issue "
-                                + "by a third-party service.")
+                                + "from a third-party service.")
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
