@@ -212,6 +212,8 @@ class Film(object):
             return ''
         mkdb_html = BeautifulSoup(page.text, 'lxml')
         rating_html = mkdb_html.find('div', class_='card-body-summary')
+        if rating_html is None:
+            return ''
         avg_rating = rating_html.find('h4').get_text()
         row_lists = mkdb_html.find_all('section', class_='film-rating-group')
         nb_ratings = 0
