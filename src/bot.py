@@ -7,7 +7,7 @@ token_file = open('Token')
 TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb - v1.2.0'))
+                   activity=discord.Game('!helplb - v1.3.0'))
 bot.remove_command('help')
 start_time = 0
 
@@ -95,7 +95,11 @@ async def director(ctx, *, arg):
 @bot.command(aliases=['movie', 'f'])
 async def film(ctx, *, arg):
     try:
-        cmd_film = lbxd.film.Film(arg)
+        # eiga.me ratings for a specific server and my test server
+        if ctx.guild.id in [316973025386037268, 335569261080739863]:
+            cmd_film = lbxd.film.Film(arg, True, True)
+        else:
+            cmd_film = lbxd.film.Film(arg)
         msg = cmd_film.create_embed()
     except lbxd.lbxd_errors.LbxdErrors as err:
         msg = err

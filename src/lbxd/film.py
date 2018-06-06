@@ -3,7 +3,7 @@ from .core import *
 
 class Film(object):
 
-    def __init__(self, keywords, with_info=True):
+    def __init__(self, keywords, with_info=True, is_metropolis=False):
         self.has_year = False
         self.fix_search = False
         self.year = ''
@@ -23,6 +23,8 @@ class Film(object):
             self.description = self.get_original_title(tmdb_info)
             self.description += self.get_credits()
             self.description += self.get_details(tmdb_info)
+            if is_metropolis:
+                self.description += self.get_mkdb_rating(lbxd_page.url)
             self.description += self.get_views(lbxd_page)
 
     def check_year(self, keywords):
@@ -200,6 +202,24 @@ class Film(object):
                                   + "Letterboxd.")
         image_html = BeautifulSoup(page.text, 'lxml')
         return image_html.find('img')['src']
+
+    def get_mkdb_rating(self, lbxd_url):
+        eiga_url = "https://eiga.me/film/"
+        try:
+            page = s.get(lbxd_url.replace("letterboxd.com", "eiga.me"))
+            page.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            return ''
+        mkdb_html = BeautifulSoup(page.text, 'lxml')
+        rating_html = mkdb_html.find('div', class_='card-body-summary')
+        avg_rating = rating_html.find('h4').get_text()
+        row_lists = mkdb_html.find_all('section', class_='film-rating-group')
+        nb_ratings = 0
+        for row in row_lists:
+            nb_ratings += len(row.find_all('li'))
+        mkdb_description = '**MKDb Average**: ' + avg_rating
+        mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n'
+        return mkdb_description
 
     def create_embed(self):
         title = self.title
