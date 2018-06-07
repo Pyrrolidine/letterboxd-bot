@@ -49,6 +49,7 @@ class Film(object):
 
     def load_lbxd_search(self, keywords):
         try:
+            keywords = keywords.replace('\\', '')
             path = urllib.parse.quote_plus(keywords.replace('/', ' '))
             page = s.get("https://letterboxd.com/search/films/{}/"
                          .format(path))
