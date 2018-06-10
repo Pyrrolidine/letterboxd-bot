@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - Add link to the MKDb page of the film.
 
 ## Changed
-- New !checklb as embed.
+- New !checklb as an embed.
 
 ### Fixed
 - Fix review links on phone Discord apps.
