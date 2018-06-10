@@ -7,7 +7,7 @@ Displays informations and the featured favourite films of a Letterboxd member.
 !review/!r <username> <film-name> (<year>)
 Displays the reviews of a film from a specified user. The year is optional.
 !list/!l <username> <list-name>
-Displays the list by the specified user.
+Searches the list by the specified user.
 !checklb
 Checks if letterboxd.com is down.
 !del
