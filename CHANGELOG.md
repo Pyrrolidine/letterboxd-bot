@@ -2,6 +2,13 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.0](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.3.2...v1.4.0) - 2018-06-10
+### Added
+- Add link to the MKDb page of the film
+
+### Fixed
+- Fix review links on phone Discord apps
+
 ## [1.3.2](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.3.1...v1.3.2) - 2018-06-07
 ### Fixed
 - Fix film search using a backslash.

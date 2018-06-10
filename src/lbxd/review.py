@@ -64,7 +64,7 @@ class Review(object):
             date = summary_html.find('span', class_="nobr")
             self.review_link = "https://letterboxd.com"\
                                + summary_html.contents[3]['href']
-            description += '[**Review**]({0}) '.format(self.review_link)
+            description += '[Review](' + self.review_link + ') '
             description += '' if rating is None else rating.get_text() + '  '
             description += date.contents[0] if date is not None else ''
             description += '\n'

@@ -19,6 +19,7 @@ class Film(object):
             self.tmdb_id = self.get_tmdb_id_from_lbxd(lbxd_page)
         self.poster_path = self.get_poster()
         if with_info:
+            self.api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
             tmdb_info = self.load_details()
             self.description = self.get_original_title(tmdb_info)
             self.description += self.get_credits()
@@ -95,8 +96,7 @@ class Film(object):
             raise LbxdNotFound("No results were found with this search.")
 
     def get_credits(self):
-        api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
-        api_url += "/credits?api_key=" + api_key
+        api_url = self.api_url + "/credits?api_key=" + api_key
         try:
             tmdb_credits = s.get(api_url)
             tmdb_credits.raise_for_status()
@@ -118,8 +118,7 @@ class Film(object):
         return ''
 
     def load_details(self):
-        api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
-        api_url += "?api_key=" + api_key
+        api_url = self.api_url + "?api_key=" + api_key
         try:
             tmdb_info = s.get(api_url)
             tmdb_info.raise_for_status()
@@ -220,8 +219,9 @@ class Film(object):
         nb_ratings = 0
         for row in row_lists:
             nb_ratings += len(row.find_all('li'))
-        mkdb_description = '**MKDb Average**: ' + avg_rating
-        mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n'
+        mkdb_description = '**MKDb Average**: [' + avg_rating
+        mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n]'
+        mkdb_description += '(' + page.url + ')'
         return mkdb_description
 
     def create_embed(self):
