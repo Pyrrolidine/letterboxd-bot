@@ -4,10 +4,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [1.4.0](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.3.2...v1.4.0) - 2018-06-10
 ### Added
-- Add link to the MKDb page of the film
+- Add link to the MKDb page of the film.
+
+## Changed
+- New !checklb as embed.
 
 ### Fixed
-- Fix review links on phone Discord apps
+- Fix review links on phone Discord apps.
 
 ## [1.3.2](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.3.1...v1.3.2) - 2018-06-07
 ### Fixed
@@ -15,7 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [1.3.1](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.3.0...v1.3.1) - 2018-06-06
 ### Fixed
-- Fix !film crash when a film had no ratings on MKDb
+- Fix !film crash when a film had no ratings on MKDb.
 
 ## [1.3.0](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.2.0...v1.3.0) - 2018-06-06
 ### Added
