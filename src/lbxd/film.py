@@ -90,6 +90,10 @@ class Film(object):
         if len(search_response.json()['results']):
             film_json = search_response.json()['results'][0]
             if self.has_year:
+                for search in search_response.json()['results']:
+                    if search['release_date'].split('-')[0] == self.input_year:
+                        film_json = search
+                        break
                 self.title = film_json['title']
             return str(film_json['id'])
         else:
