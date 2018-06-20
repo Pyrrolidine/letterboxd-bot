@@ -186,7 +186,7 @@ async def on_message(message):
 
 @bot.event
 async def on_ready():
-    print('Logged in as')
+    print('Logged in {} servers as'.format(len(bot.guilds)))
     print(bot.user.name)
     print(bot.user.id)
     print('------')

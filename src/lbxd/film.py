@@ -6,27 +6,33 @@ class Film(object):
     def __init__(self, keywords, with_info=True, is_metropolis=False):
         self.has_year = False
         self.fix_search = False
+        self.is_tv = False
         self.year = ''
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
         if not self.fix_search:
             search_response = self.load_tmdb_search(keywords)
-            self.tmdb_id = self.get_tmdb_id(search_response)
+            self.tmdb_id = self.get_tmdb_id(search_response, keywords)
             if not self.has_year:
                 self.lbxd_id = self.load_lbxd_search(keywords)
         lbxd_page = self.get_lbxd_page()
+        lbxd_html = self.create_bs_html(lbxd_page)
         if not self.has_year and not self.fix_search:
-            self.tmdb_id = self.get_tmdb_id_from_lbxd(lbxd_page)
+            self.tmdb_id = self.get_tmdb_id_from_lbxd(lbxd_html)
         self.poster_path = self.get_poster()
-        if with_info:
+        if not with_info:
+            return
+        if not self.is_tv:
             self.api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
             tmdb_info = self.load_details()
             self.description = self.get_original_title(tmdb_info)
             self.description += self.get_credits()
             self.description += self.get_details(tmdb_info)
-            if is_metropolis:
-                self.description += self.get_mkdb_rating(lbxd_page.url)
-            self.description += self.get_views(lbxd_page)
+        else:
+            self.description = self.get_details_lbxd(lbxd_html)
+        if is_metropolis:
+            self.description += self.get_mkdb_rating(lbxd_page.url)
+        self.description += self.get_views(lbxd_html)
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -86,7 +92,7 @@ class Film(object):
             print(err)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
-    def get_tmdb_id(self, search_response):
+    def get_tmdb_id(self, search_response, keywords):
         if len(search_response.json()['results']):
             film_json = search_response.json()['results'][0]
             if self.has_year:
@@ -97,7 +103,22 @@ class Film(object):
                 self.title = film_json['title']
             return str(film_json['id'])
         else:
-            raise LbxdNotFound("No results were found with this search.")
+            api_url = "https://api.themoviedb.org/3/search/tv?api_key="\
+                      + api_key
+            if self.has_year:
+                keywords = ' '.join(keywords.split()[:-1])
+            api_url += "&query=" + keywords.replace("’", "")
+            api_url += "&year=" + self.input_year if self.has_year else ''
+
+            try:
+                search_results = s.get(api_url)
+                search_results.raise_for_status()
+            except requests.exceptions.HTTPError as err:
+                print(err)
+                raise LbxdServerError("There was a problem trying to access "
+                                      + "TMDb.")
+            if not len(search_results.json()['results']):
+                raise LbxdNotFound("No results were found with this search.")
 
     def get_credits(self):
         api_url = self.api_url + "/credits?api_key=" + api_key
@@ -181,16 +202,78 @@ class Film(object):
                                   + "Letterboxd.")
         return page
 
-    def get_tmdb_id_from_lbxd(self, page):
-        links_only = SoupStrainer('p', class_="text-link text-footer")
-        links_html = BeautifulSoup(page.text, 'lxml', parse_only=links_only)
+    def create_bs_html(self, page):
+        content_only = SoupStrainer('div', id='film-page-wrapper')
+        lbxd_html = BeautifulSoup(page.text, 'lxml',
+                                  parse_only=content_only)
+        return lbxd_html
+
+    def get_tmdb_id_from_lbxd(self, lbxd_html):
+        links_html = lbxd_html.find('p', class_="text-link text-footer")
         for link in links_html.find_all('a'):
             if link['href'].startswith('https://www.themovie'):
-                return link['href'].split('/')[-2]
+                try:
+                    page = s.get(link['href'])
+                    page.raise_for_status()
+                except requests.exceptions.HTTPError:
+                    if page.status_code == 404:
+                        self.is_tv = True
+                list_link = link['href'].split('/')
+                if list_link[-3] in ['tv', 'collection']:
+                    self.is_tv = True
+                return list_link[-2]
 
-    def get_views(self, page):
-        stats_only = SoupStrainer('ul', class_='film-stats')
-        stats_html = BeautifulSoup(page.text, "lxml", parse_only=stats_only)
+    def get_details_lbxd(self, lbxd_html):
+        description = ''
+        header_html = lbxd_html.find('section', id='featured-film-header')
+        year_html = lbxd_html.find('small', class_='number')
+        if year_html is not None:
+            self.year = year_html.get_text()
+
+        original_html = header_html.find('em')
+        if original_html is not None:
+            self.original_title = original_html.get_text().replace('’', '')
+            self.original_title = self.original_title.replace('‘', '')
+            description += '**Original Title**: ' + self.original_title + '\n'
+
+        nb_directors = 0
+        crew_html = lbxd_html.find('div', id='tab-crew')
+        director_str = "**Director**: "
+        for crew in crew_html.find_all('a'):
+            if crew['href'].startswith("/director"):
+                director_str += "{}, ".format(crew.get_text())
+                nb_directors += 1
+        if nb_directors > 1:
+            director_str = director_str.replace('irector*', 'irectors*')
+        if nb_directors:
+            description += director_str[:-2] + '\n'
+
+        country_html = lbxd_html.find('div', id='tab-details')
+        details_html = country_html.find_all('a')
+        country_str = "**Country:** "
+        plural_country = 0
+        for detail in details_html:
+            if detail['href'].startswith("/films/country/"):
+                country_str += "{}, ".format(detail.get_text())
+                plural_country += 1
+        if plural_country > 1:
+            country_str = country_str.replace('Country', 'Countries')
+        if plural_country:
+            description += country_str[:-2] + '\n'
+
+        footer_html = lbxd_html.find('p', class_='text-link text-footer')
+        list_footer_text = footer_html.get_text().split()
+        if list_footer_text[1].startswith('min'):
+            self.runtime = list_footer_text[0]
+            description += '**Length**: ' + self.runtime + ' mins'
+            if self.runtime == 1:
+                description = description.replace('mins', 'min')
+            description += '\n'
+
+        return description
+
+    def get_views(self, lbxd_html):
+        stats_html = lbxd_html.find('ul', class_='film-stats')
         views_html = stats_html.find(class_="icon-watched")
         return "Watched by " + views_html.contents[0] + " members"
 

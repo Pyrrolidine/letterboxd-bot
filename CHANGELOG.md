@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.2](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.4.1...v1.4.2) - 2018-06-19
+### Fixed
+- TV shows and miniseries present on Letterboxd can now be searched with the film command.
+
 ## [1.4.1](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.4.0...v1.4.1) - 2018-06-16
 ### Fixed
 - Fix film year filter inaccurately returning a film not matching the year when the correct year was specified for another film. (Example: !f planet of the apes (2001) returned the original and not the 2001 remake)
