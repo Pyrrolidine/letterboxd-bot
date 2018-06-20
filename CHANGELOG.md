@@ -2,6 +2,10 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.3](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.4.2...v1.4.3) - 2018-06-19
+### Fixed
+- Fix actor/director search using dots.
+
 ## [1.4.2](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.4.1...v1.4.2) - 2018-06-19
 ### Fixed
 - TV shows and miniseries present on Letterboxd can now be searched with the film command.

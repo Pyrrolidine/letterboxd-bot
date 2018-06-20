@@ -13,7 +13,7 @@ class Crew(object):
         self.pic_url = self.get_picture()
 
     def search_letterboxd(self, item, search_type):
-        list_search_words = item.split()
+        list_search_words = item.replace('.', '').split()
 
         try:
             path = urllib.parse.quote('+'.join(list_search_words))
@@ -22,7 +22,7 @@ class Crew(object):
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             if page.status_code == 404:
-                raise LbxdNotFound("Could not find the film.")
+                raise LbxdNotFound("No results were found with this search.")
             else:
                 print(err)
                 raise LbxdServerError("There was a problem trying to "
