@@ -3,8 +3,8 @@ import time
 from discord.ext import commands
 import lbxd
 
-token_file = open('Token')
-TOKEN = token_file.readline().strip()
+with open('Token') as token_file:
+    TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
                    activity=discord.Game('!helplb - v1.4.3'))
@@ -94,10 +94,13 @@ async def director(ctx, *, arg):
 
 @bot.command(aliases=['movie', 'f'])
 async def film(ctx, *, arg):
-    if arg.strip() in ['gay ass', 'gay ass movie', 'anus', 'gay ass film']:
-        await send_msg(ctx, '{} stop using my bot for memes.'
-                            .format(ctx.message.author.mention))
-        return
+    memesfile = open('nomemes.txt')
+    for meme in memesfile:
+        if arg.strip() == meme.strip():
+            await send_msg(ctx, '{} Stop using my bot for memes.'
+                           .format(ctx.message.author.mention))
+            memesfile.close()
+            return
     try:
         # eiga.me ratings for a specific server and my test server
         if ctx.guild.id in [316973025386037268, 335569261080739863]:
