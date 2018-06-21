@@ -94,6 +94,10 @@ async def director(ctx, *, arg):
 
 @bot.command(aliases=['movie', 'f'])
 async def film(ctx, *, arg):
+    if arg.strip() in ['gay ass', 'gay ass movie', 'anus', 'gay ass film']:
+        await send_msg(ctx, '{} stop using my bot for memes.'
+                            .format(ctx.message.author.mention))
+        return
     try:
         # eiga.me ratings for a specific server and my test server
         if ctx.guild.id in [316973025386037268, 335569261080739863]:

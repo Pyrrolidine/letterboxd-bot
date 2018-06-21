@@ -24,10 +24,13 @@ class Film(object):
             return
         if not self.is_tv:
             self.api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
-            tmdb_info = self.load_details()
-            self.description = self.get_original_title(tmdb_info)
-            self.description += self.get_credits()
-            self.description += self.get_details(tmdb_info)
+            try:
+                tmdb_info = self.load_details()
+                self.description = self.get_original_title(tmdb_info)
+                self.description += self.get_credits()
+                self.description += self.get_details(tmdb_info)
+            except requests.exceptions.HTTPError as err:
+                self.description = self.get_details_lbxd(lbxd_html)
         else:
             self.description = self.get_details_lbxd(lbxd_html)
         if is_metropolis:
@@ -144,12 +147,8 @@ class Film(object):
 
     def load_details(self):
         api_url = self.api_url + "?api_key=" + api_key
-        try:
-            tmdb_info = s.get(api_url)
-            tmdb_info.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError("There was a problem trying to access TMDb.")
+        tmdb_info = s.get(api_url)
+        tmdb_info.raise_for_status()
 
         return tmdb_info
 

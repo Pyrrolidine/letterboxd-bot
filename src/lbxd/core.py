@@ -21,7 +21,7 @@ def format_text(html, max_char):
             temp_text += line.strip() + '\n'
         temp_text += '\n'
 
-    text = '\n' + temp_text[:max_char].strip()
+    text = temp_text[:max_char].strip()
     if len(temp_text) > max_char:
         text += '...'
     text += '```'

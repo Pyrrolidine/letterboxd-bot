@@ -2,7 +2,6 @@ from .core import *
 from .film import *
 
 
-# TODO HANDLE FILM OBJECT
 class Review(object):
 
     def __init__(self, username, Film):
@@ -66,7 +65,8 @@ class Review(object):
                                + summary_html.contents[3]['href']
             description += '[Review](' + self.review_link + ') '
             description += '' if rating is None else rating.get_text() + '  '
-            description += date.contents[0] if date is not None else ''
+            description += '**{}**'.format(date.contents[0])\
+                           if date is not None else ''
             description += '\n'
 
             if self.n_reviews == 1:
@@ -92,7 +92,7 @@ class Review(object):
                                        parse_only=review_only)
         if review_preview.find('div', class_='contains-spoilers') is not None:
             spoiler_warning = "This review may contain spoilers."
-            preview = '\n```' + spoiler_warning + '```'
+            preview = '```' + spoiler_warning + '```'
         else:
             review_text = review_preview.find('div', itemprop='reviewBody')
             preview = format_text(review_text, 400)
