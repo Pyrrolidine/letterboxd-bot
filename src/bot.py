@@ -96,7 +96,7 @@ async def director(ctx, *, arg):
 async def film(ctx, *, arg):
     memesfile = open('nomemes.txt')
     for meme in memesfile:
-        if arg.strip() == meme.strip():
+        if arg.strip().lower() == meme.strip():
             await send_msg(ctx, '{} Stop using my bot for memes.'
                            .format(ctx.message.author.mention))
             memesfile.close()
