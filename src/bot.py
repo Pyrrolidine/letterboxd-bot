@@ -2,6 +2,10 @@ import discord
 import time
 from discord.ext import commands
 import lbxd
+import json
+import cloudinary
+import cloudinary.uploader
+import requests
 
 with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
@@ -10,12 +14,50 @@ bot = commands.Bot(command_prefix='!', case_insensitive=True,
                    activity=discord.Game('!helplb - v1.4.3'))
 bot.remove_command('help')
 start_time = 0
+s = requests.Session()
+
+with open('Cloudinary') as cloudinary_file:
+    lines = cloudinary_file.readlines()
+    cloudinary.config(
+        cloud_name=lines[0].strip(),
+        api_key=lines[1].strip(),
+        api_secret=lines[2].strip()
+    )
 
 
 @bot.before_invoke
 async def before_invoke(ctx):
     global start_time
     start_time = time.perf_counter()
+
+
+@bot.event
+async def on_command(ctx):
+    result = cloudinary.api.resource('data_bot.txt', resource_type='raw')
+    try:
+        data_file = s.get(result['url'])
+        data_file.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+        return
+    data = json.loads(data_file.text)
+    done = False
+    for server in data['servers']:
+        if server['id'] == ctx.guild.id:
+            server['cmd_used'] += 1
+            done = True
+    if not done:
+        temp_dict = dict()
+        temp_dict['id'] = ctx.guild.id
+        temp_dict['name'] = ctx.guild.name
+        temp_dict.setdefault('cmd_used', 1)
+        data['servers'].append(temp_dict)
+    with open('data_bot.txt', 'w') as data_file:
+        json.dump(data, data_file, indent=2, sort_keys=True)
+    with open('data_bot.txt', 'r') as data_file:
+        cloudinary.uploader.upload(data_file, public_id='data_bot.txt',
+                                   resource_type='raw')
+
 
 
 async def send_msg(ctx, msg):
@@ -197,5 +239,6 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+
 
 bot.run(TOKEN)

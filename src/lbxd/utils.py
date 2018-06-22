@@ -29,7 +29,8 @@ def del_last_line(server_id, channel_id):
                         f.writelines(lines)
                     break
     except FileNotFoundError:
-        open('history_{}.txt'.format(server_id), 'w')
+        with open('history_{}.txt'.format(server_id), 'w'):
+            pass
 
     return msg_id_to_erase
 
@@ -44,7 +45,7 @@ def check_lbxd():
         page = s.get("https://letterboxd.com")
         page.raise_for_status()
         status_embed.description = ':white_check_mark: {} is **up**'\
-                                    .format(lbxd_link)
+                                   .format(lbxd_link)
     except requests.exceptions.HTTPError:
         status_embed.description = ':x: ' + lbxd_link + ' is **down**'
     return status_embed
