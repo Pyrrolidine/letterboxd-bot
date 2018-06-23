@@ -76,7 +76,6 @@ class User(object):
         self.fav_posters_link = list()
 
         if a_html[0].get('title') is not None:
-            fav_text += '**Favourite Films**:\n'
             for fav in a_html:
                 fav_text += '[' + fav['title'] + ']'
                 fav_link = 'https://letterboxd.com{}'.format(fav['href'][:-1])
