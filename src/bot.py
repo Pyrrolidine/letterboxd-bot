@@ -101,6 +101,7 @@ async def film(ctx, *, arg):
                            .format(ctx.message.author.mention))
             memesfile.close()
             return
+    memesfile.close()
     try:
         # eiga.me ratings for a specific server and my test server
         if ctx.guild.id in [316973025386037268, 335569261080739863]:

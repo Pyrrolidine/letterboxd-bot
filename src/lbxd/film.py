@@ -238,27 +238,29 @@ class Film(object):
         nb_directors = 0
         crew_html = lbxd_html.find('div', id='tab-crew')
         director_str = "**Director**: "
-        for crew in crew_html.find_all('a'):
-            if crew['href'].startswith("/director"):
-                director_str += "{}, ".format(crew.get_text())
-                nb_directors += 1
-        if nb_directors > 1:
-            director_str = director_str.replace('irector*', 'irectors*')
-        if nb_directors:
-            description += director_str[:-2] + '\n'
+        if crew_html is not None:
+            for crew in crew_html.find_all('a'):
+                if crew['href'].startswith("/director"):
+                    director_str += "{}, ".format(crew.get_text())
+                    nb_directors += 1
+            if nb_directors > 1:
+                director_str = director_str.replace('irector*', 'irectors*')
+            if nb_directors:
+                description += director_str[:-2] + '\n'
 
         country_html = lbxd_html.find('div', id='tab-details')
-        details_html = country_html.find_all('a')
-        country_str = "**Country:** "
-        plural_country = 0
-        for detail in details_html:
-            if detail['href'].startswith("/films/country/"):
-                country_str += "{}, ".format(detail.get_text())
-                plural_country += 1
-        if plural_country > 1:
-            country_str = country_str.replace('Country', 'Countries')
-        if plural_country:
-            description += country_str[:-2] + '\n'
+        if country_html is not None:
+            details_html = country_html.find_all('a')
+            country_str = "**Country:** "
+            plural_country = 0
+            for detail in details_html:
+                if detail['href'].startswith("/films/country/"):
+                    country_str += "{}, ".format(detail.get_text())
+                    plural_country += 1
+            if plural_country > 1:
+                country_str = country_str.replace('Country', 'Countries')
+            if plural_country:
+                description += country_str[:-2] + '\n'
 
         footer_html = lbxd_html.find('p', class_='text-link text-footer')
         list_footer_text = footer_html.get_text().split()
