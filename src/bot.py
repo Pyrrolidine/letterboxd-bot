@@ -152,15 +152,14 @@ async def delete(ctx):
     command_to_erase = lbxd.utils.del_last_line(str(ctx.message.guild.id),
                                                 str(ctx.message.channel.id))
     deleted_message = False
-    async for log_message in ctx.channel.history(limit=30):
-        if log_message.author == bot.user and not deleted_message:
+    async for log_message in ctx.channel.history(limit=50):
+        if log_message.author == bot.user:
             deleted_message = True
             await log_message.delete()
-            if not len(command_to_erase):
-                break
-        if str(log_message.id) == command_to_erase:
-            await log_message.delete()
             break
+    if deleted_message and len(command_to_erase):
+        user_cmd = await ctx.get_message(int(command_to_erase))
+        await user_cmd.delete()
 
 
 @bot.event
