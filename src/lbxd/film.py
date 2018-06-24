@@ -292,7 +292,6 @@ class Film(object):
         return image_html.find('img')['src']
 
     def get_mkdb_rating(self, lbxd_url):
-        eiga_url = "https://eiga.me/film/"
         try:
             page = s.get(lbxd_url.replace("letterboxd.com", "eiga.me"))
             page.raise_for_status()
