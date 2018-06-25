@@ -155,7 +155,7 @@ class Film(object):
     def get_original_title(self, tmdb_info):
         self.original_title = tmdb_info.json()['original_title']
         if self.original_title != self.title:
-            return '**Original Title**: ' + self.original_title + '\n'
+            return '**Original Title:** ' + self.original_title + '\n'
         return ''
 
     def get_details(self, tmdb_info):
