@@ -2,6 +2,12 @@
 
 This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests such as getting the page of a film, crew person, user or review.
 
+## Contact
+
+**Discord**: Porkepik#2664
+
+[![Discord Invite Image](https://i.imgur.com/qfDfQmt.png)](https://discord.gg/S6m2fRC)
+
 ## Images
 
 ![Screenshot Letterboxd Bot 1](img/lbxd1.png)
@@ -46,9 +52,3 @@ Checks if Letterboxd.com is down.
 **!del**
 
 Deletes the last message by the bot inside the channel. The bot needs the "manage messages" permission for this command to work.
-
-## Contact
-
-**Discord**: Porkepik#2664
-
-[![Discord Invite Image](https://i.imgur.com/qfDfQmt.png)](https://discord.gg/S6m2fRC)
