@@ -132,7 +132,7 @@ class Film(object):
             print(err)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
-        description = "**Director**: "
+        description = "**Director:** "
         nb_directors = 0
         for crew_member in tmdb_credits.json()['crew']:
             if crew_member['job'] == 'Director':
@@ -168,7 +168,7 @@ class Film(object):
 
         description = ''
         if len(self.countries):
-            description += '**Country**: '
+            description += '**Country:** '
             for index, country in enumerate(self.countries):
                 if index:
                     description = description.replace('Country**',
@@ -177,7 +177,7 @@ class Film(object):
                 description += country['name']
             description += '\n'
         if self.runtime is not None:
-            description += '**Length**: ' + str(self.runtime) + ' mins'
+            description += '**Length:** ' + str(self.runtime) + ' mins'
             if self.runtime == 1:
                 description = description.replace('mins', 'min')
             description += '\n'
@@ -306,7 +306,7 @@ class Film(object):
         nb_ratings = 0
         for row in row_lists:
             nb_ratings += len(row.find_all('li'))
-        mkdb_description = '**MKDb Average**: [' + avg_rating
+        mkdb_description = '**MKDb Average:** [' + avg_rating
         mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n]'
         mkdb_description += '(' + page.url + ')'
         return mkdb_description

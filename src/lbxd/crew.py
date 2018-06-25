@@ -72,13 +72,13 @@ class Crew(object):
                 writer_credits += 1
 
         if director_credits:
-            credits_text += "**Director**: " + str(director_credits) + '\n'
+            credits_text += "**Director:** " + str(director_credits) + '\n'
         if writer_credits:
-            credits_text += "**Writer**: " + str(writer_credits) + '\n'
+            credits_text += "**Writer:** " + str(writer_credits) + '\n'
 
         acting_credits = len(person_credits.json()['cast'])
         if acting_credits:
-            credits_text += "**Actor**: " + str(acting_credits) + '\n'
+            credits_text += "**Actor:** " + str(acting_credits) + '\n'
 
         return credits_text
 
@@ -97,13 +97,13 @@ class Crew(object):
             if person_tmdb.json()[element] is None:
                 continue
             if element == 'birthday':
-                details_text += "**Birthday**: " \
+                details_text += "**Birthday:** " \
                                 + person_tmdb.json()[element] + '\n'
             elif element == 'deathday':
-                details_text += "**Day of Death**: " \
+                details_text += "**Day of Death:** " \
                                 + person_tmdb.json()[element] + '\n'
             elif element == 'place_of_birth':
-                details_text += "**Place of Birth**: " \
+                details_text += "**Place of Birth:** " \
                                 + person_tmdb.json()[element]
 
         return details_text
