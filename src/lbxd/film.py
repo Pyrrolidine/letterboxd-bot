@@ -237,14 +237,14 @@ class Film(object):
 
         nb_directors = 0
         crew_html = lbxd_html.find('div', id='tab-crew')
-        director_str = "**Director**: "
+        director_str = "**Director:** "
         if crew_html is not None:
             for crew in crew_html.find_all('a'):
                 if crew['href'].startswith("/director"):
                     director_str += "{}, ".format(crew.get_text())
                     nb_directors += 1
             if nb_directors > 1:
-                director_str = director_str.replace('irector*', 'irectors*')
+                director_str = director_str.replace('irector', 'irectors')
             if nb_directors:
                 description += director_str[:-2] + '\n'
 
@@ -266,7 +266,7 @@ class Film(object):
         list_footer_text = footer_html.get_text().split()
         if list_footer_text[1].startswith('min'):
             self.runtime = list_footer_text[0]
-            description += '**Length**: ' + self.runtime + ' mins'
+            description += '**Length:** ' + self.runtime + ' mins'
             if self.runtime == 1:
                 description = description.replace('mins', 'min')
             description += '\n'
