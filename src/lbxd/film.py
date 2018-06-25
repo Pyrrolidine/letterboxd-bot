@@ -174,7 +174,13 @@ class Film(object):
                     description = description.replace('Country',
                                                       'Countries')
                     description += ', '
-                description += country['name']
+                if country['name'] == 'United Kingdom':
+                    country_name = 'UK'
+                elif country['name'] == 'United States of America':
+                    country_name = 'USA'
+                else:
+                    country_name = country['name']
+                description += country_name
             description += '\n'
         if self.runtime is not None:
             description += '**Length:** ' + str(self.runtime) + ' mins'
