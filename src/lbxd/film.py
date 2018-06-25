@@ -138,7 +138,7 @@ class Film(object):
             if crew_member['job'] == 'Director':
                 nb_directors += 1
                 if nb_directors > 1:
-                    description = description.replace('irector*', 'irectors')
+                    description = description.replace('irector', 'irectors')
                     description += ', '
                 description += crew_member['name']
         if nb_directors:
