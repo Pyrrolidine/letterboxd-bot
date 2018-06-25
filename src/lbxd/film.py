@@ -138,7 +138,7 @@ class Film(object):
             if crew_member['job'] == 'Director':
                 nb_directors += 1
                 if nb_directors > 1:
-                    description = description.replace('irector*', 'irectors*')
+                    description = description.replace('irector*', 'irectors')
                     description += ', '
                 description += crew_member['name']
         if nb_directors:
@@ -171,8 +171,8 @@ class Film(object):
             description += '**Country:** '
             for index, country in enumerate(self.countries):
                 if index:
-                    description = description.replace('Country**',
-                                                      'Countries**')
+                    description = description.replace('Country',
+                                                      'Countries')
                     description += ', '
                 description += country['name']
             description += '\n'
