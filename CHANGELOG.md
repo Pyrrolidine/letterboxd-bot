@@ -2,6 +2,14 @@
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.4](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.4.3...v1.4.4) - 2018-06-19
+### Changed
+- Remove extra newline before the descriptions of !review and !list.
+- Review dates are bold for better visibility.
+
+### Fixed
+- Fix searching collections with !film.
+
 ## [1.4.3](https://gitlab.com/Porkepik/PublicLetterboxdDiscordBot/compare/v1.4.2...v1.4.3) - 2018-06-19
 ### Fixed
 - Fix actor/director search using dots.
