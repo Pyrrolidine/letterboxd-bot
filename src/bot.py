@@ -103,8 +103,12 @@ async def film(ctx, *, arg):
             return
     memesfile.close()
     try:
-        # eiga.me ratings for a specific server and my test server
-        if ctx.guild.id in [316973025386037268, 335569261080739863]:
+        # eiga.me ratings for specific servers
+        mkdb_servers = []
+        with open('mkdb_servers.txt') as mkdb_file:
+            for str_mkdb_server in mkdb_file:
+                mkdb_servers.append(int(str_mkdb_server.strip()))
+        if ctx.guild.id in mkdb_servers:
             cmd_film = lbxd.film.Film(arg, True, True)
         else:
             cmd_film = lbxd.film.Film(arg)
