@@ -138,7 +138,7 @@ class Film(object):
             if crew_member['job'] == 'Director':
                 nb_directors += 1
                 if nb_directors > 1:
-                    description = description.replace('irector', 'irectors')
+                    description = description.replace('irector:', 'irectors:')
                     description += ', '
                 description += crew_member['name']
         if nb_directors:
@@ -244,7 +244,7 @@ class Film(object):
                     director_str += "{}, ".format(crew.get_text())
                     nb_directors += 1
             if nb_directors > 1:
-                director_str = director_str.replace('irector', 'irectors')
+                director_str = director_str.replace('irector:', 'irectors:')
             if nb_directors:
                 description += director_str[:-2] + '\n'
 
