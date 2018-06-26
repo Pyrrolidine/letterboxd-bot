@@ -178,6 +178,7 @@ async def on_command_error(ctx, error):
             or isinstance(error, commands.CheckFailure):
         pass
     else:
+        print(ctx.message)
         raise error
 
 

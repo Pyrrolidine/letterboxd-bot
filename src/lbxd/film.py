@@ -106,13 +106,12 @@ class Film(object):
                 self.title = film_json['title']
             return str(film_json['id'])
         else:
+            if self.has_year:
+                raise LbxdNotFound("No results were found with this search.")
+
             api_url = "https://api.themoviedb.org/3/search/tv?api_key="\
                       + api_key
-            if self.has_year:
-                keywords = ' '.join(keywords.split()[:-1])
             api_url += "&query=" + keywords.replace("’", "")
-            api_url += "&year=" + self.input_year if self.has_year else ''
-
             try:
                 search_results = s.get(api_url)
                 search_results.raise_for_status()
