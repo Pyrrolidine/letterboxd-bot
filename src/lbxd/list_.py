@@ -11,7 +11,8 @@ class List(object):
         self.url = self.find_list(keywords)
         list_page_html = self.load_list_page()
         self.description = self.get_description(list_page_html)
-        self.poster_url = self.get_thumbnail()
+        if len(self.poster_link):
+            self.poster_url = self.get_thumbnail()
 
     def find_list(self, keywords):
         list_link = ''
@@ -52,8 +53,11 @@ class List(object):
                     self.nb_films = user_list.parent.find('small').get_text()
                     list_link = "https://letterboxd.com"\
                                 + user_list.parent.find('a')['href']
-                    self.poster_link = user_list.parent.parent\
-                        .find('li')['data-target-link']
+                    try:
+                        self.poster_link = user_list.parent.parent\
+                            .find('li')['data-target-link']
+                    except KeyError:
+                        self.poster_link = ''
                     i = 20
                     break
             i += 1
@@ -98,5 +102,6 @@ class List(object):
         list_embed = discord.Embed(title=self.list_name, url=self.url,
                                    colour=0xd8b437,
                                    description=self.description)
-        list_embed.set_thumbnail(url=self.poster_url)
+        if len(self.poster_link):
+            list_embed.set_thumbnail(url=self.poster_url)
         return list_embed
