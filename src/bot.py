@@ -94,14 +94,6 @@ async def director(ctx, *, arg):
 
 @bot.command(aliases=['movie', 'f'])
 async def film(ctx, *, arg):
-    memesfile = open('nomemes.txt')
-    for meme in memesfile:
-        if arg.strip().lower() == meme.strip():
-            await send_msg(ctx, '{} Stop using my bot for memes.'
-                           .format(ctx.message.author.mention))
-            memesfile.close()
-            return
-    memesfile.close()
     try:
         # eiga.me ratings for specific servers
         mkdb_servers = []
