@@ -306,7 +306,10 @@ class Film(object):
         rating_html = mkdb_html.find('div', class_='card-body-summary')
         if rating_html is None:
             return ''
-        avg_rating = rating_html.find('h4').get_text()
+        avg_rating_html = rating_html.find('h4')
+        if avg_rating_html is None:
+            return ''
+        avg_rating = avg_rating_html.get_text()
         row_lists = mkdb_html.find_all('section', class_='film-rating-group')
         nb_ratings = 0
         for row in row_lists:
