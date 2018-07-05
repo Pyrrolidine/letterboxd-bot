@@ -7,7 +7,7 @@ with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb - v1.4.4'))
+                   activity=discord.Game('!helplb - v1.4.5'))
 bot.remove_command('help')
 start_time = 0
 
