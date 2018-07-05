@@ -2,14 +2,35 @@ import discord
 import time
 from discord.ext import commands
 import lbxd
+import dbl
+import logging
+import asyncio
 
 with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb - v1.4.5'))
+                   activity=discord.Game('!helplb - v1.4.4'))
 bot.remove_command('help')
 start_time = 0
+
+with open('dbl_token') as token_file:
+    dbl_token = token_file.readline().strip()
+dblpy = dbl.Client(bot, dbl_token)
+logger = logging.getLogger('bot')
+
+
+async def update_stats():
+    while True:
+        logger.info('attempting to post server count')
+        try:
+            await dblpy.post_server_count()
+            logger.info('posted server count ({})'\
+                        .format(len(bot.guilds)))
+        except Exception as e:
+            logger.exception('Failed to post server count\n{}: {}'\
+                             .format(type(e).__name__, e))
+        await asyncio.sleep(1800)
 
 
 @bot.before_invoke
@@ -42,7 +63,8 @@ def keep_history(message):
 @bot.command()
 async def helplb(ctx):
     with open('help.txt') as help_f:
-        help_embed = discord.Embed(colour=0xd8b437)
+        help_embed = discord.Embed(colour=discord.Color.from_rgb(54,57,62))
+        help_embed.set_thumbnail(url="https://i.imgur.com/Kr1diFu.png")
         help_embed.set_author(name="LetterboxdBot",
                               icon_url="https://i.imgur.com/5VALKVy.jpg",
                               url="https://gitlab.com/Porkepik/"
@@ -194,6 +216,8 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    await asyncio.sleep(2)
+    bot.loop.create_task(update_stats())
 
 
 bot.run(TOKEN)
