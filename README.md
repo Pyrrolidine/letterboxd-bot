@@ -6,6 +6,8 @@ This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letter
 
 **Discord**: Porkepik#2664
 
+[![Discord Bots](https://discordbots.org/api/widget/437737824255737857.svg)](https://discordbots.org/bot/437737824255737857)
+
 [![Discord Invite Image](https://i.imgur.com/qfDfQmt.png)](https://discord.gg/S6m2fRC)
 
 ## Images
