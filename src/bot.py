@@ -167,16 +167,22 @@ async def review(ctx, user, *args):
 @commands.bot_has_permissions(manage_messages=True)
 async def delete(ctx):
     await ctx.message.delete()
-    command_to_erase = lbxd.utils.del_last_line(str(ctx.message.guild.id),
-                                                str(ctx.message.channel.id))
+    command_to_erase = lbxd.utils.del_last_line(str(ctx.guild.id),
+                                                str(ctx.channel.id))
+    if len(command_to_erase):
+        user_cmd = await ctx.get_message(int(command_to_erase))
+    else:
+        return
+    if not ctx.author.permissions_in(ctx.channel).manage_messages:
+        if not user_cmd.author.id == ctx.author.id:
+            return
     deleted_message = False
     async for log_message in ctx.channel.history(limit=50):
         if log_message.author == bot.user:
             deleted_message = True
             await log_message.delete()
             break
-    if deleted_message and len(command_to_erase):
-        user_cmd = await ctx.get_message(int(command_to_erase))
+    if deleted_message:
         await user_cmd.delete()
 
 
@@ -200,8 +206,9 @@ async def on_command_error(ctx, error):
 async def on_message(message):
     if message.author == bot.user:
         return
-    if message.guild.id in [264445053596991498]:
-        return
+    if message.guild is not None:
+        if message.guild.id in [264445053596991498]:
+            return
 
     await bot.process_commands(message)
     if not message.content.startswith('!'):
