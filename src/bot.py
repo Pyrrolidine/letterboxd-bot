@@ -14,10 +14,10 @@ bot = commands.Bot(command_prefix='!', case_insensitive=True,
 bot.remove_command('help')
 start_time = 0
 
-with open('dbl_token') as token_file:
-    dbl_token = token_file.readline().strip()
-dblpy = dbl.Client(bot, dbl_token)
-logger = logging.getLogger('bot')
+#with open('dbl_token') as token_file:
+#    dbl_token = token_file.readline().strip()
+#dblpy = dbl.Client(bot, dbl_token)
+#logger = logging.getLogger('bot')
 
 
 async def update_stats():
@@ -200,6 +200,8 @@ async def on_command_error(ctx, error):
 async def on_message(message):
     if message.author == bot.user:
         return
+    if message.guild.id in [264445053596991498]:
+        return
 
     await bot.process_commands(message)
     if not message.content.startswith('!'):
@@ -217,7 +219,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     await asyncio.sleep(2)
-    bot.loop.create_task(update_stats())
+    #bot.loop.create_task(update_stats())
 
 
 bot.run(TOKEN)

@@ -77,7 +77,7 @@ class Film(object):
                 self.title = result_link.contents[0].strip()
             return result_link['href']
         else:
-            raise LbxdNotFound("No results were found with this search.")
+            raise LbxdNotFound("No films were found with this search.")
 
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
@@ -107,7 +107,7 @@ class Film(object):
             return str(film_json['id'])
         else:
             if self.has_year:
-                raise LbxdNotFound("No results were found with this search.")
+                raise LbxdNotFound("No films were found with this search.")
 
             api_url = "https://api.themoviedb.org/3/search/tv?api_key="\
                       + api_key
@@ -120,7 +120,7 @@ class Film(object):
                 raise LbxdServerError("There was a problem trying to access "
                                       + "TMDb.")
             if not len(search_results.json()['results']):
-                raise LbxdNotFound("No results were found with this search.")
+                raise LbxdNotFound("No films were found with this search.")
 
     def get_credits(self):
         api_url = self.api_url + "/credits?api_key=" + api_key

@@ -22,7 +22,7 @@ class Crew(object):
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             if page.status_code == 404:
-                raise LbxdNotFound("No results were found with this search.")
+                raise LbxdNotFound("No person was found with this search.")
             else:
                 print(err)
                 raise LbxdServerError("There was a problem trying to "
@@ -31,7 +31,7 @@ class Crew(object):
         html_soup = BeautifulSoup(page.text, "lxml")
         results_html = html_soup.find('ul', class_='results')
         if results_html is None:
-            raise LbxdNotFound("No results were found with this search.")
+            raise LbxdNotFound("No person was found with this search.")
 
         search_html = results_html.find('h2', class_="title-2 prettify")
 
