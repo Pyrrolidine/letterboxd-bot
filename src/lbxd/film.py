@@ -6,7 +6,6 @@ class Film(object):
     def __init__(self, keywords, with_info=True, is_metropolis=False):
         self.has_year = False
         self.fix_search = False
-        self.is_tv = False
         self.year = ''
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
@@ -63,8 +62,7 @@ class Film(object):
         result_html = BeautifulSoup(page.text, 'lxml', parse_only=first_result)
         result_link = result_html.find('a')
         if result_link is not None:
-            if not self.fix_search:
-                self.title = result_link.contents[0].strip()
+            self.title = result_link.contents[0].strip()
             return result_link['href']
         else:
             raise LbxdNotFound("No films were found with this search.")
@@ -72,8 +70,7 @@ class Film(object):
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
                   + api_key
-        if self.has_year:
-            keywords = ' '.join(keywords.split()[:-1])
+        keywords = ' '.join(keywords.split()[:-1])
         api_url += "&query=" + keywords.replace("’", "")
         api_url += "&year=" + self.input_year if self.has_year else ''
 
@@ -88,29 +85,14 @@ class Film(object):
     def get_tmdb_id(self, search_response, keywords):
         if len(search_response.json()['results']):
             film_json = search_response.json()['results'][0]
-            if self.has_year:
-                for search in search_response.json()['results']:
-                    if search['release_date'].split('-')[0] == self.input_year:
-                        film_json = search
-                        break
-                self.title = film_json['title']
+            for search in search_response.json()['results']:
+                if search['release_date'].split('-')[0] == self.input_year:
+                    film_json = search
+                    break
+            self.title = film_json['title']
             return str(film_json['id'])
         else:
-            if self.has_year:
-                raise LbxdNotFound("No films were found with this search.")
-
-            api_url = "https://api.themoviedb.org/3/search/tv?api_key="\
-                      + api_key
-            api_url += "&query=" + keywords.replace("’", "")
-            try:
-                search_results = s.get(api_url)
-                search_results.raise_for_status()
-            except requests.exceptions.HTTPError as err:
-                print(err)
-                raise LbxdServerError("There was a problem trying to access "
-                                      + "TMDb.")
-            if not len(search_results.json()['results']):
-                raise LbxdNotFound("No films were found with this search.")
+            raise LbxdNotFound("No films were found with this search.")
 
 
     def get_lbxd_page(self):
