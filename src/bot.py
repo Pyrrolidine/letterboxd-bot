@@ -10,9 +10,10 @@ with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb - v1.4.4'))
+                   activity=discord.Game('!helplb - v1.5'))
 bot.remove_command('help')
 start_time = 0
+cmd_list = list()
 
 #with open('dbl_token') as token_file:
 #    dbl_token = token_file.readline().strip()
@@ -25,10 +26,10 @@ async def update_stats():
         logger.info('attempting to post server count')
         try:
             await dblpy.post_server_count()
-            logger.info('posted server count ({})'\
+            logger.info('posted server count ({})'
                         .format(len(bot.guilds)))
         except Exception as e:
-            logger.exception('Failed to post server count\n{}: {}'\
+            logger.exception('Failed to post server count\n{}: {}'
                              .format(type(e).__name__, e))
         await asyncio.sleep(1800)
 
@@ -40,7 +41,6 @@ async def before_invoke(ctx):
 
 
 async def send_msg(ctx, msg):
-    keep_history(ctx.message)
     if isinstance(msg, discord.Embed):
         global start_time
         # Checks if the command took more than 5 seconds
@@ -52,20 +52,14 @@ async def send_msg(ctx, msg):
     else:
         await ctx.send(msg)
     if ctx.guild.id == 335569261080739863:
+        return
         await ctx.send("Cmd time: {}".format(time.perf_counter() - start_time))
-
-
-def keep_history(message):
-    if not isinstance(message.channel, discord.DMChannel):
-        with open('history_{}.txt'.format(message.guild.id), 'a') as f:
-            f.write(str(message.channel.id) + ' ' + str(message.id) + '\n')
-        lbxd.utils.limit_history(30, str(message.guild.id))
 
 
 @bot.command()
 async def helplb(ctx):
     with open('help.txt') as help_f:
-        help_embed = discord.Embed(colour=discord.Color.from_rgb(54,57,62))
+        help_embed = discord.Embed(colour=discord.Color.from_rgb(54, 57, 62))
         help_embed.set_thumbnail(url="https://i.imgur.com/Kr1diFu.png")
         help_embed.set_author(name="LetterboxdBot",
                               icon_url="https://i.imgur.com/5VALKVy.jpg",
@@ -169,28 +163,34 @@ async def review(ctx, user, *args):
 @commands.bot_has_permissions(manage_messages=True)
 async def delete(ctx):
     await ctx.message.delete()
-    command_to_erase = lbxd.utils.del_last_line(str(ctx.guild.id),
-                                                str(ctx.channel.id))
-    if len(command_to_erase):
-        user_cmd = await ctx.get_message(int(command_to_erase))
-    else:
-        return
-    if not ctx.author.permissions_in(ctx.channel).manage_messages:
-        if not user_cmd.author.id == ctx.author.id:
-            return
-    deleted_message = False
-    async for log_message in ctx.channel.history(limit=50):
-        if log_message.author == bot.user:
-            deleted_message = True
-            await log_message.delete()
-            break
-    if deleted_message:
-        await user_cmd.delete()
+    found_bot_msg = False
+    found_usr_cmd = False
+    async for log_message in ctx.channel.history(limit=30):
+        if found_bot_msg:
+            if not log_message.content.startswith('!'):
+                continue
+            for cmd in cmd_list:
+                if log_message.content.startswith('!{} '.format(cmd))\
+                   or log_message.content in ['!checklb', '!helplb']:
+                    cmd_message = log_message
+                    found_usr_cmd = True
+                    break
+            if found_usr_cmd:
+                break
+        if log_message.author == bot.user and not found_bot_msg:
+            bot_message = log_message
+            found_bot_msg = True
+
+    if found_usr_cmd:
+        if not ctx.author.permissions_in(ctx.channel).manage_messages:
+            if not cmd_message.author.id == ctx.author.id:
+                return
+        await bot_message.delete()
+        await cmd_message.delete()
 
 
 @bot.event
 async def on_command_error(ctx, error):
-    keep_history(ctx.message)
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
     elif isinstance(error, commands.BotMissingPermissions):
@@ -228,6 +228,10 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     await asyncio.sleep(2)
+    for command in bot.commands:
+        cmd_list.append(command.name)
+        for alias in command.aliases:
+            cmd_list.append(alias)
     #bot.loop.create_task(update_stats())
 
 
