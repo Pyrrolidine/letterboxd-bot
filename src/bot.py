@@ -52,7 +52,6 @@ async def send_msg(ctx, msg):
     else:
         await ctx.send(msg)
     if ctx.guild.id == 335569261080739863:
-        return
         await ctx.send("Cmd time: {}".format(time.perf_counter() - start_time))
 
 
