@@ -10,8 +10,8 @@ class Film(object):
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
         if not self.fix_search:
+            search_response = self.load_tmdb_search(keywords)
             if self.has_year:
-                search_response = self.load_tmdb_search(keywords)
                 self.tmdb_id = self.get_tmdb_id(search_response, keywords)
             else:
                 self.lbxd_id = self.load_lbxd_search(keywords)
@@ -70,30 +70,29 @@ class Film(object):
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
                   + api_key
-        keywords = ' '.join(keywords.split()[:-1])
+        if self.has_year:
+            keywords = ' '.join(keywords.split()[:-1])
         api_url += "&query=" + keywords.replace("’", "")
         api_url += "&year=" + self.input_year if self.has_year else ''
 
         try:
             search_results = s.get(api_url)
             search_results.raise_for_status()
+            if not len(search_results.json()['results']):
+                raise LbxdNotFound("No films were found with this search.")
             return search_results
         except requests.exceptions.HTTPError as err:
             print(err)
             raise LbxdServerError("There was a problem trying to access TMDb.")
 
     def get_tmdb_id(self, search_response, keywords):
-        if len(search_response.json()['results']):
-            film_json = search_response.json()['results'][0]
-            for search in search_response.json()['results']:
-                if search['release_date'].split('-')[0] == self.input_year:
-                    film_json = search
-                    break
-            self.title = film_json['title']
-            return str(film_json['id'])
-        else:
-            raise LbxdNotFound("No films were found with this search.")
-
+        film_json = search_response.json()['results'][0]
+        for search in search_response.json()['results']:
+            if search['release_date'].split('-')[0] == self.input_year:
+                film_json = search
+                break
+        self.title = film_json['title']
+        return str(film_json['id'])
 
     def get_lbxd_page(self):
         if self.has_year or self.fix_search:
@@ -117,7 +116,6 @@ class Film(object):
         lbxd_html = BeautifulSoup(page.text, 'lxml',
                                   parse_only=content_only)
         return lbxd_html
-
 
     def get_details_lbxd(self, lbxd_html):
         description = ''
