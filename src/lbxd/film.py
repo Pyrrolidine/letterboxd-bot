@@ -10,29 +10,17 @@ class Film(object):
         self.year = ''
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
-        if not self.fix_search:
+        if not self.fix_search and self.has_year:
             search_response = self.load_tmdb_search(keywords)
             self.tmdb_id = self.get_tmdb_id(search_response, keywords)
-            if not self.has_year:
-                self.lbxd_id = self.load_lbxd_search(keywords)
+        else:
+            self.lbxd_id = self.load_lbxd_search(keywords)
         lbxd_page = self.get_lbxd_page()
         lbxd_html = self.create_bs_html(lbxd_page)
-        if not self.has_year and not self.fix_search:
-            self.tmdb_id = self.get_tmdb_id_from_lbxd(lbxd_html)
         self.poster_path = self.get_poster()
         if not with_info:
             return
-        if not self.is_tv:
-            self.api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id
-            try:
-                tmdb_info = self.load_details()
-                self.description = self.get_original_title(tmdb_info)
-                self.description += self.get_credits()
-                self.description += self.get_details(tmdb_info)
-            except requests.exceptions.HTTPError as err:
-                self.description = self.get_details_lbxd(lbxd_html)
-        else:
-            self.description = self.get_details_lbxd(lbxd_html)
+        self.description = self.get_details_lbxd(lbxd_html)
         if is_metropolis:
             self.description += self.get_mkdb_rating(lbxd_page.url)
         self.description += self.get_views(lbxd_html)
@@ -60,6 +48,7 @@ class Film(object):
     def load_lbxd_search(self, keywords):
         try:
             keywords = keywords.replace('\\', '')
+            keywords = ''.join(keywords.splitlines())
             path = urllib.parse.quote_plus(keywords.replace('/', ' '))
             page = s.get("https://letterboxd.com/search/films/{}/"
                          .format(path))
@@ -122,72 +111,6 @@ class Film(object):
             if not len(search_results.json()['results']):
                 raise LbxdNotFound("No films were found with this search.")
 
-    def get_credits(self):
-        api_url = self.api_url + "/credits?api_key=" + api_key
-        try:
-            tmdb_credits = s.get(api_url)
-            tmdb_credits.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError("There was a problem trying to access TMDb.")
-
-        description = "**Director:** "
-        nb_directors = 0
-        for crew_member in tmdb_credits.json()['crew']:
-            if crew_member['job'] == 'Director':
-                nb_directors += 1
-                if nb_directors > 1:
-                    description = description.replace('irector:', 'irectors:')
-                    description += ', '
-                description += crew_member['name']
-        if nb_directors:
-            return description + '\n'
-        return ''
-
-    def load_details(self):
-        api_url = self.api_url + "?api_key=" + api_key
-        tmdb_info = s.get(api_url)
-        tmdb_info.raise_for_status()
-
-        return tmdb_info
-
-    def get_original_title(self, tmdb_info):
-        self.original_title = tmdb_info.json()['original_title']
-        if self.original_title != self.title:
-            return '**Original Title:** ' + self.original_title + '\n'
-        return ''
-
-    def get_details(self, tmdb_info):
-        self.release_date = tmdb_info.json()['release_date']
-        if self.release_date is not None:
-            self.year = self.release_date.split('-')[0]
-
-        self.runtime = tmdb_info.json()['runtime']
-        self.countries = tmdb_info.json()['production_countries']
-
-        description = ''
-        if len(self.countries):
-            description += '**Country:** '
-            for index, country in enumerate(self.countries):
-                if index:
-                    description = description.replace('Country',
-                                                      'Countries')
-                    description += ', '
-                if country['name'] == 'United Kingdom':
-                    country_name = 'UK'
-                elif country['name'] == 'United States of America':
-                    country_name = 'USA'
-                else:
-                    country_name = country['name']
-                description += country_name
-            description += '\n'
-        if self.runtime is not None:
-            description += '**Length:** ' + str(self.runtime) + ' mins'
-            if self.runtime == 1:
-                description = description.replace('mins', 'min')
-            description += '\n'
-
-        return description
 
     def get_lbxd_page(self):
         if self.has_year or self.fix_search:
@@ -212,20 +135,6 @@ class Film(object):
                                   parse_only=content_only)
         return lbxd_html
 
-    def get_tmdb_id_from_lbxd(self, lbxd_html):
-        links_html = lbxd_html.find('p', class_="text-link text-footer")
-        for link in links_html.find_all('a'):
-            if link['href'].startswith('https://www.themovie'):
-                try:
-                    page = s.get(link['href'])
-                    page.raise_for_status()
-                except requests.exceptions.HTTPError:
-                    if page.status_code == 404:
-                        self.is_tv = True
-                list_link = link['href'].split('/')
-                if list_link[-3] in ['tv', 'collection']:
-                    self.is_tv = True
-                return list_link[-2]
 
     def get_details_lbxd(self, lbxd_html):
         description = ''

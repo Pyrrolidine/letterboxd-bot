@@ -43,14 +43,16 @@ async def send_msg(ctx, msg):
     keep_history(ctx.message)
     if isinstance(msg, discord.Embed):
         global start_time
-        # Checks if the command took more than 5 seconds
-        if time.perf_counter() - start_time > 5:
+        # Checks if the command took more than 6 seconds
+        if time.perf_counter() - start_time > 6:
             msg.set_footer(text="The bot was slow to respond."
                                 + " This may be due to a server issue "
                                 + "from a third-party service.")
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
+    if ctx.guild.id == 335569261080739863:
+        await ctx.send("Cmd time: {}".format(time.perf_counter() - start_time))
 
 
 def keep_history(message):
