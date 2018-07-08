@@ -1,8 +1,6 @@
 git+https://github.com/Rapptz/discord.py@rewrite
-aiohttp
-websockets
-chardet
 BeautifulSoup4
 requests
 lxml
 cloudinary
+dblpy
