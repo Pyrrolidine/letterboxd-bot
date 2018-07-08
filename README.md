@@ -2,15 +2,8 @@
 
 This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests such as getting the page of a film, crew person, user or review.
 
-## Contact
-
-**Discord**: Porkepik#2664
-
 [![Discord Bots](https://discordbots.org/api/widget/437737824255737857.svg)](https://discordbots.org/bot/437737824255737857)
-
 [![Discord Invite Image](https://i.imgur.com/qfDfQmt.png)](https://discord.gg/S6m2fRC)
-
-## Images
 
 ![Screenshot Letterboxd Bot 1](https://i.imgur.com/zL9cJp0.png)
 ![Screenshot Letterboxd Bot 2](https://i.imgur.com/scbw50J.png)
