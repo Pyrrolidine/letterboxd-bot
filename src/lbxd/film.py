@@ -10,19 +10,18 @@ class Film(object):
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
         if not self.fix_search:
-            search_response = self.load_tmdb_search(keywords)
             if self.has_year:
+                search_response = self.load_tmdb_search(keywords)
                 self.tmdb_id = self.get_tmdb_id(search_response, keywords)
             else:
                 self.lbxd_id = self.load_lbxd_search(keywords)
-        lbxd_page = self.get_lbxd_page()
-        lbxd_html = self.create_bs_html(lbxd_page)
+        lbxd_html = self.get_lbxd_page()
         self.poster_path = self.get_poster()
         if not with_info:
             return
         self.description = self.get_details_lbxd(lbxd_html)
         if is_metropolis:
-            self.description += self.get_mkdb_rating(lbxd_page.url)
+            self.description += self.get_mkdb_rating()
         self.description += self.get_views(lbxd_html)
 
     def check_year(self, keywords):
@@ -109,21 +108,18 @@ class Film(object):
             print(err)
             raise LbxdServerError("There was a problem trying to access "
                                   + "Letterboxd.")
-        return page
 
-    def create_bs_html(self, page):
         content_only = SoupStrainer('div', id='film-page-wrapper')
         lbxd_html = BeautifulSoup(page.text, 'lxml',
                                   parse_only=content_only)
+        year_html = lbxd_html.find('small', class_='number')
+        if year_html is not None:
+            self.year = year_html.get_text()
         return lbxd_html
 
     def get_details_lbxd(self, lbxd_html):
         description = ''
         header_html = lbxd_html.find('section', id='featured-film-header')
-        year_html = lbxd_html.find('small', class_='number')
-        if year_html is not None:
-            self.year = year_html.get_text()
-
         original_html = header_html.find('em')
         if original_html is not None:
             self.original_title = original_html.get_text().replace('’', '')
@@ -186,9 +182,9 @@ class Film(object):
         image_html = BeautifulSoup(page.text, 'lxml')
         return image_html.find('img')['src']
 
-    def get_mkdb_rating(self, lbxd_url):
+    def get_mkdb_rating(self):
         try:
-            page = s.get(lbxd_url.replace("letterboxd.com", "eiga.me"))
+            page = s.get(self.lbxd_url.replace("letterboxd.com", "eiga.me"))
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             return ''

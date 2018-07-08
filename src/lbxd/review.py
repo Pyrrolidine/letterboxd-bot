@@ -36,8 +36,9 @@ class Review(object):
         activity_html = BeautifulSoup(page.text, "lxml",
                                       parse_only=contents_only)
         if not activity_html.find('div'):
-            raise LbxdNotFound('{0} has not seen {1}.'
-                               .format(self.username, self.film.title))
+            raise LbxdNotFound('{0} has not seen {1} ({2}).'
+                               .format(self.username, self.film.title,
+                                       self.film.year))
         return activity_html
 
     def find_reviews(self, activity_html):
@@ -73,8 +74,9 @@ class Review(object):
                 description += self.get_review_preview()
 
         if len(description) == 0:
-            raise LbxdNotFound('{0} does not have a review for {1}.'
-                               .format(self.username, self.film.title))
+            raise LbxdNotFound('{0} does not have a review for {1} ({2}).'
+                               .format(self.username, self.film.title,
+                                       self.film.year))
 
         self.display_name = rows_html[0].find('a', class_='avatar')\
             .contents[1]['alt']
