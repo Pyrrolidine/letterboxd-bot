@@ -105,9 +105,9 @@ class Review(object):
         review_word = 'reviews' if self.n_reviews > 1 else 'review'
         embed_link = self.url if self.n_reviews > 1 else self.review_link
 
-        review_embed = discord.Embed(title="{0} {1} of {2}"
-                                     .format(self.display_name,
-                                             review_word, self.film.title),
+        review_embed = discord.Embed(title="{0} {1} of {2} ({3})"
+                                     .format(self.display_name, review_word,
+                                             self.film.title, self.film.year),
                                      url=embed_link, colour=0xd8b437,
                                      description=self.description)
 

@@ -60,16 +60,19 @@ async def helplb(ctx):
     with open('help.txt') as help_f:
         help_embed = discord.Embed(colour=discord.Color.from_rgb(54, 57, 62))
         help_embed.set_thumbnail(url="https://i.imgur.com/Kr1diFu.png")
-        help_embed.set_author(name="LetterboxdBot",
+        help_embed.set_author(name="Letterboxd Bot",
                               icon_url="https://i.imgur.com/5VALKVy.jpg",
-                              url="https://gitlab.com/Porkepik/"
-                                   + "PublicLetterboxdDiscordBot")
+                              url="https://discordbots.org/bot/"
+                                   + "437737824255737857")
         help_embed.set_footer(text="Created by Porkepik#2664",
                               icon_url="https://i.imgur.com/li4cLpd.png")
         for line in help_f:
             if not line.startswith('!'):
                 continue
             help_embed.add_field(name=line, value=next(help_f), inline=False)
+        help_embed.description = "[Invite Bot](https://discordapp.com/oauth2"\
+                                + "/authorize?client_id=437737824255737857"\
+                                + "&permissions=93184&scope=bot)"
     await send_msg(ctx, help_embed)
 
 
