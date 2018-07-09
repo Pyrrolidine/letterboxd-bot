@@ -15,10 +15,10 @@ bot.remove_command('help')
 start_time = 0
 cmd_list = list()
 
-#with open('dbl_token') as token_file:
-#    dbl_token = token_file.readline().strip()
-#dblpy = dbl.Client(bot, dbl_token)
-#logger = logging.getLogger('bot')
+with open('dbl_token') as token_file:
+    dbl_token = token_file.readline().strip()
+dblpy = dbl.Client(bot, dbl_token)
+logger = logging.getLogger('bot')
 
 
 async def update_stats():
@@ -51,7 +51,7 @@ async def send_msg(ctx, msg):
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
-    if ctx.guild.id == 335569261080739863:
+    if ctx.guild is not None and ctx.guild.id == 335569261080739863:
         await ctx.send("cmd time: {}".format(time.perf_counter() - start_time))
 
 
@@ -120,7 +120,7 @@ async def film(ctx, *, arg):
         with open('mkdb_servers.txt') as mkdb_file:
             for str_mkdb_server in mkdb_file:
                 mkdb_servers.append(int(str_mkdb_server.strip()))
-        if ctx.guild.id in mkdb_servers:
+        if ctx.guild is not None and ctx.guild.id in mkdb_servers:
             cmd_film = lbxd.film.Film(arg, True, True)
         else:
             cmd_film = lbxd.film.Film(arg)
@@ -234,7 +234,7 @@ async def on_ready():
         cmd_list.append(command.name)
         for alias in command.aliases:
             cmd_list.append(alias)
-    #bot.loop.create_task(update_stats())
+    bot.loop.create_task(update_stats())
 
 
 bot.run(TOKEN)
