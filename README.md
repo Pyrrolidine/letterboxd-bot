@@ -5,7 +5,7 @@ This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letter
 [![Discord Bots](https://discordbots.org/api/widget/437737824255737857.svg)](https://discordbots.org/bot/437737824255737857)
 [![Discord Invite Image](https://i.imgur.com/qfDfQmt.png)](https://discord.gg/S6m2fRC)
 
-![Screenshot Letterboxd Bot 1](https://i.imgur.com/zL9cJp0.png)
+![Screenshot Letterboxd Bot 1](https://i.imgur.com/pexF7Ow.png)
 ![Screenshot Letterboxd Bot 2](https://i.imgur.com/scbw50J.png)
 ![Screenshot Letterboxd Bot 3](https://i.imgur.com/K5EXmBb.png)
 
