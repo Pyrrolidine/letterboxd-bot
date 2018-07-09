@@ -15,10 +15,10 @@ bot.remove_command('help')
 start_time = 0
 cmd_list = list()
 
-with open('dbl_token') as token_file:
-    dbl_token = token_file.readline().strip()
-dblpy = dbl.Client(bot, dbl_token)
-logger = logging.getLogger('bot')
+#with open('dbl_token') as token_file:
+#    dbl_token = token_file.readline().strip()
+#dblpy = dbl.Client(bot, dbl_token)
+#logger = logging.getLogger('bot')
 
 
 async def update_stats():
@@ -234,7 +234,7 @@ async def on_ready():
         cmd_list.append(command.name)
         for alias in command.aliases:
             cmd_list.append(alias)
-    bot.loop.create_task(update_stats())
+    #bot.loop.create_task(update_stats())
 
 
 bot.run(TOKEN)
