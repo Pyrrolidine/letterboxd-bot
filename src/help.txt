@@ -10,5 +10,7 @@ Displays the reviews of a film from a specified user. The year is optional.
 Searches a list by the specified user.
 !checklb
 Checks if letterboxd.com is down.
+!slowlb <seconds>
+Enables a slow mode, requires the manage messages permission.
 !del
 Deletes the last message the bot sent in a channel.

@@ -5,6 +5,7 @@ import lbxd
 import dbl
 import logging
 import asyncio
+import json
 
 with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
@@ -15,10 +16,10 @@ bot.remove_command('help')
 start_time = 0
 cmd_list = list()
 
-#with open('dbl_token') as token_file:
-#    dbl_token = token_file.readline().strip()
-#dblpy = dbl.Client(bot, dbl_token)
-#logger = logging.getLogger('bot')
+with open('dbl_token') as token_file:
+    dbl_token = token_file.readline().strip()
+dblpy = dbl.Client(bot, dbl_token)
+logger = logging.getLogger('bot')
 
 
 async def update_stats():
@@ -40,6 +41,24 @@ async def before_invoke(ctx):
     start_time = time.perf_counter()
 
 
+async def on_cooldown(ctx):
+    with open('data_bot.txt') as data_file:
+        data = json.load(data_file)
+
+    for server in data['servers']:
+        if server['id'] == ctx.guild.id:
+            delay = server['delay']
+            if time.perf_counter() > delay:
+                server['delay'] = time.perf_counter()\
+                                  + float(server['slowtime'])
+                with open('data_bot.txt', 'w') as data_file:
+                    json.dump(data, data_file, indent=2, sort_keys=True)
+                return True
+            else:
+                await ctx.message.delete()
+                return False
+
+
 async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
         global start_time
@@ -56,6 +75,7 @@ async def send_msg(ctx, msg):
 
 
 @bot.command()
+@commands.check(on_cooldown)
 async def helplb(ctx):
     with open('help.txt') as help_f:
         help_embed = discord.Embed(colour=discord.Color.from_rgb(54, 57, 62))
@@ -77,12 +97,37 @@ async def helplb(ctx):
 
 
 @bot.command()
+@commands.has_permissions(manage_messages=True)
+async def slowlb(ctx, user_slowtime):
+    if float(user_slowtime) < 0:
+        user_slowtime = '0'
+    with open('data_bot.txt') as data_file:
+        data = json.load(data_file)
+
+    for server in data['servers']:
+        if server['id'] == ctx.guild.id:
+            server['slowtime'] = user_slowtime
+            server['delay'] = 0
+            with open('data_bot.txt', 'w') as data_file:
+                json.dump(data, data_file, indent=2, sort_keys=True)
+            break
+
+    if float(user_slowtime):
+        await ctx.send("A slow mode of {} seconds has been enabled."
+                       .format(user_slowtime))
+    else:
+        await ctx.send("Slow mode disabled.")
+
+
+@bot.command()
+@commands.check(on_cooldown)
 async def checklb(ctx):
     msg = lbxd.utils.check_lbxd()
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['u'])
+@commands.check(on_cooldown)
 async def user(ctx, arg):
     try:
         cmd_user = lbxd.user.User(arg)
@@ -93,6 +138,7 @@ async def user(ctx, arg):
 
 
 @bot.command(aliases=['a'])
+@commands.check(on_cooldown)
 async def actor(ctx, *, arg):
     try:
         actor = lbxd.crew.Crew(arg, "/actors/")
@@ -103,6 +149,7 @@ async def actor(ctx, *, arg):
 
 
 @bot.command(aliases=['d'])
+@commands.check(on_cooldown)
 async def director(ctx, *, arg):
     try:
         director = lbxd.crew.Crew(arg, "/directors/")
@@ -113,6 +160,7 @@ async def director(ctx, *, arg):
 
 
 @bot.command(aliases=['movie', 'f'])
+@commands.check(on_cooldown)
 async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
@@ -138,6 +186,7 @@ async def check_if_two_args(ctx):
 
 
 @bot.command(aliases=['l'])
+@commands.check(on_cooldown)
 @commands.check(check_if_two_args)
 async def list(ctx, user, *args):
     try:
@@ -150,6 +199,7 @@ async def list(ctx, user, *args):
 
 
 @bot.command(aliases=['r'])
+@commands.check(on_cooldown)
 @commands.check(check_if_two_args)
 async def review(ctx, user, *args):
     try:
@@ -198,6 +248,11 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send('The bot needs the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send('You need the {} permission to use this command.'
+                       .format(', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, commands.CommandOnCooldown):
+        await ctx.message.delete()
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
@@ -229,12 +284,13 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    lbxd.utils.update_json(bot.guilds)
     await asyncio.sleep(2)
     for command in bot.commands:
         cmd_list.append(command.name)
         for alias in command.aliases:
             cmd_list.append(alias)
-    #bot.loop.create_task(update_stats())
+    bot.loop.create_task(update_stats())
 
 
 bot.run(TOKEN)

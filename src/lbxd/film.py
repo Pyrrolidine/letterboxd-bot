@@ -69,8 +69,7 @@ class Film(object):
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
                   + api_key
-        if self.has_year:
-            keywords = ' '.join(keywords.split()[:-1])
+        keywords = ' '.join(keywords.split()[:-1])
         api_url += "&query=" + keywords.replace("’", "")
         api_url += "&year=" + self.input_year if self.has_year else ''
 
