@@ -251,8 +251,6 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send('You need the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
-    elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.message.delete()
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
