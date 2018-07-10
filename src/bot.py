@@ -11,7 +11,8 @@ with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb'))
+                   activity=discord.Game('!helplb'),
+                   owner_id=81412646271717376)
 bot.remove_command('help')
 start_time = 0
 cmd_list = list()
@@ -44,11 +45,14 @@ async def before_invoke(ctx):
 async def on_cooldown(ctx):
     with open('data_bot.txt') as data_file:
         data = json.load(data_file)
+    owner_bot = await bot.is_owner(ctx.author)
 
     for server in data['servers']:
         if server['id'] == ctx.guild.id:
             delay = server['delay']
-            if time.perf_counter() > delay:
+            if time.perf_counter() > delay\
+              or ctx.author.permissions_in(ctx.channel).manage_messages\
+              or owner_bot:
                 server['delay'] = time.perf_counter()\
                                   + float(server['slowtime'])
                 with open('data_bot.txt', 'w') as data_file:
@@ -99,6 +103,8 @@ async def helplb(ctx):
 @bot.command()
 @commands.has_permissions(manage_messages=True)
 async def slowlb(ctx, user_slowtime):
+    if not user_slowtime.isdigit():
+        return
     if float(user_slowtime) < 0:
         user_slowtime = '0'
     with open('data_bot.txt') as data_file:
