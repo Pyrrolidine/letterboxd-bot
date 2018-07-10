@@ -32,7 +32,7 @@ Search list from a specified user.
 **!checklb**  
 Checks if Letterboxd is down.
 
-**!slowlb \<seconds> \<timer>**  
+**!slowlb \<seconds> (\<timer>)**  
 Enables a slow mode of the specified seconds, timer is in minutes and optional. Requires the manage messages permission.
 
 **!del**  
