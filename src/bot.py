@@ -50,9 +50,18 @@ async def on_cooldown(ctx):
     for server in data['servers']:
         if server['id'] == ctx.guild.id:
             delay = server['delay']
-            if time.perf_counter() > delay\
-              or ctx.author.permissions_in(ctx.channel).manage_messages\
+
+            if time.perf_counter() > float(server['timer'])\
+              and int(server['timer']):
+                server['delay'] = 0
+                server['slowtime'] = 0
+                with open('data_bot.txt', 'w') as data_file:
+                    json.dump(data, data_file, indent=2, sort_keys=True)
+                return True
+            elif ctx.author.permissions_in(ctx.channel).manage_messages\
               or owner_bot:
+                return True
+            elif time.perf_counter() > delay:
                 server['delay'] = time.perf_counter()\
                                   + float(server['slowtime'])
                 with open('data_bot.txt', 'w') as data_file:
@@ -102,25 +111,31 @@ async def helplb(ctx):
 
 @bot.command()
 @commands.has_permissions(manage_messages=True)
-async def slowlb(ctx, user_slowtime):
-    if not user_slowtime.isdigit():
+async def slowlb(ctx, user_slowtime, timer='0'):
+    if not user_slowtime.isdigit() or not timer.isdigit():
         return
     if float(user_slowtime) < 0:
         user_slowtime = '0'
+    if float(timer) < 0:
+        timer = '0'
     with open('data_bot.txt') as data_file:
         data = json.load(data_file)
 
     for server in data['servers']:
         if server['id'] == ctx.guild.id:
             server['slowtime'] = user_slowtime
+            server['timer'] = time.perf_counter() + (float(timer) * 60)
             server['delay'] = 0
             with open('data_bot.txt', 'w') as data_file:
                 json.dump(data, data_file, indent=2, sort_keys=True)
             break
 
     if float(user_slowtime):
-        await ctx.send("A slow mode of {} seconds has been enabled."
-                       .format(user_slowtime))
+        msg = "A **slow mode** of **" + user_slowtime + " seconds**"
+        if float(timer):
+            msg += " for the next **" + timer + " minutes**"
+        msg += " has been enabled."
+        await ctx.send(msg)
     else:
         await ctx.send("Slow mode disabled.")
 

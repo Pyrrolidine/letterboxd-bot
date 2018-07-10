@@ -27,6 +27,7 @@ def update_json(bot_guilds):
             server_dict.setdefault('id', server.id)
             server_dict.setdefault('delay', 0)
             server_dict.setdefault('slowtime', 0)
+            server_dict.setdefault('timer', 0)
             json_dict['servers'].append(server_dict)
         with open('data_bot.txt', 'w') as data_file:
             json.dump(json_dict, data_file, indent=2, sort_keys=True)
@@ -35,5 +36,6 @@ def update_json(bot_guilds):
             data = json.load(data_file)
         for server in data['servers']:
             server['delay'] = 0
+            server['timer'] = 0
         with open('data_bot.txt', 'w') as data_file:
             json.dump(data, data_file, indent=2, sort_keys=True)
