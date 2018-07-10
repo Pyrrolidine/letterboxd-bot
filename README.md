@@ -32,8 +32,8 @@ Search list from a specified user.
 **!checklb**  
 Checks if Letterboxd is down.
 
-**!slowlb \<seconds>**  
-Enables a slow mode, requires the manage messages permission.
+**!slowlb \<seconds> \<timer>**  
+Enables a slow mode of the specified seconds, timer is in minutes and optional. Requires the manage messages permission.
 
 **!del**  
 Deletes the last bot message and command in a channel.
