@@ -66,7 +66,8 @@ async def on_cooldown(ctx):
                     json.dump(data, data_file, indent=2, sort_keys=True)
                 return True
             else:
-                await ctx.message.delete()
+                await ctx.message.add_reaction('🚫')
+                await ctx.message.add_reaction('🐢')
                 return False
 
 
