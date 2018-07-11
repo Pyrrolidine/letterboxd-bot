@@ -50,7 +50,10 @@ class Review(object):
             summary_html = row.find('p', class_="activity-summary")
             activity_type = summary_html.find('span', class_='context')
             if activity_type is None:
-                break
+                if not summary_html.find(class_='rating'):
+                    break
+                else:
+                    continue
 
             if not activity_type.get_text().strip().startswith('reviewed'):
                 continue
