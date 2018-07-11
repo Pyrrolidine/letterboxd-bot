@@ -280,6 +280,20 @@ async def on_command_error(ctx, error):
 
 
 @bot.event
+async def on_guild_join(guild):
+    guild_dict = dict()
+    guild_dict.setdefault('id', guild.id)
+    guild_dict.setdefault('delay', 0)
+    guild_dict.setdefault('slowtime', 0)
+    guild_dict.setdefault('timer', 0)
+    with open('data_bot.txt') as data_file:
+        data = json.load(data_file)
+    data['servers'].append(guild_dict)
+    with open('data_bot.txt', 'w') as data_file:
+        json.dump(data, data_file, indent=2, sort_keys=True)
+
+
+@bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
