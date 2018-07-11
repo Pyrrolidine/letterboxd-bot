@@ -54,11 +54,9 @@ async def on_cooldown(ctx):
             if time.perf_counter() > float(server['timer'])\
               and int(server['timer']):
                 server['delay'] = 0
+                server['timer'] = 0
                 server['slowtime'] = 0
-                with open('data_bot.txt', 'w') as data_file:
-                    json.dump(data, data_file, indent=2, sort_keys=True)
-                return True
-            elif ctx.author.permissions_in(ctx.channel).manage_messages\
+            if ctx.author.permissions_in(ctx.channel).manage_messages\
               or owner_bot:
                 return True
             elif time.perf_counter() > delay:
