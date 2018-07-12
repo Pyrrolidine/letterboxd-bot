@@ -64,7 +64,7 @@ class Film(object):
             self.title = result_link.contents[0].strip()
             return result_link['href']
         else:
-            raise LbxdNotFound("No films were found with this search.")
+            raise LbxdNotFound("No film was found with this search.")
 
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
@@ -77,7 +77,7 @@ class Film(object):
             search_results = s.get(api_url)
             search_results.raise_for_status()
             if not len(search_results.json()['results']):
-                raise LbxdNotFound("No films were found with this search.")
+                raise LbxdNotFound("No film was found with this search.")
             return search_results
         except requests.exceptions.HTTPError as err:
             print(err)

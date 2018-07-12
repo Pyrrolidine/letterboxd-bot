@@ -63,8 +63,8 @@ class List(object):
             i += 1
 
         if i < 20:
-            raise LbxdNotFound("Could not find a list matching those "
-                               + "keywords within the first 10 pages.")
+            raise LbxdNotFound("No list matching those keywords "
+                               + "was found within the first 10 pages.")
         return list_link
 
     def load_list_page(self):
