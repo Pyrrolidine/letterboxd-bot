@@ -83,7 +83,7 @@ async def send_msg(ctx, msg):
     else:
         await ctx.send(msg)
     if ctx.guild is not None and ctx.guild.id == 335569261080739863:
-        await ctx.send("cmd time: {}".format(time.perf_counter() - start_time))
+        await ctx.send("cmd time: {:.3}".format(time.perf_counter() - start_time))
 
 
 @bot.command()
