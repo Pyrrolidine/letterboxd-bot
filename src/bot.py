@@ -73,17 +73,13 @@ async def on_cooldown(ctx):
 
 async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
-        global start_time
-        # Checks if the command took more than 5 seconds
-        if time.perf_counter() - start_time > 5:
-            msg.set_footer(text="The bot was slow to respond."
-                                + " This may be due to a server issue "
-                                + "from a third-party service.")
+        if ctx.guild is not None and ctx.guild.id == 335569261080739863:
+            global start_time
+            msg.set_footer(text="cmd time: {:.3}"
+                           .format(time.perf_counter() - start_time))
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
-    if ctx.guild is not None and ctx.guild.id == 335569261080739863:
-        await ctx.send("cmd time: {:.3}".format(time.perf_counter() - start_time))
 
 
 @bot.command()
@@ -271,6 +267,9 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send('You need the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send('The command failed likely due to the handling of a'
+                       + ' special character.')
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
