@@ -310,6 +310,16 @@ async def on_message(message):
 
 
 @bot.event
+async def on_command_completion(ctx):
+    stats_channel = bot.get_channel(467674166716530708)
+    stats_msg = await stats_channel.get_message(467680081318248458)
+    nbcmd = int(stats_msg.content.split()[-1])
+    nbcmd += 1
+    newcontent = "cmd used: " + str(nbcmd)
+    await stats_msg.edit(content=newcontent)
+
+
+@bot.event
 async def on_ready():
     print('Logged in {} servers as'.format(len(bot.guilds)))
     print(bot.user.name)
