@@ -61,7 +61,7 @@ class Review(object):
             self.n_reviews += 1
             # Shares a link to the activity page if more than 5 reviews
             if self.n_reviews > 5:
-                description += '[More reviews]({})'.format(link)
+                description += '[More reviews]({})'.format(self.url)
                 break
             rating = summary_html.find('span', class_="rating")
             date = summary_html.find('span', class_="nobr")

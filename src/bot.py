@@ -104,7 +104,7 @@ async def helplb(ctx):
             help_embed.add_field(name=line, value=next(help_f), inline=False)
         help_embed.description = "[Invite Bot](https://discordapp.com/oauth2"\
                                 + "/authorize?client_id=437737824255737857"\
-                                + "&permissions=93184&scope=bot)"
+                                + "&permissions=93248&scope=bot)"
     await send_msg(ctx, help_embed)
 
 
