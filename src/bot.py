@@ -311,12 +311,22 @@ async def on_message(message):
 
 @bot.event
 async def on_command_completion(ctx):
+    msg = ''
+    with open('data_bot.txt') as data_file:
+        data = json.load(data_file)
+
+    for command in data['commands']:
+        if command['name'] == ctx.command.name:
+            command['used'] += 1
+            with open('data_bot.txt', 'w') as data_file:
+                json.dump(data, data_file, indent=2, sort_keys=True)
+        msg += "!" + command['name'] + ": " + str(command['used']) + "\n"
+
     stats_channel = bot.get_channel(467674166716530708)
-    stats_msg = await stats_channel.get_message(467680081318248458)
-    nbcmd = int(stats_msg.content.split()[-1])
-    nbcmd += 1
-    newcontent = "cmd used: " + str(nbcmd)
-    await stats_msg.edit(content=newcontent)
+    stats_msg = await stats_channel.get_message(467682516443201547)
+    stats_embed = discord.Embed(colour=0xd8b437, title="Commands Used")
+    stats_embed.description = msg
+    await stats_msg.edit(embed=stats_embed)
 
 
 @bot.event
@@ -325,7 +335,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    lbxd.utils.update_json(bot.guilds)
+    lbxd.utils.update_json(bot.guilds, bot.commands)
     await asyncio.sleep(2)
     for command in bot.commands:
         cmd_list.append(command.name)

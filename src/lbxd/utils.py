@@ -19,9 +19,14 @@ def check_lbxd():
     return status_embed
 
 
-def update_json(bot_guilds):
+def update_json(bot_guilds, bot_commands):
     if not os.path.isfile('data_bot.txt'):
-        json_dict = {'servers': []}
+        json_dict = {'servers': [], 'commands': []}
+        for command in bot_commands:
+            cmd_dict = dict()
+            cmd_dict.setdefault('name', command.name)
+            cmd_dict.setdefault('used', 0)
+            json_dict['commands'].append(cmd_dict)
         for server in bot_guilds:
             server_dict = dict()
             server_dict.setdefault('id', server.id)

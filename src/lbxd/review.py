@@ -61,13 +61,13 @@ class Review(object):
             self.n_reviews += 1
             # Shares a link to the activity page if more than 5 reviews
             if self.n_reviews > 5:
-                description += '[More reviews]({})'.format(self.url)
+                description += '**[More reviews]({})**'.format(self.url)
                 break
             rating = summary_html.find('span', class_="rating")
             date = summary_html.find('span', class_="nobr")
             self.review_link = "https://letterboxd.com"\
                                + summary_html.contents[3]['href']
-            description += '[Review](' + self.review_link + ') '
+            description += '**[Review](' + self.review_link + ')** '
             description += '' if rating is None else rating.get_text() + '  '
             description += '**{}**'.format(date.contents[0])\
                            if date is not None else ''
