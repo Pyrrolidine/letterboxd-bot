@@ -3,9 +3,9 @@ Searches a film on Letterboxd. The year is optional.
 !director/!d/!actor/!a <name>
 Searches a filmmaker or an actor.
 !user/!u <username>
-Displays informations and the featured favourite films of a Letterboxd member.
+Displays the details of a Letterboxd user.
 !review/!r <username> <film-name> (<year>)
-Displays the reviews of a film from a specified user. The year is optional.
+Displays the reviews from a specified user.
 !list/!l <username> <list-name>
 Searches a list by the specified user.
 !checklb
