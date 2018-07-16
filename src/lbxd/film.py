@@ -16,7 +16,7 @@ class Film(object):
             else:
                 self.lbxd_id = self.load_lbxd_search(keywords)
         lbxd_html = self.get_lbxd_page()
-        self.poster_path = self.get_poster()
+        self.poster_path = self.get_poster(lbxd_html)
         if not with_info:
             return
         self.description = self.get_details_lbxd(lbxd_html)
@@ -168,18 +168,9 @@ class Film(object):
         views_html = stats_html.find(class_="icon-watched")
         return "Watched by " + views_html.contents[0] + " members"
 
-    def get_poster(self):
-        try:
-            page = s.get(self.lbxd_url + 'image-150')
-            page.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            if page.status_code == 404:
-                raise LbxdNotFound("This film doesn't have a Letterboxd page.")
-            print(err)
-            raise LbxdServerError("There was a problem trying to access "
-                                  + "Letterboxd.")
-        image_html = BeautifulSoup(page.text, 'lxml')
-        return image_html.find('img')['src']
+    def get_poster(self, lbxd_html):
+        poster_html = lbxd_html.find('div', class_='film-poster')
+        return poster_html.find('img', class_='image')['src']
 
     def get_mkdb_rating(self):
         try:
