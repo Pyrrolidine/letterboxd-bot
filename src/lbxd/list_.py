@@ -80,12 +80,21 @@ class List(object):
         list_page_html = BeautifulSoup(page.text, 'lxml',
                                        parse_only=o_l)
         self.display_name = list_page_html.find('a', class_='name').contents[0]
+        date_html = list_page_html.find(class_='list-date')
+        publish_date_html = date_html.find(class_='published')
+        updated_date_html = date_html.find(class_='updated')
+        self.publish_date = publish_date_html.get_text().split('T')[0].strip()
+        self.updated_date = ''
+        if updated_date_html is not None:
+            self.updated_date = updated_date_html.get_text()\
+                                .split('T')[0].strip() + '\n'
 
         return list_page_html
 
     def get_description(self, list_page_html):
         description = "By **" + self.display_name.strip() + '**\n'\
-                      + self.nb_films + '\n'
+                      + self.nb_films + '\n' + self.publish_date + '\n'\
+                      + self.updated_date
         description_text = list_page_html.find('div', class_='body-text')
         if description_text is not None:
             description += format_text(description_text, 300)
