@@ -3,7 +3,6 @@ import time
 from discord.ext import commands
 import lbxd
 import dbl
-import logging
 import asyncio
 import json
 
@@ -20,19 +19,15 @@ cmd_list = list()
 #with open('dbl_token') as token_file:
 #    dbl_token = token_file.readline().strip()
 #dblpy = dbl.Client(bot, dbl_token)
-#logger = logging.getLogger('bot')
 
 
 async def update_stats():
     while True:
-        logger.info('attempting to post server count')
         try:
             await dblpy.post_server_count()
-            logger.info('posted server count ({})'
-                        .format(len(bot.guilds)))
         except Exception as e:
-            logger.exception('Failed to post server count\n{}: {}'
-                             .format(type(e).__name__, e))
+            print('Failed to post server count\n{}: {}'
+                  .format(type(e).__name__, e))
         await asyncio.sleep(1800)
 
 
