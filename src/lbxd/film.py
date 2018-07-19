@@ -161,6 +161,20 @@ class Film(object):
                 description = description.replace('mins', 'min')
             description += '\n'
 
+        genre_tab_html = lbxd_html.find(id='tab-genres')
+        if genre_tab_html is not None:
+            genres_str = '**Genre:** '
+            nb_genres = 0
+            genres_html = genre_tab_html.find_all('a')
+            for genre in genres_html:
+                genres_str += genre.get_text().title() + ', '
+                nb_genres += 1
+            if nb_genres > 1:
+                genres_str = genres_str.replace('enre:', 'enres:')
+            if nb_genres:
+                genres_str = genres_str.replace('Tv', 'TV')
+                description += genres_str[:-2] + '\n'
+
         return description
 
     def get_views(self, lbxd_html):
