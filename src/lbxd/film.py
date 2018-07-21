@@ -111,6 +111,8 @@ class Film(object):
         content_only = SoupStrainer('div', id='film-page-wrapper')
         lbxd_html = BeautifulSoup(page.text, 'lxml',
                                   parse_only=content_only)
+        if lbxd_html.find('div') is None:
+            raise LbxdNotFound("This film doesn't have a Letterboxd page.")
         year_html = lbxd_html.find('small', class_='number')
         if year_html is not None:
             self.year = year_html.get_text()
