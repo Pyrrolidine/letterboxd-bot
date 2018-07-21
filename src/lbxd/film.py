@@ -72,6 +72,8 @@ class Film(object):
         keywords = ' '.join(keywords.split()[:-1])
         api_url += "&query=" + keywords.replace("’", "")
         api_url += "&year=" + self.input_year if self.has_year else ''
+        if not len(keywords):
+            raise LbxdNotFound('You need to specify a keyword or title.')
 
         try:
             search_results = s.get(api_url)
