@@ -63,7 +63,8 @@ class List(object):
             i += 1
 
         if i < 20:
-            raise LbxdNotFound("No list was found within the first 10 pages.")
+            raise LbxdNotFound("No list was found within the first 10 pages.\n"
+                               + "Make sure the first word is a **username**.")
         return list_link
 
     def load_list_page(self):
