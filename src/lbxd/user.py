@@ -79,9 +79,7 @@ class User(object):
             for fav in a_html:
                 fav_text += '[' + fav['title'] + ']'
                 fav_link = 'https://letterboxd.com{}'.format(fav['href'][:-1])
-                page = s.get(fav_link + '/image-150')
-                fav_pic_html = BeautifulSoup(page.text, 'lxml')
-                temp_link = fav_pic_html.find('img')['src']
+                temp_link = fav.parent.find('img')['src']
                 if 'empty-poster' not in temp_link:
                     self.fav_posters_link.append(temp_link)
                     self.fav_posters += fav['href'][:-1]
