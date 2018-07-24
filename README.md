@@ -1,12 +1,8 @@
-# Letterboxd Bot
+# [Letterboxd Bot](https://boxdbot.com)
 
-This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests such as getting the page of a film, crew person, user or review.
+This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests such as getting the page of a film, director, user or review.  
 
-[![Discord Bots](https://discordbots.org/api/widget/437737824255737857.svg)](https://discordbots.org/bot/437737824255737857)
-
-![Screenshot Letterboxd Bot 1](https://i.imgur.com/pexF7Ow.png)
-![Screenshot Letterboxd Bot 2](https://i.imgur.com/scbw50J.png)
-![Screenshot Letterboxd Bot 3](https://i.imgur.com/K5EXmBb.png)
+[![Discord Bots](https://discordbots.org/api/widget/437737824255737857.svg)](https://discordbots.org/bot/437737824255737857)  
 
 ## Commands
 
