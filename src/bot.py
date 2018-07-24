@@ -10,7 +10,7 @@ with open('Token') as token_file:
     TOKEN = token_file.readline().strip()
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb'),
+                   activity=discord.Game('!helplb - boxdbot.com'),
                    owner_id=81412646271717376)
 bot.remove_command('help')
 start_time = 0
@@ -85,8 +85,7 @@ async def helplb(ctx):
         help_embed.set_thumbnail(url="https://i.imgur.com/Kr1diFu.png")
         help_embed.set_author(name="Letterboxd Bot",
                               icon_url="https://i.imgur.com/5VALKVy.jpg",
-                              url="https://discordbots.org/bot/"
-                                   + "437737824255737857")
+                              url="https://boxdbot.com/")
         help_embed.set_footer(text="Created by Porkepik#2664",
                               icon_url="https://i.imgur.com/li4cLpd.png")
         for line in help_f:
@@ -95,7 +94,8 @@ async def helplb(ctx):
             help_embed.add_field(name=line, value=next(help_f), inline=False)
         help_embed.description = "[Invite Bot](https://discordapp.com/oauth2"\
                                 + "/authorize?client_id=437737824255737857"\
-                                + "&permissions=93248&scope=bot)"
+                                + "&permissions=93248&scope=bot) | "\
+                                + "[Website](https://boxdbot.com)"
     await send_msg(ctx, help_embed)
 
 
