@@ -18,14 +18,12 @@ class User(object):
 
     def __init__(self, username):
         self.img_cmd = 'convert '
+        self.fav_posters_link = list()
+        self.fav_posters = ''
         self.user = username.lower()
         self.url = "https://letterboxd.com/{}".format(username)
-        self.profile_html = self.load_profile()
-        self.display_name = self.get_display_name()
-        self.description = self.get_metadata()
-        self.description += self.get_nb_films_viewed()
-        self.avatar_url = self.get_avatar()
-        self.description += self.get_favourites()
+        self.lbxd_id = self.search_profile()
+        self.description = self.get_user_infos()
         if not len(self.fav_posters_link):
             return
         if not os.path.exists(username):
@@ -33,60 +31,42 @@ class User(object):
         self.fav_img_link = self.upload_cloudinary()
         os.popen('rm -r ' + self.user)
 
-    def load_profile(self):
-        try:
-            page = s.get(self.url)
-            page.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            if page.status_code == 404:
-                raise LbxdNotFound("The user **" + self.user
-                                   + "** doesn't exist.")
-            print(err)
-            raise LbxdServerError('There was a problem trying to access'
-                                  + ' Letterboxd.com')
+    def search_profile(self):
+        params = {'input': self.user,
+                  'include': 'MemberSearchItem'}
+        response = api.api_call('search', params).json()
+        if not len(response['items']):
+            raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
+        for result in response['items']:
+            if result['member']['username'].lower() == self.user:
+                return result['member']['id']
+        raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
 
-        contents_only = SoupStrainer('div', class_='content-wrap')
-        return BeautifulSoup(page.text, "lxml", parse_only=contents_only)
+    def get_user_infos(self):
+        member_json = api.api_call('member/{}'.format(self.lbxd_id)).json()
+        self.display_name = member_json['displayName']
+        self.avatar_url = member_json['avatar']['sizes'][-1]['url']
+        description = '**'
+        if member_json.get('location'):
+            description += member_json['location'] + '** -- **'
+        stats_path = 'member/{}/statistics'.format(self.lbxd_id)
+        stats_json = api.api_call(stats_path).json()
+        description += str(stats_json['counts']['watches']) + ' films**\n'
 
-    def get_display_name(self):
-        name_div_html = self.profile_html.find('div',
-                                               class_='profile-person-info')
-        return name_div_html.find('h1', class_='title-1').contents[0]
-
-    def get_metadata(self):
-        metadata_html = self.profile_html.find('ul', class_='person-metadata')
-        if metadata_html is not None:
-            location_html = metadata_html.find('li', class_='icon-location')
-            if location_html is not None:
-                location = location_html.get_text()
-                if isinstance(location, str):
-                    return '**' + location + '** -- '
-        return ''
-
-    def get_nb_films_viewed(self):
-        nbfilms_html = self.profile_html.find('ul', class_='stats')
-        nbfilms = nbfilms_html.find('a').contents[0].contents[0]
-        return "**" + nbfilms + " films**\n"
-
-    def get_favourites(self):
-        fav_text = ''
-        fav_html = self.profile_html.find(id="favourites")
-        a_html = fav_html.find_all('a')
-        self.fav_posters = ''
-        self.fav_posters_link = list()
-
-        if a_html[0].get('title') is not None:
-            for fav in a_html:
-                fav_text += '[' + fav['title'] + ']'
-                fav_link = 'https://letterboxd.com{}'.format(fav['href'][:-1])
-                temp_link = fav.parent.find('img')['src']
-                if 'empty-poster' not in temp_link:
-                    self.fav_posters_link.append(temp_link)
-                    self.fav_posters += fav['href'][:-1]
-                fav_text += "(https://letterboxd.com{})"\
-                            .format(fav['href'][:-1]) + '\n'
-
-        return fav_text
+        for fav_film in member_json['favoriteFilms']:
+            fav_name = fav_film['name']
+            for poster in fav_film['poster']['sizes']:
+                if 150 < poster['width'] < 250:
+                    self.fav_posters_link.append(poster['url'])
+            if fav_film.get('releaseYear'):
+                fav_name += ' (' + str(fav_film['releaseYear']) + ')'
+            for link in fav_film['links']:
+                if link['type'] == 'letterboxd':
+                    fav_url = link['url']
+                    temp_url = fav_url.replace('https://letterboxd.com', '')
+                    self.fav_posters += temp_url[:-1]
+            description += '[{0}]({1})\n'.format(fav_name, fav_url)
+        return description
 
     def download_fav_posters(self):
         for index, fav_poster in enumerate(self.fav_posters_link):
@@ -121,10 +101,6 @@ class User(object):
         except cloudinary.api.NotFound:
             pass
         return ''
-
-    def get_avatar(self):
-        img_div_html = self.profile_html.find('div', class_='profile-avatar')
-        return img_div_html.find('img')['src']
 
     def create_embed(self):
         user_embed = discord.Embed(title=self.display_name, url=self.url,

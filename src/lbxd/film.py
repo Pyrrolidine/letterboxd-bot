@@ -40,11 +40,11 @@ class Film(object):
         found = False
         if self.has_year:
             keywords = ' '.join(keywords.split()[:-1])
-        params = {'input': keywords,
-                  'include': 'FilmSearchItem'}
         if self.fix_search:
             film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
         else:
+            params = {'input': keywords,
+                      'include': 'FilmSearchItem'}
             response = api.api_call('search', params)
             results = response.json()['items']
             if not len(results):
