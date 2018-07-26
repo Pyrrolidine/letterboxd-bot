@@ -177,7 +177,7 @@ class Film(object):
         nb_ratings = page.json()['total']
         mkdb_description = '**MKDb Average:** [' + str(avg_rating)
         mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n]'
-        mkdb_description += '(' + page.url.replace('/api', '') + ')'
+        mkdb_description += '(' + mkdb_url.replace('/api', '') + ')'
         return mkdb_description
 
     def create_embed(self):
