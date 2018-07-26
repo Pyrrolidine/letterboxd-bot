@@ -4,88 +4,38 @@ from .core import *
 class Crew(object):
 
     def __init__(self, input_name, search_type):
-        self.url = self.search_letterboxd(input_name, search_type)
-        crew_page_html = self.load_crew_page()
-        self.display_name = ''
-        self.api_url = self.get_tmdb_id(crew_page_html)
-        self.description = self.get_movie_credits()
+        self.description = self.search_letterboxd(input_name, search_type)
         self.description += self.get_details()
         self.pic_url = self.get_picture()
 
     def search_letterboxd(self, item, search_type):
-        list_search_words = item.replace('.', '').split()
+        params = {'input': item,
+                  'include': 'ContributorSearchItem',
+                  'contributionType': search_type}
+        response = api.api_call('search', params)
+        if not len(response.json()['items']):
+            raise LbxdNotFound('No person was found with this search.')
+        person_json = response.json()['items'][0]['contributor']
+        for link in person_json['links']:
+            if link['type'] == 'tmdb':
+                tmdb_id = link['id']
+            elif link['type'] == 'letterboxd':
+                self.url = link['url']
+        self.api_url = "https://api.themoviedb.org/3/person/{}".format(tmdb_id)
 
-        try:
-            path = urllib.parse.quote('+'.join(list_search_words))
-            page = s.get("https://letterboxd.com/search{0}{1}"
-                         .format(search_type, path))
-            page.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            if page.status_code == 404:
-                raise LbxdNotFound("No person was found with this search.")
-            else:
-                print(err)
-                raise LbxdServerError("There was a problem trying to "
-                                      + "access Letterboxd.com.")
-
-        html_soup = BeautifulSoup(page.text, "lxml")
-        results_html = html_soup.find('ul', class_='results')
-        if results_html is None:
-            raise LbxdNotFound("No person was found with this search.")
-
-        search_html = results_html.find('h2', class_="title-2 prettify")
-
-        link = search_html.find('a')['href']
-        return "https://letterboxd.com{}".format(link)
-
-    def load_crew_page(self):
-        page = s.get(self.url)
-        sidebar_only = SoupStrainer('aside', class_='sidebar')
-        return BeautifulSoup(page.text, "lxml",
-                             parse_only=sidebar_only)
-
-    def get_tmdb_id(self, crew_page_html):
-        tmdb_url = crew_page_html.find('a', class_='micro-button')['href']
-        tmdb_id = tmdb_url.split('/')[-2]
-        return "https://api.themoviedb.org/3/person/{}".format(tmdb_id)
-
-    def get_movie_credits(self):
-        credits_text = ''
-        try:
-            person_credits = s.get(self.api_url + "/movie_credits?api_key={}"
-                                   .format(tmdb_api_key))
-            person_credits.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            if person_credits.status_code == 404:
-                raise LbxdNotFound("This person does not have a TMDb page.")
-            else:
-                print(err)
-                raise LbxdServerError("There was a problem trying to access "
-                                      + "TMDb.")
-
-        director_credits = 0
-        writer_credits = 0
-        for crew_credit in person_credits.json()['crew']:
-            if crew_credit['job'] == 'Director':
-                director_credits += 1
-            elif crew_credit['job'] == 'Writer':
-                writer_credits += 1
-
-        if director_credits:
-            credits_text += "**Director:** " + str(director_credits) + '\n'
-        if writer_credits:
-            credits_text += "**Writer:** " + str(writer_credits) + '\n'
-
-        acting_credits = len(person_credits.json()['cast'])
-        if acting_credits:
-            credits_text += "**Actor:** " + str(acting_credits) + '\n'
-
-        return credits_text
+        description = ''
+        contributions = ['Director', 'Actor', 'Writer']
+        for contrib_stats in person_json['statistics']['contributions']:
+            if contrib_stats['type'] in contributions:
+                description += '**' + contrib_stats['type'] + ':** '
+                description += str(contrib_stats['filmCount']) + '\n'
+        return description
 
     def get_details(self):
         details_text = ''
+        url = self.api_url + "?api_key={}".format(tmdb_api_key)
         try:
-            person_tmdb = s.get(self.api_url + "?api_key={}".format(tmdb_api_key))
+            person_tmdb = s.get(url)
             person_tmdb.raise_for_status()
         except requests.exceptions.HTTPError as err:
             print(err)

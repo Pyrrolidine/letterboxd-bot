@@ -152,7 +152,7 @@ async def user(ctx, arg):
 @commands.check(on_cooldown)
 async def actor(ctx, *, arg):
     try:
-        actor = lbxd.crew.Crew(arg, "/actors/")
+        actor = lbxd.crew.Crew(arg, 'Actor')
         msg = actor.create_embed()
     except lbxd.lbxd_errors.LbxdErrors as err:
         msg = err
@@ -163,7 +163,7 @@ async def actor(ctx, *, arg):
 @commands.check(on_cooldown)
 async def director(ctx, *, arg):
     try:
-        director = lbxd.crew.Crew(arg, "/directors/")
+        director = lbxd.crew.Crew(arg, 'Director')
         msg = director.create_embed()
     except lbxd.lbxd_errors.LbxdErrors as err:
         msg = err
