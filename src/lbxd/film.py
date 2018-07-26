@@ -71,8 +71,10 @@ class Film(object):
         for link in film_json['links']:
             if link['type'] == 'letterboxd':
                 self.lbxd_url = link['url']
-            if link['type'] == 'tmdb':
+            elif link['type'] == 'tmdb':
                 self.tmdb_id = link['id']
+            elif link['type'] == 'imdb':
+                self.imdb_id = link['id']
         self.poster_path = ''
         try:
             for poster in film_json['poster']['sizes']:
@@ -114,20 +116,21 @@ class Film(object):
             response.raise_for_status()
             country_str = ''
             country_count = 0
-            for country in response.json()['production_countries']:
-                country_count += 1
-                if country['name'] == 'United Kingdom':
-                    country_str += 'UK, '
-                elif country['name'] == 'United States of America':
-                    country_str += 'USA, '
-                else:
-                    country_str += country['name'] + ', '
-            if len(country_str):
-                if country_count > 1:
-                    text += '**Countries:** '
-                else:
-                    text += '**Country:** '
-                text += country_str[:-2] + '\n'
+            if str(response.json()['imdb_id']) == self.imdb_id:
+                for country in response.json()['production_countries']:
+                    country_count += 1
+                    if country['name'] == 'United Kingdom':
+                        country_str += 'UK, '
+                    elif country['name'] == 'United States of America':
+                        country_str += 'USA, '
+                    else:
+                        country_str += country['name'] + ', '
+                if len(country_str):
+                    if country_count > 1:
+                        text += '**Countries:** '
+                    else:
+                        text += '**Country:** '
+                    text += country_str[:-2] + '\n'
         except requests.exceptions.HTTPError as err:
             pass
 
