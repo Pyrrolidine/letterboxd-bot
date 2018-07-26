@@ -8,17 +8,15 @@ class Film(object):
         self.fix_search = False
         self.year = ''
         self.input_year = self.check_year(keywords)
+        # TODO change to lbxd id
         self.tmdb_id = self.check_if_fixed_search(keywords)
         self.search_request(keywords)
-        if not self.fix_search:
-            if self.has_year:
-                search_response = self.load_tmdb_search(keywords)
-                self.tmdb_id = self.get_tmdb_id(search_response, keywords)
         if not with_info:
             return
         self.description = self.create_description()
         if is_metropolis:
             self.description += self.get_mkdb_rating()
+        self.description += self.get_views()
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -41,10 +39,23 @@ class Film(object):
         return ''
 
     def search_request(self, keywords):
+        if self.has_year:
+            keywords = ' '.join(keywords.split()[:-1])
         params = {'input': keywords,
                   'include': 'FilmSearchItem'}
         response = api.api_call('search', params)
-        film_json = response.json()['items'][0]['film']
+        results = response.json()['items']
+        if not len(results):
+            raise LbxdNotFound("No film was found with this search.")
+        if self.has_year:
+            for result in results:
+                try:
+                    if str(result['film']['releaseYear']) == self.input_year:
+                        film_json = result['film']
+                except KeyError:
+                    continue
+        else:
+            film_json = results[0]['film']
         self.lbxd_id = film_json['id']
         self.title = film_json['name']
         try:
@@ -54,7 +65,8 @@ class Film(object):
         for link in film_json['links']:
             if link['type'] == 'letterboxd':
                 self.lbxd_url = link['url']
-                break
+            if link['type'] == 'tmdb':
+                self.tmdb_id = link['id']
         self.poster_path = ''
         try:
             for poster in film_json['poster']['sizes']:
@@ -69,46 +81,80 @@ class Film(object):
     def create_description(self):
         text = ''
         film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
+
         try:
             text += '**Original Title:** ' + film_json['originalName'] + '\n'
         except KeyError:
             pass
+
+        director_str = ''
+        director_count = 0
+        for contribution in film_json['contributions']:
+            if contribution['type'] == 'Director':
+                for director in contribution['contributors']:
+                    director_count += 1
+                    director_str += director['name'] + ', '
+        if len(director_str):
+            if director_count > 1:
+                text += '**Directors:** '
+            else:
+                text += '**Director:** '
+            text += director_str[:-2] + '\n'
+
+        api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id\
+                  + "?api_key=" + tmdb_api_key
+        try:
+            response = s.get(api_url)
+            response.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print(err)
+            raise LbxdServerError("There was a problem trying to access TMDb.")
+        country_str = ''
+        country_count = 0
+        for country in response.json()['production_countries']:
+            country_count += 1
+            if country['name'] == 'United Kingdom':
+                country_str += 'UK, '
+            elif country['name'] == 'United States of America':
+                country_str += 'USA, '
+            else:
+                country_str += country['name'] + ', '
+        if len(country_str):
+            if country_count > 1:
+                text += '**Countries:** '
+            else:
+                text += '**Country:** '
+            text += country_str[:-2] + '\n'
+
         try:
             text += '**Length:** ' + str(film_json['runTime']) + ' mins\n'
         except KeyError:
             pass
-        text += '**Genres:** '
+
+        genres_str = ''
+        genres_count = 0
         for genre in film_json['genres']:
-            text += genre['name'] + ', '
-        return text[:-2] + '\n'
+            genres_str += genre['name'] + ', '
+            genres_count += 1
+        if len(genres_str):
+            if genres_count > 1:
+                text += '**Genres:** '
+            else:
+                text += '**Genre:** '
+            text += genres_str[:-2] + '\n'
 
-    def load_tmdb_search(self, keywords):
-        api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
-                  + api_key
-        keywords = ' '.join(keywords.split()[:-1])
-        api_url += "&query=" + keywords.replace("’", "")
-        api_url += "&year=" + self.input_year if self.has_year else ''
-        if not len(keywords):
-            raise LbxdNotFound('You need to specify a keyword or title.')
+        return text
 
-        try:
-            search_results = s.get(api_url)
-            search_results.raise_for_status()
-            if not len(search_results.json()['results']):
-                raise LbxdNotFound("No film was found with this search.")
-            return search_results
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError("There was a problem trying to access TMDb.")
-
-    def get_tmdb_id(self, search_response, keywords):
-        film_json = search_response.json()['results'][0]
-        for search in search_response.json()['results']:
-            if search['release_date'].split('-')[0] == self.input_year:
-                film_json = search
-                break
-        self.title = film_json['title']
-        return str(film_json['id'])
+    def get_views(self):
+        response = api.api_call('film/{}/statistics'.format(self.lbxd_id))
+        stats_json = response.json()
+        views = stats_json['counts']['watches']
+        if views > 9999:
+            views = str(round(views / 1000)) + 'k'
+        elif views > 999:
+            views = str(round(views / 1000, 1)) + 'k'
+        text = 'Watched by ' + str(views) + ' members'
+        return text
 
     def get_mkdb_rating(self):
         try:

@@ -53,7 +53,7 @@ class Crew(object):
         credits_text = ''
         try:
             person_credits = s.get(self.api_url + "/movie_credits?api_key={}"
-                                   .format(api_key))
+                                   .format(tmdb_api_key))
             person_credits.raise_for_status()
         except requests.exceptions.HTTPError as err:
             if person_credits.status_code == 404:
@@ -85,7 +85,7 @@ class Crew(object):
     def get_details(self):
         details_text = ''
         try:
-            person_tmdb = s.get(self.api_url + "?api_key={}".format(api_key))
+            person_tmdb = s.get(self.api_url + "?api_key={}".format(tmdb_api_key))
             person_tmdb.raise_for_status()
         except requests.exceptions.HTTPError as err:
             print(err)
@@ -112,7 +112,7 @@ class Crew(object):
         img_url = ''
         try:
             person_img = s.get(self.api_url + "/images?api_key={}"
-                               .format(api_key))
+                               .format(tmdb_api_key))
             person_img.raise_for_status()
             img_url = "https://image.tmdb.org/t/p/w200"
             highest_vote = 0

@@ -6,7 +6,7 @@ from .lbxd_errors import *
 from .api import *
 
 with open('TMDbAPI') as api_file:
-    api_key = api_file.readline().strip()
+    tmdb_api_key = api_file.readline().strip()
 s = requests.Session()
 with open('LBXDAPI') as api_file:
     lines = api_file.readlines()
