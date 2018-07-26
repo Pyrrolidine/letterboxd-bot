@@ -8,8 +8,7 @@ class Film(object):
         self.fix_search = False
         self.year = ''
         self.input_year = self.check_year(keywords)
-        # TODO change to lbxd id
-        self.tmdb_id = self.check_if_fixed_search(keywords)
+        self.lbxd_id = self.check_if_fixed_search(keywords)
         self.search_request(keywords)
         if not with_info:
             return
@@ -33,29 +32,36 @@ class Film(object):
                 for title in line.strip().split('/'):
                     if title.lower() == keywords.lower():
                         id_line = next(fix_file).strip().split('/')
-                        self.title = id_line[1]
                         self.fix_search = True
                         return id_line[0]
         return ''
 
     def search_request(self, keywords):
+        found = False
         if self.has_year:
             keywords = ' '.join(keywords.split()[:-1])
         params = {'input': keywords,
                   'include': 'FilmSearchItem'}
-        response = api.api_call('search', params)
-        results = response.json()['items']
-        if not len(results):
-            raise LbxdNotFound("No film was found with this search.")
-        if self.has_year:
-            for result in results:
-                try:
-                    if str(result['film']['releaseYear']) == self.input_year:
-                        film_json = result['film']
-                except KeyError:
-                    continue
+        if self.fix_search:
+            film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
         else:
-            film_json = results[0]['film']
+            response = api.api_call('search', params)
+            results = response.json()['items']
+            if not len(results):
+                raise LbxdNotFound("No film was found with this search.")
+            if self.has_year:
+                for result in results:
+                    try:
+                        film_year = str(result['film']['releaseYear'])
+                        if film_year == self.input_year:
+                            film_json = result['film']
+                            found = True
+                    except KeyError:
+                        continue
+            else:
+                film_json = results[0]['film']
+        if self.has_year and not found:
+            raise LbxdNotFound("No film was found with this search.")
         self.lbxd_id = film_json['id']
         self.title = film_json['name']
         try:
@@ -106,25 +112,24 @@ class Film(object):
         try:
             response = s.get(api_url)
             response.raise_for_status()
+            country_str = ''
+            country_count = 0
+            for country in response.json()['production_countries']:
+                country_count += 1
+                if country['name'] == 'United Kingdom':
+                    country_str += 'UK, '
+                elif country['name'] == 'United States of America':
+                    country_str += 'USA, '
+                else:
+                    country_str += country['name'] + ', '
+            if len(country_str):
+                if country_count > 1:
+                    text += '**Countries:** '
+                else:
+                    text += '**Country:** '
+                text += country_str[:-2] + '\n'
         except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError("There was a problem trying to access TMDb.")
-        country_str = ''
-        country_count = 0
-        for country in response.json()['production_countries']:
-            country_count += 1
-            if country['name'] == 'United Kingdom':
-                country_str += 'UK, '
-            elif country['name'] == 'United States of America':
-                country_str += 'USA, '
-            else:
-                country_str += country['name'] + ', '
-        if len(country_str):
-            if country_count > 1:
-                text += '**Countries:** '
-            else:
-                text += '**Country:** '
-            text += country_str[:-2] + '\n'
+            pass
 
         try:
             text += '**Length:** ' + str(film_json['runTime']) + ' mins\n'
