@@ -9,20 +9,16 @@ class Film(object):
         self.year = ''
         self.input_year = self.check_year(keywords)
         self.tmdb_id = self.check_if_fixed_search(keywords)
+        self.search_request(keywords)
         if not self.fix_search:
             if self.has_year:
                 search_response = self.load_tmdb_search(keywords)
                 self.tmdb_id = self.get_tmdb_id(search_response, keywords)
-            else:
-                self.lbxd_id = self.load_lbxd_search(keywords)
-        lbxd_html = self.get_lbxd_page()
-        self.poster_path = self.get_poster(lbxd_html)
         if not with_info:
             return
-        self.description = self.get_details_lbxd(lbxd_html)
+        self.description = self.create_description()
         if is_metropolis:
             self.description += self.get_mkdb_rating()
-        self.description += self.get_views(lbxd_html)
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -44,27 +40,47 @@ class Film(object):
                         return id_line[0]
         return ''
 
-    def load_lbxd_search(self, keywords):
+    def search_request(self, keywords):
+        params = {'input': keywords,
+                  'include': 'FilmSearchItem'}
+        response = api.api_call('search', params)
+        film_json = response.json()['items'][0]['film']
+        self.lbxd_id = film_json['id']
+        self.title = film_json['name']
         try:
-            keywords = keywords.replace('\\', '')
-            keywords = ''.join(keywords.splitlines())
-            path = urllib.parse.quote_plus(keywords.replace('/', ' '))
-            page = s.get("https://letterboxd.com/search/films/{}/"
-                         .format(path))
-            page.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError("There was a problem trying to access "
-                                  + "Letterboxd.")
+            self.year = film_json['releaseYear']
+        except KeyError:
+            self.year = 0
+        for link in film_json['links']:
+            if link['type'] == 'letterboxd':
+                self.lbxd_url = link['url']
+                break
+        self.poster_path = ''
+        try:
+            for poster in film_json['poster']['sizes']:
+                if poster['height'] > 400:
+                    self.poster_path = poster['url']
+                    break
+            if not len(self.poster_path):
+                self.poster_path = film_json['poster']['sizes'][0]['url']
+        except KeyError:
+            pass
 
-        first_result = SoupStrainer('div', class_='film-detail-content')
-        result_html = BeautifulSoup(page.text, 'lxml', parse_only=first_result)
-        result_link = result_html.find('a')
-        if result_link is not None:
-            self.title = result_link.contents[0].strip()
-            return result_link['href']
-        else:
-            raise LbxdNotFound("No film was found with this search.")
+    def create_description(self):
+        text = ''
+        film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
+        try:
+            text += '**Original Title:** ' + film_json['originalName'] + '\n'
+        except KeyError:
+            pass
+        try:
+            text += '**Length:** ' + str(film_json['runTime']) + ' mins\n'
+        except KeyError:
+            pass
+        text += '**Genres:** '
+        for genre in film_json['genres']:
+            text += genre['name'] + ', '
+        return text[:-2] + '\n'
 
     def load_tmdb_search(self, keywords):
         api_url = "https://api.themoviedb.org/3/search/movie?api_key="\
@@ -94,102 +110,6 @@ class Film(object):
         self.title = film_json['title']
         return str(film_json['id'])
 
-    def get_lbxd_page(self):
-        if self.has_year or self.fix_search:
-            lbxd_link = "https://letterboxd.com/tmdb/" + self.tmdb_id
-        else:
-            lbxd_link = "https://letterboxd.com" + self.lbxd_id
-        try:
-            page = s.get(lbxd_link)
-            page.raise_for_status()
-            self.lbxd_url = page.url
-        except requests.exceptions.HTTPError as err:
-            if page.status_code == 404:
-                raise LbxdNotFound("This film doesn't have a Letterboxd page.")
-            print(err)
-            raise LbxdServerError("There was a problem trying to access "
-                                  + "Letterboxd.")
-
-        content_only = SoupStrainer('div', id='film-page-wrapper')
-        lbxd_html = BeautifulSoup(page.text, 'lxml',
-                                  parse_only=content_only)
-        if lbxd_html.find('div') is None:
-            raise LbxdNotFound("This film doesn't have a Letterboxd page.")
-        year_html = lbxd_html.find('small', class_='number')
-        if year_html is not None:
-            self.year = year_html.get_text()
-        return lbxd_html
-
-    def get_details_lbxd(self, lbxd_html):
-        description = ''
-        header_html = lbxd_html.find('section', id='featured-film-header')
-        original_html = header_html.find('em')
-        if original_html is not None:
-            self.original_title = original_html.get_text().replace('’', '')
-            self.original_title = self.original_title.replace('‘', '')
-            description += '**Original Title**: ' + self.original_title + '\n'
-
-        nb_directors = 0
-        crew_html = lbxd_html.find('div', id='tab-crew')
-        director_str = "**Director:** "
-        if crew_html is not None:
-            for crew in crew_html.find_all('a'):
-                if crew['href'].startswith("/director"):
-                    director_str += "{}, ".format(crew.get_text())
-                    nb_directors += 1
-            if nb_directors > 1:
-                director_str = director_str.replace('irector:', 'irectors:')
-            if nb_directors:
-                description += director_str[:-2] + '\n'
-
-        country_html = lbxd_html.find('div', id='tab-details')
-        if country_html is not None:
-            details_html = country_html.find_all('a')
-            country_str = "**Country:** "
-            plural_country = 0
-            for detail in details_html:
-                if detail['href'].startswith("/films/country/"):
-                    country_str += "{}, ".format(detail.get_text())
-                    plural_country += 1
-            if plural_country > 1:
-                country_str = country_str.replace('Country', 'Countries')
-            if plural_country:
-                description += country_str[:-2] + '\n'
-
-        footer_html = lbxd_html.find('p', class_='text-link text-footer')
-        list_footer_text = footer_html.get_text().split()
-        if list_footer_text[1].startswith('min'):
-            self.runtime = list_footer_text[0]
-            description += '**Length:** ' + self.runtime + ' mins'
-            if self.runtime == 1:
-                description = description.replace('mins', 'min')
-            description += '\n'
-
-        genre_tab_html = lbxd_html.find(id='tab-genres')
-        if genre_tab_html is not None:
-            genres_str = '**Genre:** '
-            nb_genres = 0
-            genres_html = genre_tab_html.find_all('a')
-            for genre in genres_html:
-                genres_str += genre.get_text().title() + ', '
-                nb_genres += 1
-            if nb_genres > 1:
-                genres_str = genres_str.replace('enre:', 'enres:')
-            if nb_genres:
-                genres_str = genres_str.replace('Tv', 'TV')
-                description += genres_str[:-2] + '\n'
-
-        return description
-
-    def get_views(self, lbxd_html):
-        stats_html = lbxd_html.find('ul', class_='film-stats')
-        views_html = stats_html.find(class_="icon-watched")
-        return "Watched by " + views_html.contents[0] + " members"
-
-    def get_poster(self, lbxd_html):
-        poster_html = lbxd_html.find('div', class_='film-poster')
-        return poster_html.find('img', class_='image')['src']
-
     def get_mkdb_rating(self):
         try:
             page = s.get(self.lbxd_url.replace("letterboxd.com", "eiga.me"))
@@ -215,9 +135,11 @@ class Film(object):
 
     def create_embed(self):
         title = self.title
-        title += ' (' + self.year + ')' if len(self.year) else ''
+        if self.year:
+            title += ' (' + str(self.year) + ')'
         film_embed = discord.Embed(title=title, description=self.description,
                                    url=self.lbxd_url, colour=0xd8b437)
-        film_embed.set_thumbnail(url=self.poster_path)
+        if len(self.poster_path):
+            film_embed.set_thumbnail(url=self.poster_path)
 
         return film_embed
