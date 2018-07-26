@@ -165,26 +165,19 @@ class Film(object):
         return text
 
     def get_mkdb_rating(self):
+        mkdb_url = self.lbxd_url.replace('letterboxd.com', 'eiga.me/api')
         try:
-            page = s.get(self.lbxd_url.replace("letterboxd.com", "eiga.me"))
+            page = s.get(mkdb_url + 'summary')
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             return ''
-        mkdb_html = BeautifulSoup(page.text, 'lxml')
-        rating_html = mkdb_html.find('div', class_='card-body-summary')
-        if rating_html is None:
+        if not page.json()['total']:
             return ''
-        avg_rating_html = rating_html.find('h4')
-        if avg_rating_html is None:
-            return ''
-        avg_rating = avg_rating_html.get_text()
-        row_lists = mkdb_html.find_all('section', class_='film-rating-group')
-        nb_ratings = 0
-        for row in row_lists:
-            nb_ratings += len(row.find_all('li'))
-        mkdb_description = '**MKDb Average:** [' + avg_rating
+        avg_rating = page.json()['mean']
+        nb_ratings = page.json()['total']
+        mkdb_description = '**MKDb Average:** [' + str(avg_rating)
         mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n]'
-        mkdb_description += '(' + page.url + ')'
+        mkdb_description += '(' + page.url.replace('/api', '') + ')'
         return mkdb_description
 
     def create_embed(self):
