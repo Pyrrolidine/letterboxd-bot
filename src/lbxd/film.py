@@ -51,23 +51,19 @@ class Film(object):
                 raise LbxdNotFound("No film was found with this search.")
             if self.has_year:
                 for result in results:
-                    try:
-                        film_year = str(result['film']['releaseYear'])
-                        if film_year == self.input_year:
-                            film_json = result['film']
-                            found = True
-                    except KeyError:
+                    if not result['film'].get('releaseYear'):
                         continue
+                    film_year = str(result['film']['releaseYear'])
+                    if film_year == self.input_year:
+                        film_json = result['film']
+                        found = True
             else:
                 film_json = results[0]['film']
         if self.has_year and not found:
             raise LbxdNotFound("No film was found with this search.")
         self.lbxd_id = film_json['id']
         self.title = film_json['name']
-        try:
-            self.year = film_json['releaseYear']
-        except KeyError:
-            self.year = 0
+        self.year = film_json.get('releaseYear')
         for link in film_json['links']:
             if link['type'] == 'letterboxd':
                 self.lbxd_url = link['url']
@@ -75,25 +71,24 @@ class Film(object):
                 self.tmdb_id = link['id']
             elif link['type'] == 'imdb':
                 self.imdb_id = link['id']
+
         self.poster_path = ''
-        try:
-            for poster in film_json['poster']['sizes']:
-                if poster['height'] > 400:
-                    self.poster_path = poster['url']
-                    break
-            if not len(self.poster_path):
-                self.poster_path = film_json['poster']['sizes'][0]['url']
-        except KeyError:
-            pass
+        if not film_json.get('poster'):
+            return
+        for poster in film_json['poster']['sizes']:
+            if poster['height'] > 400:
+                self.poster_path = poster['url']
+                break
+        if not len(self.poster_path):
+            self.poster_path = film_json['poster']['sizes'][0]['url']
 
     def create_description(self):
         text = ''
         film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
 
-        try:
-            text += '**Original Title:** ' + film_json['originalName'] + '\n'
-        except KeyError:
-            pass
+        original_title = film_json.get('originalName')
+        if original_title:
+            text += '**Original Title:** ' + original_title + '\n'
 
         director_str = ''
         director_count = 0
@@ -116,7 +111,7 @@ class Film(object):
             response.raise_for_status()
             country_str = ''
             country_count = 0
-            if str(response.json()['imdb_id']) == self.imdb_id:
+            if response.json()['title'] == self.title:
                 for country in response.json()['production_countries']:
                     country_count += 1
                     if country['name'] == 'United Kingdom':
@@ -134,10 +129,8 @@ class Film(object):
         except requests.exceptions.HTTPError as err:
             pass
 
-        try:
-            text += '**Length:** ' + str(film_json['runTime']) + ' mins\n'
-        except KeyError:
-            pass
+        runtime = film_json.get('runTime')
+        text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
         genres_str = ''
         genres_count = 0
