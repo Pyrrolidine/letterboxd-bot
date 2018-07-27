@@ -3,15 +3,18 @@ from .core import *
 
 class Crew(object):
 
-    def __init__(self, input_name, search_type):
-        self.description = self.search_letterboxd(input_name, search_type)
+    def __init__(self, input_name, alias):
+        self.description = self.search_letterboxd(input_name, alias)
         self.description += self.get_details()
         self.pic_url = self.get_picture()
 
-    def search_letterboxd(self, item, search_type):
+    def search_letterboxd(self, item, alias):
         params = {'input': item,
-                  'include': 'ContributorSearchItem',
-                  'contributionType': search_type}
+                  'include': 'ContributorSearchItem'}
+        if alias in ['a', 'actor']:
+            params['contributionType'] = 'Actor'
+        elif alias in ['d', 'director']:
+            params['contributionType'] = 'Director'
         response = api.api_call('search', params)
         if not len(response.json()['items']):
             raise LbxdNotFound('No person was found with this search.')
@@ -24,11 +27,9 @@ class Crew(object):
         self.api_url = "https://api.themoviedb.org/3/person/{}".format(tmdb_id)
 
         description = ''
-        contributions = ['Director', 'Actor', 'Writer']
         for contrib_stats in person_json['statistics']['contributions']:
-            if contrib_stats['type'] in contributions:
-                description += '**' + contrib_stats['type'] + ':** '
-                description += str(contrib_stats['filmCount']) + '\n'
+            description += '**' + contrib_stats['type'] + ':** '
+            description += str(contrib_stats['filmCount']) + '\n'
         return description
 
     def get_details(self):

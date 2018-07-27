@@ -1,7 +1,7 @@
 !film/!movie/!f <film-name> (<year>)
 Searches a film on Letterboxd. The year is optional.
-!director/!d/!actor/!a <name>
-Searches a filmmaker or an actor.
+!crew/!c/director/!d/!actor/!a <name>
+Searches a crew person.
 !user/!u <username>
 Displays the details of a Letterboxd user.
 !review/!r <username> <film-name> (<year>)

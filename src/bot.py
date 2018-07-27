@@ -148,23 +148,12 @@ async def user(ctx, arg):
     await send_msg(ctx, msg)
 
 
-@bot.command(aliases=['a'])
+@bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
 @commands.check(on_cooldown)
-async def actor(ctx, *, arg):
+async def crew(ctx, *, arg):
     try:
-        actor = lbxd.crew.Crew(arg, 'Actor')
-        msg = actor.create_embed()
-    except lbxd.core.LbxdErrors as err:
-        msg = err
-    await send_msg(ctx, msg)
-
-
-@bot.command(aliases=['d'])
-@commands.check(on_cooldown)
-async def director(ctx, *, arg):
-    try:
-        director = lbxd.crew.Crew(arg, 'Director')
-        msg = director.create_embed()
+        crew = lbxd.crew.Crew(arg, ctx.invoked_with)
+        msg = crew.create_embed()
     except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
