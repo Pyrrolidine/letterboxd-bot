@@ -35,7 +35,8 @@ class User(object):
 
     def search_profile(self):
         params = {'input': self.user,
-                  'include': 'MemberSearchItem'}
+                  'include': 'MemberSearchItem',
+                  'perPage': '100'}
         response = api.api_call('search', params).json()
         if not len(response['items']):
             raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
