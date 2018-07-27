@@ -11,12 +11,11 @@ class Review(object):
     def find_reviews(self):
         params = {'film': self.film.lbxd_id,
                   'member': self.user.lbxd_id,
-                  'memberRelationship': 'Owner',
-                  'where': 'HasReview'}
+                  'memberRelationship': 'Owner'}
         response = api.api_call('log-entries', params).json()
         self.n_reviews = len(response['items'])
         if not self.n_reviews:
-            raise LbxdNotFound('{0} does not have a review for {1} ({2}).'
+            raise LbxdNotFound('{0} does not have activity for {1} ({2}).'
                                .format(self.user.display_name, self.film.title,
                                        self.film.year))
 
@@ -27,7 +26,10 @@ class Review(object):
                 if link['type'] == 'letterboxd':
                     self.review_url = link['url']
                     break
-            description += '**[Review](' + self.review_url + ')** '
+            word = 'Entry'
+            if review.get('review'):
+                word = 'Review'
+            description += '**[{}]('.format(word) + self.review_url + ')** '
             if review.get('diaryDetails'):
                 date = review['diaryDetails']['diaryDate']
                 description += '**' + date + '** '
@@ -39,6 +41,8 @@ class Review(object):
                 description += ' ♥'
             description += '\n'
             if not preview_done:
+                if not review.get('review'):
+                    continue
                 if review['review']['containsSpoilers']:
                     spoiler_warning = "This review may contain spoilers."
                     description += '```' + spoiler_warning + '```'
@@ -48,7 +52,7 @@ class Review(object):
         return description
 
     def create_embed(self):
-        review_word = 'reviews' if self.n_reviews > 1 else 'review'
+        review_word = 'entries' if self.n_reviews > 1 else 'entry'
         if self.n_reviews > 1:
             embed_url = self.film.lbxd_url.replace('.com/', '.com/{}/'
                                                    .format(self.user.user))
