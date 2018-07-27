@@ -34,7 +34,7 @@ class API(object):
                                      {"signature": signature})
         try:
             response = self.session.send(prepared_request)
-        except requests.exceptions.HTTPError as error:
+        except requests.exceptions.RequestException as error:
             print(error)
             raise LbxdServerError('There was a problem trying to access'
                                   + ' Letterboxd.')
