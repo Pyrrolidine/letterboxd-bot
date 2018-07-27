@@ -215,7 +215,8 @@ async def list(ctx, user, *args):
 async def review(ctx, user, *args):
     try:
         cmd_film = lbxd.film.Film(' '.join(str(i) for i in args), False)
-        cmd_review = lbxd.review.Review(user.strip(','), cmd_film)
+        cmd_user = lbxd.user.User(user, False)
+        cmd_review = lbxd.review.Review(cmd_user, cmd_film)
         msg = cmd_review.create_embed()
     except lbxd.lbxd_errors.LbxdErrors as err:
         msg = err

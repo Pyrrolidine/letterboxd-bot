@@ -16,19 +16,10 @@ with open('LBXDAPI') as api_file:
 api = API(api_base, api_key, api_secret)
 
 
-def format_text(html, max_char):
-    temp_text = '```'
-    for br in html.find_all('br'):
-        br.replace_with('\n')
-    for paragraph in html.find_all('p'):
-        for index, line in enumerate(paragraph.get_text().split('\n')):
-            if index > 10:
-                break
-            temp_text += line.strip() + '\n'
-        temp_text += '\n'
-
-    text = temp_text[:max_char].strip()
-    if len(temp_text) > max_char:
+def format_text(input_html, max_char):
+    html = BeautifulSoup(input_html, 'html.parser')
+    text = '```' + html.text[:max_char].strip()
+    if len(text) > max_char:
         text += '...'
     text += '```'
     return text

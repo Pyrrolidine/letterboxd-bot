@@ -16,13 +16,15 @@ with open('Cloudinary') as cloudinary_file:
 
 class User(object):
 
-    def __init__(self, username):
+    def __init__(self, username, with_info=True):
         self.img_cmd = 'convert '
         self.fav_posters_link = list()
         self.fav_posters = ''
         self.user = username.lower()
         self.url = "https://letterboxd.com/{}".format(username)
         self.lbxd_id = self.search_profile()
+        if not with_info:
+            return
         self.description = self.get_user_infos()
         if not len(self.fav_posters_link):
             return
@@ -39,12 +41,12 @@ class User(object):
             raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
         for result in response['items']:
             if result['member']['username'].lower() == self.user:
+                self.display_name = result['member']['displayName']
                 return result['member']['id']
         raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
 
     def get_user_infos(self):
         member_json = api.api_call('member/{}'.format(self.lbxd_id)).json()
-        self.display_name = member_json['displayName']
         self.avatar_url = member_json['avatar']['sizes'][-1]['url']
         description = '**'
         if member_json.get('location'):

@@ -97,6 +97,7 @@ class Film(object):
                 for director in contribution['contributors']:
                     director_count += 1
                     director_str += director['name'] + ', '
+                break
         if len(director_str):
             if director_count > 1:
                 text += '**Directors:** '
