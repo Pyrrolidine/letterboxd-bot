@@ -34,16 +34,23 @@ class User(object):
         os.popen('rm -r ' + self.user)
 
     def search_profile(self):
-        params = {'input': self.user,
+        username = self.user.replace('_', ' ')
+        params = {'input': username,
                   'include': 'MemberSearchItem',
                   'perPage': '100'}
-        response = api.api_call('search', params).json()
-        if not len(response['items']):
-            raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
-        for result in response['items']:
-            if result['member']['username'].lower() == self.user:
-                self.display_name = result['member']['displayName']
-                return result['member']['id']
+        while True:
+            response = api.api_call('search', params).json()
+            if not len(response['items']):
+                break
+            for result in response['items']:
+                if result['member']['username'].lower() == self.user:
+                    self.display_name = result['member']['displayName']
+                    return result['member']['id']
+            if response.get('next'):
+                cursor = response['next']
+                params['cursor'] = cursor
+            else:
+                break
         raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
 
     def get_user_infos(self):
