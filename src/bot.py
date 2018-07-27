@@ -143,7 +143,7 @@ async def user(ctx, arg):
     try:
         cmd_user = lbxd.user.User(arg)
         msg = cmd_user.create_embed()
-    except lbxd.lbxd_errors.LbxdErrors as err:
+    except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -154,7 +154,7 @@ async def actor(ctx, *, arg):
     try:
         actor = lbxd.crew.Crew(arg, 'Actor')
         msg = actor.create_embed()
-    except lbxd.lbxd_errors.LbxdErrors as err:
+    except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -165,7 +165,7 @@ async def director(ctx, *, arg):
     try:
         director = lbxd.crew.Crew(arg, 'Director')
         msg = director.create_embed()
-    except lbxd.lbxd_errors.LbxdErrors as err:
+    except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -184,7 +184,7 @@ async def film(ctx, *, arg):
         else:
             cmd_film = lbxd.film.Film(arg)
         msg = cmd_film.create_embed()
-    except lbxd.lbxd_errors.LbxdErrors as err:
+    except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -204,7 +204,7 @@ async def list(ctx, username, *args):
         cmd_user = lbxd.user.User(username, False)
         cmd_list = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
         msg = cmd_list.create_embed()
-    except lbxd.lbxd_errors.LbxdErrors as err:
+    except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -218,7 +218,7 @@ async def review(ctx, user, *args):
         cmd_user = lbxd.user.User(user, False)
         cmd_review = lbxd.review.Review(cmd_user, cmd_film)
         msg = cmd_review.create_embed()
-    except lbxd.lbxd_errors.LbxdErrors as err:
+    except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 

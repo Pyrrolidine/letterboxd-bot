@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import time
 import uuid
+from .core import *
 
 # Credits for this file goes to bobtiki
 # https://github.com/bobtiki/letterboxd
@@ -36,7 +37,8 @@ class API(object):
             response = self.session.send(prepared_request)
         except ConnectionError as error:
             print(error)
-            raise
+            raise LbxdServerError('There was a problem trying to access'
+                                  + ' Letterboxd.')
 
         if response.ok:
             return response

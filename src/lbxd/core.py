@@ -1,8 +1,7 @@
 import discord
 import urllib.request
 import requests
-from bs4 import BeautifulSoup, SoupStrainer
-from .lbxd_errors import *
+from bs4 import BeautifulSoup
 from .api import *
 
 with open('TMDbAPI') as api_file:
@@ -23,3 +22,19 @@ def format_text(input_html, max_char):
         text += '...'
     text += '```'
     return text
+
+
+class LbxdErrors(Exception):
+    pass
+
+
+class LbxdNotFound(LbxdErrors):
+
+    def __init__(self, message):
+        self.message = message
+
+
+class LbxdServerError(LbxdErrors):
+
+    def __init__(self, message):
+        self.message = message
