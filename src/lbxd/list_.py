@@ -3,114 +3,54 @@ from .core import *
 
 class List(object):
 
-    def __init__(self, username, keywords):
-        self.user = username
-        self.lists_url = "https://letterboxd.com/" + self.user + "/lists/"
-        self.nb_films = ''
-        self.poster_link = ''
-        self.url = self.find_list(keywords)
-        list_page_html = self.load_list_page()
-        self.description = self.get_description(list_page_html)
-        if len(self.poster_link):
-            self.poster_url = self.get_thumbnail()
+    def __init__(self, user, keywords):
+        self.user = user
+        self.lbxd_id = self.find_list(keywords)
+        self.description = self.get_infos()
 
     def find_list(self, keywords):
-        list_link = ''
-        i = 1
+        params = {'member': self.user.lbxd_id,
+                  'memberRelationship': 'Owner',
+                  'perPage': 100,
+                  'where': 'Published'}
+        response = api.api_call('lists', params).json()
         match = False
-
-        while i <= 10:
-            try:
-                page = s.get(self.lists_url + 'page/{}'.format(i))
-                page.raise_for_status()
-            except requests.exceptions.HTTPError as err:
-                if page.status_code == 404:
-                    raise LbxdNotFound("The user **" + self.user
-                                       + "** doesn't exist.")
-                print(err)
-                raise LbxdServerError("There was a problem trying to access "
-                                      + "Letterboxd.com.")
-
-            lists_only = SoupStrainer('section', class_='list-set')
-            lists_html = BeautifulSoup(page.text, 'lxml',
-                                       parse_only=lists_only)
-
-            user_lists = lists_html.find_all('h2', class_='title-2 prettify')
-            if not len(user_lists):
-                break
-
-            for user_list in user_lists:
-                self.list_name = user_list.get_text().strip()
-
-                for word in keywords.lower().split():
-                    if word in self.list_name.lower():
-                        match = True
-                    else:
-                        match = False
-                        break
-
-                if match:
-                    self.nb_films = user_list.parent.find('small').get_text()
-                    list_link = "https://letterboxd.com"\
-                                + user_list.parent.find('a')['href']
-                    try:
-                        self.poster_link = user_list.parent.parent\
-                            .find('li')['data-target-link']
-                    except KeyError:
-                        self.poster_link = ''
-                    i = 20
+        for user_list in response['items']:
+            self.list_name = user_list['name']
+            for word in keywords.lower().split():
+                if word in self.list_name.lower():
+                    match = True
+                else:
+                    match = False
                     break
-            i += 1
+            if match:
+                return user_list['id']
+        raise LbxdNotFound("No list was found (limit to 100 most recent).\n"
+                           + "Make sure the first word is a **username**.")
 
-        if i < 20:
-            raise LbxdNotFound("No list was found within the first 10 pages.\n"
-                               + "Make sure the first word is a **username**.")
-        return list_link
-
-    def load_list_page(self):
-        try:
-            page = s.get(self.url)
-            page.raise_for_status()
-        except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError('There was a problem trying to access '
-                                  + 'Letterboxd.com.')
-
-        o_l = SoupStrainer('section',
-                           class_='section col-17 col-main overflow clearfix')
-        list_page_html = BeautifulSoup(page.text, 'lxml',
-                                       parse_only=o_l)
-        self.display_name = list_page_html.find('a', class_='name').contents[0]
-        date_html = list_page_html.find(class_='list-date')
-        publish_date_html = date_html.find(class_='published')
-        updated_date_html = date_html.find(class_='updated')
-        self.publish_date = publish_date_html.get_text().split('T')[0].strip()
-        self.updated_date = ''
-        if updated_date_html is not None:
-            self.updated_date = updated_date_html.get_text()\
-                                .split('T')[0].strip() + '\n'
-
-        return list_page_html
-
-    def get_description(self, list_page_html):
-        description = "By **" + self.display_name.strip() + '**\n'\
-                      + self.nb_films + '\n' + self.publish_date + '\n'\
-                      + self.updated_date
-        description_text = list_page_html.find('div', class_='body-text')
-        if description_text is not None:
-            description += format_text(description_text, 300)
+    def get_infos(self):
+        list_json = api.api_call('list/{}'.format(self.lbxd_id)).json()
+        for link in list_json['links']:
+            if link['type'] == 'letterboxd':
+                self.url = link['url']
+                break
+        description = 'By **' + list_json['owner']['displayName'] + '**\n'
+        description += str(list_json['filmCount']) + ' films\n'
+        description += 'Published '
+        description += list_json['whenPublished'].split('T')[0].strip() + '\n'
+        if list_json.get('descriptionLbml'):
+            description += format_text(list_json['descriptionLbml'], 300)
+        film_posters = list_json['previewEntries'][0]['film']['poster']
+        for poster in film_posters['sizes']:
+            if poster['height'] > 400:
+                self.poster_url = poster['url']
+                break
         return description
-
-    def get_thumbnail(self):
-        poster_link = "https://letterboxd.com" + self.poster_link + 'image-150'
-        poster_page = s.get(poster_link)
-        poster_html = BeautifulSoup(poster_page.text, 'lxml')
-        return poster_html.find('img')['src']
 
     def create_embed(self):
         list_embed = discord.Embed(title=self.list_name, url=self.url,
                                    colour=0xd8b437,
                                    description=self.description)
-        if len(self.poster_link):
+        if len(self.poster_url):
             list_embed.set_thumbnail(url=self.poster_url)
         return list_embed

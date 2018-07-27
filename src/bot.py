@@ -199,10 +199,10 @@ async def check_if_two_args(ctx):
 @bot.command(aliases=['l'])
 @commands.check(on_cooldown)
 @commands.check(check_if_two_args)
-async def list(ctx, user, *args):
+async def list(ctx, username, *args):
     try:
-        cmd_list = lbxd.list_.List(user.strip(','),
-                                   ' '.join(str(i) for i in args))
+        cmd_user = lbxd.user.User(username, False)
+        cmd_list = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
         msg = cmd_list.create_embed()
     except lbxd.lbxd_errors.LbxdErrors as err:
         msg = err
