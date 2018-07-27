@@ -1,4 +1,3 @@
-import requests
 import hashlib
 import hmac
 import time
@@ -35,7 +34,7 @@ class API(object):
                                      {"signature": signature})
         try:
             response = self.session.send(prepared_request)
-        except ConnectionError as error:
+        except requests.exceptions.HTTPError as error:
             print(error)
             raise LbxdServerError('There was a problem trying to access'
                                   + ' Letterboxd.')
