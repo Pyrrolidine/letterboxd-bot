@@ -1,6 +1,5 @@
 git+https://github.com/Rapptz/discord.py@rewrite
 BeautifulSoup4
 requests
-lxml
 cloudinary
 dblpy
