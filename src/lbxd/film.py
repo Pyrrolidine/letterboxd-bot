@@ -150,15 +150,12 @@ class Film(object):
     def get_stats(self):
         response = api.api_call('film/{}/statistics'.format(self.lbxd_id))
         stats_json = response.json()
-        text = ''
-        if stats_json.get('rating'):
-            text = '**Average:** ' + str(round(stats_json['rating'], 1)) + '\n'
         views = stats_json['counts']['watches']
         if views > 9999:
             views = str(round(views / 1000)) + 'k'
         elif views > 999:
             views = str(round(views / 1000, 1)) + 'k'
-        text += 'Watched by ' + str(views) + ' members'
+        text = 'Watched by ' + str(views) + ' members'
         return text
 
     def get_mkdb_rating(self):
