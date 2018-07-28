@@ -60,24 +60,21 @@ class Crew(object):
         return details_text
 
     def get_picture(self):
-        img_url = ''
         try:
             person_img = s.get(self.api_url + "/images?api_key={}"
                                .format(tmdb_api_key))
             person_img.raise_for_status()
+            if not len(person_img.json()['profiles']):
+                return ''
             img_url = "https://image.tmdb.org/t/p/w200"
             highest_vote = 0
             for img in person_img.json()['profiles']:
-                if img['vote_average'] > highest_vote:
+                if img['vote_average'] >= highest_vote:
                     highest_vote = img['vote_average']
-            for index, img in enumerate(person_img.json()['profiles']):
-                if img['vote_average'] == highest_vote:
-                    img_url += img['file_path']
-                    break
+                    path = img['file_path']
+            return img_url + path
         except requests.exceptions.HTTPError as err:
-            pass
-
-        return img_url
+            return ''
 
     def create_embed(self):
         crew_embed = discord.Embed(title=self.display_name, url=self.url,

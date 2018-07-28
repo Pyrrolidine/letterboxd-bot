@@ -6,7 +6,6 @@ class Film(object):
     def __init__(self, keywords, with_info=True, is_metropolis=False):
         self.has_year = False
         self.fix_search = False
-        self.year = ''
         self.input_year = self.check_year(keywords)
         self.lbxd_id = self.check_if_fixed_search(keywords)
         self.search_request(keywords)
