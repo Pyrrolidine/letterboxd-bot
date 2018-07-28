@@ -3,11 +3,11 @@ Searches a film on Letterboxd. The year is optional.
 !crew/!c/director/!d/!actor/!a <name>
 Searches a crew person.
 !user/!u <username>
-Displays the details of a Letterboxd user.
+Displays the details of a Letterboxd member.
 !review/!r <username> <film-name> (<year>)
-Displays the reviews from a specified user.
+Displays the logged entries (review, diary) from a member.
 !list/!l <username> <list-name>
-Searches a list by the specified user.
+Searches a list by the specified member.
 !checklb
 Checks if letterboxd.com is down.
 !slowlb <seconds> (<timer>)
