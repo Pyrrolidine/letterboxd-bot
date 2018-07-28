@@ -3,6 +3,7 @@ import urllib.request
 import requests
 from bs4 import BeautifulSoup
 from .api import *
+from .exceptions import *
 
 with open('TMDbAPI') as api_file:
     tmdb_api_key = api_file.readline().strip()
@@ -22,19 +23,3 @@ def format_text(input_html, max_char):
         text += '...'
     text += '```'
     return text
-
-
-class LbxdErrors(Exception):
-    pass
-
-
-class LbxdNotFound(LbxdErrors):
-
-    def __init__(self, message):
-        self.message = message
-
-
-class LbxdServerError(LbxdErrors):
-
-    def __init__(self, message):
-        self.message = message

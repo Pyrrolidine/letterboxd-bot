@@ -2,7 +2,8 @@ import hashlib
 import hmac
 import time
 import uuid
-from .core import *
+import requests
+from .exceptions import *
 
 # Credits for this file goes to bobtiki
 # https://github.com/bobtiki/letterboxd
