@@ -56,6 +56,7 @@ class Film(object):
                     if film_year == self.input_year:
                         film_json = result['film']
                         found = True
+                        break
             else:
                 film_json = results[0]['film']
         if self.has_year and not found:
