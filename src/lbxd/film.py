@@ -24,7 +24,7 @@ class Film(object):
             return last_word.replace('(', '').replace(')', '')
         elif re.fullmatch('y:\d{4}', last_word) is not None:
             self.has_year = True
-            return last_word.lower().replace('y:', '')
+            return last_word.replace('y:', '')
 
     def check_if_fixed_search(self, keywords):
         with open('film_search_fix.txt') as fix_file:
@@ -50,7 +50,6 @@ class Film(object):
             if not len(results):
                 raise LbxdNotFound("No film was found with this search.")
             if self.has_year:
-                print('yes')
                 for result in results:
                     if not result['film'].get('releaseYear'):
                         continue
