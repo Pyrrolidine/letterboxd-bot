@@ -67,8 +67,6 @@ class Film(object):
                 self.lbxd_url = link['url']
             elif link['type'] == 'tmdb':
                 self.tmdb_id = link['id']
-            elif link['type'] == 'imdb':
-                self.imdb_id = link['id']
 
         self.poster_path = ''
         if not film_json.get('poster'):
