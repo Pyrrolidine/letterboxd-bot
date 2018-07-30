@@ -95,7 +95,9 @@ async def helplb(ctx):
         help_embed.description = "[Invite Bot](https://discordapp.com/oauth2"\
                                 + "/authorize?client_id=437737824255737857"\
                                 + "&permissions=93248&scope=bot) | "\
-                                + "[Website](https://boxdbot.com)"
+                                + "[Website](https://boxdbot.com) | "\
+                                + "[GitLab](https://gitlab.com/Porkepik/"\
+                                + "PublicLetterboxdDiscordBot)"
     await send_msg(ctx, help_embed)
 
 

@@ -22,9 +22,6 @@ class Film(object):
         if re.fullmatch('\(\d{4}\)', last_word) is not None:
             self.has_year = True
             return last_word.replace('(', '').replace(')', '')
-        elif re.fullmatch('y:\d{4}', last_word) is not None:
-            self.has_year = True
-            return last_word.replace('y:', '')
 
     def check_if_fixed_search(self, keywords):
         with open('film_search_fix.txt') as fix_file:
