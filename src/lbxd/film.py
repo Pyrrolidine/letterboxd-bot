@@ -1,4 +1,5 @@
 from .core import *
+import re
 
 
 class Film(object):
@@ -18,12 +19,12 @@ class Film(object):
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
-        if not last_word.isdigit():
-            last_word = last_word.lower().replace('y:', '')
-            last_word = last_word.replace('(', '').replace(')', '')
-            if last_word.isdigit():
-                self.has_year = True
-                return last_word
+        if re.fullmatch('\(\d{4}\)', last_word) is not None:
+            self.has_year = True
+            return last_word.replace('(', '').replace(')', '')
+        elif re.fullmatch('y:\d{4}', last_word) is not None:
+            self.has_year = True
+            return last_word.lower().replace('y:', '')
 
     def check_if_fixed_search(self, keywords):
         with open('film_search_fix.txt') as fix_file:
@@ -49,6 +50,7 @@ class Film(object):
             if not len(results):
                 raise LbxdNotFound("No film was found with this search.")
             if self.has_year:
+                print('yes')
                 for result in results:
                     if not result['film'].get('releaseYear'):
                         continue

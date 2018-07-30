@@ -246,6 +246,8 @@ async def delete(ctx):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
+    elif isinstance(error, commands.CommandInvokeError):
+        await ctx.send('The command failed likely due to server issues.')
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send('The bot needs the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
