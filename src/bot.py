@@ -37,35 +37,6 @@ async def before_invoke(ctx):
     start_time = time.perf_counter()
 
 
-async def on_cooldown(ctx):
-    with open('data_bot.txt') as data_file:
-        data = json.load(data_file)
-    owner_bot = await bot.is_owner(ctx.author)
-
-    for server in data['servers']:
-        if server['id'] == ctx.guild.id:
-            delay = server['delay']
-
-            if time.perf_counter() > float(server['timer'])\
-              and int(server['timer']):
-                server['delay'] = 0
-                server['timer'] = 0
-                server['slowtime'] = 0
-            if ctx.author.permissions_in(ctx.channel).manage_messages\
-              or owner_bot:
-                return True
-            elif time.perf_counter() > delay:
-                server['delay'] = time.perf_counter()\
-                                  + float(server['slowtime'])
-                with open('data_bot.txt', 'w') as data_file:
-                    json.dump(data, data_file, indent=2, sort_keys=True)
-                return True
-            else:
-                await ctx.message.add_reaction('🚫')
-                await ctx.message.add_reaction('🐢')
-                return False
-
-
 async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
         if ctx.guild is not None and ctx.guild.id == 335569261080739863:
@@ -78,7 +49,6 @@ async def send_msg(ctx, msg):
 
 
 @bot.command()
-@commands.check(on_cooldown)
 async def helplb(ctx):
     with open('help.txt') as help_f:
         help_embed = discord.Embed(colour=discord.Color.from_rgb(54, 57, 62))
@@ -102,45 +72,12 @@ async def helplb(ctx):
 
 
 @bot.command()
-@commands.has_permissions(manage_messages=True)
-async def slowlb(ctx, user_slowtime, timer='0'):
-    if not user_slowtime.isdigit() or not timer.isdigit():
-        return
-    if float(user_slowtime) < 0:
-        user_slowtime = '0'
-    if float(timer) < 0:
-        timer = '0'
-    with open('data_bot.txt') as data_file:
-        data = json.load(data_file)
-
-    for server in data['servers']:
-        if server['id'] == ctx.guild.id:
-            server['slowtime'] = user_slowtime
-            server['timer'] = time.perf_counter() + (float(timer) * 60)
-            server['delay'] = 0
-            with open('data_bot.txt', 'w') as data_file:
-                json.dump(data, data_file, indent=2, sort_keys=True)
-            break
-
-    if float(user_slowtime):
-        msg = "A **slow mode** of **" + user_slowtime + " seconds**"
-        if float(timer):
-            msg += " for the next **" + timer + " minutes**"
-        msg += " has been enabled."
-        await ctx.send(msg)
-    else:
-        await ctx.send("Slow mode disabled.")
-
-
-@bot.command()
-@commands.check(on_cooldown)
 async def checklb(ctx):
     msg = lbxd.utils.check_lbxd()
     await send_msg(ctx, msg)
 
 
 @bot.command(aliases=['u'])
-@commands.check(on_cooldown)
 async def user(ctx, arg):
     try:
         cmd_user = lbxd.user.User(arg)
@@ -151,7 +88,6 @@ async def user(ctx, arg):
 
 
 @bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
-@commands.check(on_cooldown)
 async def crew(ctx, *, arg):
     try:
         crew = lbxd.crew.Crew(arg, ctx.invoked_with)
@@ -162,7 +98,6 @@ async def crew(ctx, *, arg):
 
 
 @bot.command(aliases=['movie', 'f'])
-@commands.check(on_cooldown)
 async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
@@ -188,7 +123,6 @@ async def check_if_two_args(ctx):
 
 
 @bot.command(aliases=['l'])
-@commands.check(on_cooldown)
 @commands.check(check_if_two_args)
 async def list(ctx, username, *args):
     try:
@@ -201,7 +135,6 @@ async def list(ctx, username, *args):
 
 
 @bot.command(aliases=['r'])
-@commands.check(on_cooldown)
 @commands.check(check_if_two_args)
 async def review(ctx, user, *args):
     try:
@@ -269,20 +202,6 @@ async def on_command_error(ctx, error):
     else:
         print(ctx.message.content)
         raise error
-
-
-@bot.event
-async def on_guild_join(guild):
-    guild_dict = dict()
-    guild_dict.setdefault('id', guild.id)
-    guild_dict.setdefault('delay', 0)
-    guild_dict.setdefault('slowtime', 0)
-    guild_dict.setdefault('timer', 0)
-    with open('data_bot.txt') as data_file:
-        data = json.load(data_file)
-    data['servers'].append(guild_dict)
-    with open('data_bot.txt', 'w') as data_file:
-        json.dump(data, data_file, indent=2, sort_keys=True)
 
 
 @bot.event

@@ -10,7 +10,5 @@ Displays the logged entries (review, diary) from a member.
 Searches a list by the specified member.
 !checklb
 Checks if letterboxd.com is down.
-!slowlb <seconds> (<timer>)
-Enables a slow mode, optional timer is in minutes. Requires the manage messages permission.
 !del
 Deletes the last message the bot sent in a channel.
