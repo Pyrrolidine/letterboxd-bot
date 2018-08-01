@@ -248,8 +248,6 @@ async def delete(ctx):
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
-    elif isinstance(error, commands.CommandInvokeError):
-        await ctx.send('The command failed likely due to server issues.')
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send('The bot needs the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
@@ -262,6 +260,12 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
+    elif isinstance(error, commands.CommandInvokeError):
+        if error.original.status == 403:
+            return
+        print('CommandInvokeError: ', ctx.message.content)
+        await ctx.send('The command failed likely due to server issues.')
+        raise error
     else:
         print(ctx.message.content)
         raise error
@@ -311,8 +315,9 @@ async def on_command_completion(ctx):
                 json.dump(data, data_file, indent=2, sort_keys=True)
         msg += "!" + command['name'] + ": " + str(command['used']) + "\n"
 
+    return
     stats_channel = bot.get_channel(467674166716530708)
-    stats_msg = await stats_channel.get_message(467682516443201547)
+    stats_msg = await stats_channel.get_message(467680081318248458)
     stats_embed = discord.Embed(colour=0xd8b437, title="Commands Used")
     stats_embed.description = msg
     await stats_msg.edit(embed=stats_embed)
