@@ -17,15 +17,3 @@ def check_lbxd():
     except requests.exceptions.HTTPError:
         status_embed.description = ':x: ' + lbxd_link + ' is **down**'
     return status_embed
-
-
-def update_json(bot_guilds, bot_commands):
-    if not os.path.isfile('data_bot.txt'):
-        json_dict = {'commands': []}
-        for command in bot_commands:
-            cmd_dict = dict()
-            cmd_dict.setdefault('name', command.name)
-            cmd_dict.setdefault('used', 0)
-            json_dict['commands'].append(cmd_dict)
-        with open('data_bot.txt', 'w') as data_file:
-            json.dump(json_dict, data_file, indent=2, sort_keys=True)

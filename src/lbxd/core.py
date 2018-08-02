@@ -1,19 +1,17 @@
 import discord
 import urllib.request
 import requests
+import config
 from bs4 import BeautifulSoup
 from .api import *
 from .exceptions import *
 
-with open('TMDbAPI') as api_file:
-    tmdb_api_key = api_file.readline().strip()
-s = requests.Session()
-with open('LBXDAPI') as api_file:
-    lines = api_file.readlines()
-    api_base = lines[0].strip()
-    api_key = lines[1].strip()
-    api_secret = lines[2].strip()
+tmdb_api_key = config.keys['tmdb']
+api_base = config.letterboxd['api_base']
+api_key = config.letterboxd['api_key']
+api_secret = config.letterboxd['api_secret']
 api = API(api_base, api_key, api_secret)
+s = requests.Session()
 
 
 def format_text(input_html, max_char):

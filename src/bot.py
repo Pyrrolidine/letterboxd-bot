@@ -5,10 +5,9 @@ import lbxd
 import dbl
 import asyncio
 import json
+import config
 
-with open('Token') as token_file:
-    TOKEN = token_file.readline().strip()
-
+TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
                    activity=discord.Game('!helplb - boxdbot.com'),
                    owner_id=81412646271717376)
@@ -27,7 +26,6 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    lbxd.utils.update_json(bot.guilds, bot.commands)
     await asyncio.sleep(2)
     for command in bot.commands:
         cmd_list.append(command.name)
@@ -122,11 +120,7 @@ async def crew(ctx, *, arg):
 async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
-        mkdb_servers = []
-        with open('mkdb_servers.txt') as mkdb_file:
-            for str_mkdb_server in mkdb_file:
-                mkdb_servers.append(int(str_mkdb_server.strip()))
-        if ctx.guild is not None and ctx.guild.id in mkdb_servers:
+        if ctx.guild is not None and ctx.guild.id in config.mkdb_servers:
             cmd_film = lbxd.film.Film(arg, True, True)
         else:
             cmd_film = lbxd.film.Film(arg)
@@ -240,13 +234,12 @@ async def on_command_error(ctx, error):
 @bot.event
 async def on_command_completion(ctx):
     msg = ''
-    with open('data_bot.txt') as data_file:
+    with open('data_bot.json') as data_file:
         data = json.load(data_file)
-
     for command in data['commands']:
         if command['name'] == ctx.command.name:
             command['used'] += 1
-            with open('data_bot.txt', 'w') as data_file:
+            with open('data_bot.json', 'w') as data_file:
                 json.dump(data, data_file, indent=2, sort_keys=True)
         msg += "!" + command['name'] + ": " + str(command['used']) + "\n"
 

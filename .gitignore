@@ -1,7 +1,2 @@
 __pycache__/
-Token
-TMDbAPI
-Cloudinary
-mkdb_servers.txt
-data_bot.txt
-LBXDAPI
+data_bot.json

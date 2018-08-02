@@ -5,13 +5,11 @@ import cloudinary
 import cloudinary.uploader
 
 
-with open('Cloudinary') as cloudinary_file:
-    lines = cloudinary_file.readlines()
-    cloudinary.config(
-        cloud_name=lines[0].strip(),
-        api_key=lines[1].strip(),
-        api_secret=lines[2].strip()
-    )
+cloudinary.config(
+    cloud_name=config.cloudinary['cloud_name'],
+    api_key=config.cloudinary['api_key'],
+    api_secret=config.cloudinary['api_secret']
+)
 
 
 class User(object):
