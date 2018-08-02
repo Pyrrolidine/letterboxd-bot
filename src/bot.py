@@ -233,7 +233,6 @@ async def on_command_error(ctx, error):
 
 @bot.event
 async def on_command_completion(ctx):
-    msg = ''
     with open('data_bot.json') as data_file:
         data = json.load(data_file)
     for command in data['commands']:
@@ -241,14 +240,7 @@ async def on_command_completion(ctx):
             command['used'] += 1
             with open('data_bot.json', 'w') as data_file:
                 json.dump(data, data_file, indent=2, sort_keys=True)
-        msg += "!" + command['name'] + ": " + str(command['used']) + "\n"
-
-    return
-    stats_channel = bot.get_channel(467674166716530708)
-    stats_msg = await stats_channel.get_message(467680081318248458)
-    stats_embed = discord.Embed(colour=0xd8b437, title="Commands Used")
-    stats_embed.description = msg
-    await stats_msg.edit(embed=stats_embed)
+            break
 
 
 bot.run(TOKEN)
