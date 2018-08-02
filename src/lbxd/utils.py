@@ -1,6 +1,4 @@
 from .core import *
-import os.path
-import json
 
 
 def check_lbxd():
