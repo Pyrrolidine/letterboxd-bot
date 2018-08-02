@@ -4,7 +4,6 @@ import os
 import cloudinary
 import cloudinary.uploader
 
-
 cloudinary.config(
     cloud_name=config.cloudinary['cloud_name'],
     api_key=config.cloudinary['api_key'],
