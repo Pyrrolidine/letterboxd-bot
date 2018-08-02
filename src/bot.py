@@ -17,7 +17,6 @@ cmd_list = list()
 #with open('dbl_token') as token_file:
 #    dbl_token = token_file.readline().strip()
 #dblpy = dbl.Client(bot, dbl_token)
-bot.run(TOKEN)
 
 
 @bot.event
@@ -236,3 +235,6 @@ async def delete(ctx):
                 return
         await bot_message.delete()
         await cmd_message.delete()
+
+
+bot.run(TOKEN)
