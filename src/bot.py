@@ -5,6 +5,7 @@ import lbxd
 import dbl
 import asyncio
 import json
+import requests
 import config
 
 TOKEN = config.keys['discord']
@@ -85,11 +86,13 @@ async def on_command_error(ctx, error):
             or isinstance(error, commands.CheckFailure):
         pass
     elif isinstance(error, commands.CommandInvokeError):
+        if isinstance(error.original, requests.exceptions.HTTPError):
+            if error.original.status_code >= 500:
+                await ctx.send('The command failed due to server issues.')
         if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
         print('CommandInvokeError: ', ctx.message.content)
-        await ctx.send('The command failed likely due to server issues.')
         raise error
     else:
         print(ctx.message.content)
@@ -178,7 +181,7 @@ async def film(ctx, *, arg):
 async def check_if_two_args(ctx):
     msg = ctx.message.content.split()
     if len(msg) < 3:
-        await ctx.send('This command requires at least 2 parameters.')
+        await ctx.send('This command requires 2 parameters.')
     return len(msg) > 2
 
 
