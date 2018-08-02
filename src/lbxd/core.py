@@ -14,6 +14,7 @@ api = API(api_base, api_key, api_secret)
 s = requests.Session()
 
 
+# Converting the review or list description in HTML to text
 def format_text(input_html, max_char):
     html = BeautifulSoup(input_html, 'html.parser')
     text = '```' + html.text[:max_char].strip()
