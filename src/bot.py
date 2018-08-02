@@ -14,10 +14,10 @@ bot = commands.Bot(command_prefix='!', case_insensitive=True,
 bot.remove_command('help')
 start_time = 0
 cmd_list = list()
-
 #with open('dbl_token') as token_file:
 #    dbl_token = token_file.readline().strip()
 #dblpy = dbl.Client(bot, dbl_token)
+bot.run(TOKEN)
 
 
 @bot.event
@@ -27,6 +27,7 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     await asyncio.sleep(1)
+    # List of commands and their aliases to be recognized when !del is used
     for command in bot.commands:
         cmd_list.append(command.name)
         for alias in command.aliases:
@@ -34,11 +35,12 @@ async def on_ready():
     #bot.loop.create_task(update_stats())
 
 
+# Update the server count of the discordbots.org page
 async def update_stats():
     while True:
         try:
             await dblpy.post_server_count()
-        except Exception as e:
+        except Exception:
             pass
         await asyncio.sleep(1800)
 
@@ -52,18 +54,63 @@ async def on_message(message):
             return
 
     await bot.process_commands(message)
+    # Redirects PMs to me
     if not message.content.startswith('!'):
-        # Redirects PMs to me
         if isinstance(message.channel, discord.DMChannel):
             porkepik = await bot.get_user_info(81412646271717376)
             await porkepik.send('`' + str(message.author)
                                 + '`\n\n' + message.content)
 
 
+# To track the time it took to respond
 @bot.before_invoke
 async def before_invoke(ctx):
     global start_time
     start_time = time.perf_counter()
+
+
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('This command requires a parameter.')
+    elif isinstance(error, commands.BotMissingPermissions):
+        await ctx.send('The bot needs the {} permission to use this command.'
+                       .format(', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, commands.MissingPermissions):
+        await ctx.send('You need the {} permission to use this command.'
+                       .format(', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send('The command failed likely due to the handling of a'
+                       + ' special character.')
+    elif isinstance(error, commands.CommandNotFound)\
+            or isinstance(error, commands.CheckFailure):
+        pass
+    elif isinstance(error, commands.CommandInvokeError):
+        if isinstance(error.original, discord.HTTPException)\
+                and error.original.status == 403:
+            return
+        print('CommandInvokeError: ', ctx.message.content)
+        await ctx.send('The command failed likely due to server issues.')
+        raise error
+    else:
+        print(ctx.message.content)
+        raise error
+
+
+# Abstraction sending the response either as an embed or normal message
+async def send_msg(ctx, msg):
+    if isinstance(msg, discord.Embed):
+        # Displays the response time in the test server
+        if ctx.guild is not None and ctx.guild.id == 335569261080739863:
+            global start_time
+            msg.set_footer(text="cmd time: {:.3}"
+                           .format(time.perf_counter() - start_time))
+        await ctx.send(embed=msg)
+    else:
+        await ctx.send(msg)
+
+
+# Commands
 
 
 @bot.command()
@@ -189,45 +236,3 @@ async def delete(ctx):
                 return
         await bot_message.delete()
         await cmd_message.delete()
-
-
-async def send_msg(ctx, msg):
-    if isinstance(msg, discord.Embed):
-        if ctx.guild is not None and ctx.guild.id == 335569261080739863:
-            global start_time
-            msg.set_footer(text="cmd time: {:.3}"
-                           .format(time.perf_counter() - start_time))
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
-
-
-@bot.event
-async def on_command_error(ctx, error):
-    if isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('This command requires a parameter.')
-    elif isinstance(error, commands.BotMissingPermissions):
-        await ctx.send('The bot needs the {} permission to use this command.'
-                       .format(', '.join(err for err in error.missing_perms)))
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.send('You need the {} permission to use this command.'
-                       .format(', '.join(err for err in error.missing_perms)))
-    elif isinstance(error, commands.BadArgument):
-        await ctx.send('The command failed likely due to the handling of a'
-                       + ' special character.')
-    elif isinstance(error, commands.CommandNotFound)\
-            or isinstance(error, commands.CheckFailure):
-        pass
-    elif isinstance(error, commands.CommandInvokeError):
-        if isinstance(error.original, discord.HTTPException)\
-                and error.original.status == 403:
-            return
-        print('CommandInvokeError: ', ctx.message.content)
-        await ctx.send('The command failed likely due to server issues.')
-        raise error
-    else:
-        print(ctx.message.content)
-        raise error
-
-
-bot.run(TOKEN)
