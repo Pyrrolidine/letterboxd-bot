@@ -53,6 +53,7 @@ async def on_message(message):
         if message.guild.id in [264445053596991498]:
             return
 
+    message.content = message.content.replace('’', '').replace('‘', '')
     await bot.process_commands(message)
     # Redirects PMs to me
     if not message.content.startswith('!'):
@@ -79,9 +80,6 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send('You need the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
-    elif isinstance(error, commands.BadArgument):
-        await ctx.send('The command failed likely due to the handling of a'
-                       + ' special character.')
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
