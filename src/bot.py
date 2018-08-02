@@ -26,7 +26,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
     for command in bot.commands:
         cmd_list.append(command.name)
         for alias in command.aliases:
@@ -39,8 +39,7 @@ async def update_stats():
         try:
             await dblpy.post_server_count()
         except Exception as e:
-            print('Failed to post server count\n{}: {}'
-                  .format(type(e).__name__, e))
+            pass
         await asyncio.sleep(1800)
 
 
@@ -142,8 +141,8 @@ async def check_if_two_args(ctx):
 async def list(ctx, username, *args):
     try:
         cmd_user = lbxd.user.User(username, False)
-        cmd_list = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
-        msg = cmd_list.create_embed()
+        cmd_list_ = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
+        msg = cmd_list_.create_embed()
     except lbxd.core.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -229,18 +228,6 @@ async def on_command_error(ctx, error):
     else:
         print(ctx.message.content)
         raise error
-
-
-@bot.event
-async def on_command_completion(ctx):
-    with open('data_bot.json') as data_file:
-        data = json.load(data_file)
-    for command in data['commands']:
-        if command['name'] == ctx.command.name:
-            command['used'] += 1
-            with open('data_bot.json', 'w') as data_file:
-                json.dump(data, data_file, indent=2, sort_keys=True)
-            break
 
 
 bot.run(TOKEN)

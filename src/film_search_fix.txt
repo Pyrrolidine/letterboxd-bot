@@ -1,20 +1,10 @@
-Salo/Salò
-237s
-Boudu
-IDg
-The Wrong Man/Wrong Man
-1AqK
-Snow White
-2arO
-King of Kong
-1P2y
-Love
-9brE
-Red Dragon
-1Yrs
-Tabu
-29aM
-Intolerance
-25Qk
-Super
-QgO
+25Qk|Intolerance
+1P2y|King of Kong
+9brE|Love
+1Yrs|Red Dragon
+237s|Salo/Salò
+2arO|Snow White
+29aM|Tabu
+1AqK|The Wrong Man/Wrong Man
+IDg|Boudu
+QgO|Super

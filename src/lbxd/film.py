@@ -26,11 +26,11 @@ class Film(object):
     def check_if_fixed_search(self, keywords):
         with open('film_search_fix.txt') as fix_file:
             for line in fix_file:
-                for title in line.strip().split('/'):
+                titles = line.split('|')[1].strip()
+                for title in titles.split('/'):
                     if title.lower() == keywords.lower():
-                        id_line = next(fix_file).strip().split('/')
                         self.fix_search = True
-                        return id_line[0]
+                        return line.split('|')[0]
         return ''
 
     def search_request(self, keywords):
