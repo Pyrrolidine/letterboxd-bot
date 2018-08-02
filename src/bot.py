@@ -87,11 +87,12 @@ async def on_command_error(ctx, error):
         if isinstance(error.original, requests.exceptions.HTTPError):
             if error.original.status_code >= 500:
                 await ctx.send('The command failed due to server issues.')
-        if isinstance(error.original, discord.HTTPException)\
+        elif isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
-        print('CommandInvokeError: ', ctx.message.content)
-        raise error
+        else:
+            print('CommandInvokeError: ', ctx.message.content)
+            raise error
     else:
         print(ctx.message.content)
         raise error
