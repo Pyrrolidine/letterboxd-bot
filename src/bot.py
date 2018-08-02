@@ -21,6 +21,21 @@ cmd_list = list()
 #dblpy = dbl.Client(bot, dbl_token)
 
 
+@bot.event
+async def on_ready():
+    print('Logged in {} servers as'.format(len(bot.guilds)))
+    print(bot.user.name)
+    print(bot.user.id)
+    print('------')
+    lbxd.utils.update_json(bot.guilds, bot.commands)
+    await asyncio.sleep(2)
+    for command in bot.commands:
+        cmd_list.append(command.name)
+        for alias in command.aliases:
+            cmd_list.append(alias)
+    #bot.loop.create_task(update_stats())
+
+
 async def update_stats():
     while True:
         try:
@@ -31,21 +46,27 @@ async def update_stats():
         await asyncio.sleep(1800)
 
 
+@bot.event
+async def on_message(message):
+    if message.author == bot.user:
+        return
+    if message.guild is not None:
+        if message.guild.id in [264445053596991498]:
+            return
+
+    await bot.process_commands(message)
+    if not message.content.startswith('!'):
+        # Redirects PMs to me
+        if isinstance(message.channel, discord.DMChannel):
+            porkepik = await bot.get_user_info(81412646271717376)
+            await porkepik.send('`' + str(message.author)
+                                + '`\n\n' + message.content)
+
+
 @bot.before_invoke
 async def before_invoke(ctx):
     global start_time
     start_time = time.perf_counter()
-
-
-async def send_msg(ctx, msg):
-    if isinstance(msg, discord.Embed):
-        if ctx.guild is not None and ctx.guild.id == 335569261080739863:
-            global start_time
-            msg.set_footer(text="cmd time: {:.3}"
-                           .format(time.perf_counter() - start_time))
-        await ctx.send(embed=msg)
-    else:
-        await ctx.send(msg)
 
 
 @bot.command()
@@ -177,6 +198,17 @@ async def delete(ctx):
         await cmd_message.delete()
 
 
+async def send_msg(ctx, msg):
+    if isinstance(msg, discord.Embed):
+        if ctx.guild is not None and ctx.guild.id == 335569261080739863:
+            global start_time
+            msg.set_footer(text="cmd time: {:.3}"
+                           .format(time.perf_counter() - start_time))
+        await ctx.send(embed=msg)
+    else:
+        await ctx.send(msg)
+
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
@@ -194,7 +226,8 @@ async def on_command_error(ctx, error):
             or isinstance(error, commands.CheckFailure):
         pass
     elif isinstance(error, commands.CommandInvokeError):
-        if error.original.status == 403:
+        if isinstance(error.original, discord.HTTPException)\
+                and error.original.status == 403:
             return
         print('CommandInvokeError: ', ctx.message.content)
         await ctx.send('The command failed likely due to server issues.')
@@ -202,23 +235,6 @@ async def on_command_error(ctx, error):
     else:
         print(ctx.message.content)
         raise error
-
-
-@bot.event
-async def on_message(message):
-    if message.author == bot.user:
-        return
-    if message.guild is not None:
-        if message.guild.id in [264445053596991498]:
-            return
-
-    await bot.process_commands(message)
-    if not message.content.startswith('!'):
-        # Redirects PMs to me
-        if isinstance(message.channel, discord.DMChannel):
-            porkepik = await bot.get_user_info(81412646271717376)
-            await porkepik.send('`' + str(message.author)
-                                + '`\n\n' + message.content)
 
 
 @bot.event
@@ -240,21 +256,6 @@ async def on_command_completion(ctx):
     stats_embed = discord.Embed(colour=0xd8b437, title="Commands Used")
     stats_embed.description = msg
     await stats_msg.edit(embed=stats_embed)
-
-
-@bot.event
-async def on_ready():
-    print('Logged in {} servers as'.format(len(bot.guilds)))
-    print(bot.user.name)
-    print(bot.user.id)
-    print('------')
-    lbxd.utils.update_json(bot.guilds, bot.commands)
-    await asyncio.sleep(2)
-    for command in bot.commands:
-        cmd_list.append(command.name)
-        for alias in command.aliases:
-            cmd_list.append(alias)
-    #bot.loop.create_task(update_stats())
 
 
 bot.run(TOKEN)
