@@ -49,18 +49,8 @@ async def update_stats():
 async def on_message(message):
     if message.author == bot.user:
         return
-    if message.guild is not None:
-        if message.guild.id in [264445053596991498]:
-            return
-
     message.content = message.content.replace('’', '').replace('‘', '')
     await bot.process_commands(message)
-    # Redirects PMs to me
-    if not message.content.startswith('!'):
-        if isinstance(message.channel, discord.DMChannel):
-            porkepik = await bot.get_user_info(81412646271717376)
-            await porkepik.send('`' + str(message.author)
-                                + '`\n\n' + message.content)
 
 
 # To track the time it took to respond
@@ -90,8 +80,10 @@ async def on_command_error(ctx, error):
         elif isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
+        elif isinstance(error.original, requests.exceptions.ConnectionError):
+            await ctx.send('The command failed due to connection issues.')
         else:
-            await ctx.send('The command crashed, warn the dev about this!')
+            await ctx.send('The command crashed, a report is sent to the dev.')
             print('CommandInvokeError: ', ctx.message.content)
             raise error
     else:
