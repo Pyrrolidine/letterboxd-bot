@@ -91,6 +91,7 @@ async def on_command_error(ctx, error):
                 and error.original.status == 403:
             return
         else:
+            await ctx.send('The command crashed, warn the dev about this!')
             print('CommandInvokeError: ', ctx.message.content)
             raise error
     else:
