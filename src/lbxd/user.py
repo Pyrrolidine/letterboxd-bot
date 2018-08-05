@@ -3,6 +3,7 @@ import subprocess
 import os
 import cloudinary
 import cloudinary.uploader
+import urllib.request
 
 cloudinary.config(
     cloud_name=config.cloudinary['cloud_name'],

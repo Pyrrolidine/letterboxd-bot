@@ -1,5 +1,4 @@
 import discord
-import urllib.request
 import requests
 import config
 from bs4 import BeautifulSoup
