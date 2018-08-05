@@ -15,9 +15,7 @@ bot = commands.Bot(command_prefix='!', case_insensitive=True,
 bot.remove_command('help')
 start_time = 0
 cmd_list = list()
-#with open('dbl_token') as token_file:
-#    dbl_token = token_file.readline().strip()
-#dblpy = dbl.Client(bot, dbl_token)
+#dblpy = dbl.Client(bot, config.keys['dbl'])
 
 
 @bot.event
