@@ -207,6 +207,8 @@ async def delete(ctx):
     found_bot_msg = False
     found_usr_cmd = False
     async for log_message in ctx.channel.history(limit=30):
+        if log_message.author == bot.user and not found_bot_msg:
+            bot_message = log_message
         if found_bot_msg:
             for cmd in cmd_list:
                 if log_message.content.startswith('!{} '.format(cmd)):
@@ -217,8 +219,6 @@ async def delete(ctx):
             if found_usr_cmd:
                 cmd_message = log_message
                 break
-        if log_message.author == bot.user and not found_bot_msg:
-            bot_message = log_message
             found_bot_msg = True
 
     if found_usr_cmd:
