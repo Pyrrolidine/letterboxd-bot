@@ -210,7 +210,7 @@ async def delete(ctx):
         if log_message.author == bot.user and not found_bot_msg:
             bot_message = log_message
             found_bot_msg = True
-        if found_bot_msg:
+        elif found_bot_msg:
             for cmd in cmd_list:
                 if log_message.content.startswith('!{} '.format(cmd)):
                     found_usr_cmd = True
