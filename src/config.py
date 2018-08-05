@@ -1,9 +1,9 @@
 import json
 
-with open('data_bot.json') as data_file:
-    data_dict = json.load(data_file)
+with open('config.json') as config_file:
+    config_dict = json.load(config_file)
 
-cloudinary = data_dict['cloudinary']
-letterboxd = data_dict['letterboxd']
-mkdb_servers = data_dict['mkdb_servers']
-keys = data_dict['keys']
+cloudinary = config_dict['cloudinary']
+letterboxd = config_dict['letterboxd']
+mkdb_servers = config_dict['mkdb_servers']
+keys = config_dict['keys']
