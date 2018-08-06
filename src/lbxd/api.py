@@ -38,8 +38,8 @@ class API(object):
             response.raise_for_status()
         except requests.exceptions.RequestException as error:
             print('API Error:\n' + str(error))
-            raise LbxdServerError('There was a problem trying to access'
-                                  + ' Letterboxd.')
+            raise LbxdServerError('A request to the Letterboxd API failed.'
+                                  + ' This may due to a server issue.')
         return response
 
     def __add_unique_params(self, params):

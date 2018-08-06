@@ -8,8 +8,7 @@ import asyncio
 
 TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb - boxdbot.com'),
-                   owner_id=81412646271717376)
+                   activity=discord.Game('!helplb - boxdbot.com'))
 bot.remove_command('help')
 start_time = 0
 cmd_list = list()
@@ -86,7 +85,7 @@ async def on_command_error(ctx, error):
 async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
         # Displays the response time in the test server
-        if ctx.guild is not None and ctx.guild.id == 335569261080739863:
+        if ctx.guild is not None and ctx.guild.id in config.test_server:
             global start_time
             msg.set_footer(text="cmd time: {:.3}"
                            .format(time.perf_counter() - start_time))
