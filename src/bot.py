@@ -1,11 +1,11 @@
 import discord
-import time
 from discord.ext import commands
 import lbxd
+import config
+import json
+import time
 import dbl
 import asyncio
-import json
-import config
 
 TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True,

@@ -3,7 +3,6 @@ import requests
 import config
 from bs4 import BeautifulSoup
 from .api import *
-from .exceptions import *
 
 tmdb_api_key = config.keys['tmdb']
 api_base = config.letterboxd['api_base']
