@@ -4,6 +4,18 @@
         "api_secret": "",
         "cloud_name": ""
     },
+    "fixed_film_search": {
+        "Boudu": "IDg",
+        "Intolerance": "25Qk",
+        "King of Kong": "1P2y",
+        "Love": "9brE",
+        "Red Dragon": "1Yrs",
+        "Salo": "237s",
+        "Snow White": "2arO",
+        "Super": "QgO",
+        "Tabu": "29aM",
+        "The Wrong Man": "1AqK"
+    },
     "keys": {
         "discord": "",
         "tmdb": ""

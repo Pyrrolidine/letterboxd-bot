@@ -24,13 +24,10 @@ class Film(object):
             return last_word.replace('(', '').replace(')', '')
 
     def check_if_fixed_search(self, keywords):
-        with open('film_search_fix.txt') as fix_file:
-            for line in fix_file:
-                titles = line.split('|')[1].strip()
-                for title in titles.split('/'):
-                    if title.lower() == keywords.lower():
-                        self.fix_search = True
-                        return line.split('|')[0]
+        for title, lbxd_id in config.fixed_film_search.items():
+            if title.lower() == keywords.lower():
+                self.fix_search = True
+                return lbxd_id
         return ''
 
     def search_request(self, keywords):
