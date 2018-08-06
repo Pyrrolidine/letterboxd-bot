@@ -26,10 +26,8 @@ def help_lbxd():
                               url="https://boxdbot.com/")
         help_embed.set_footer(text="Created by Porkepik#2664",
                               icon_url="https://i.imgur.com/li4cLpd.png")
-        for line in help_f:
-            if not line.startswith('!'):
-                continue
-            help_embed.add_field(name=line, value=next(help_f), inline=False)
+        for key, value in config.help_text.items():
+            help_embed.add_field(name=key, value=value, inline=False)
         help_embed.description = "[Invite Bot](https://discordapp.com/oauth2"\
                                 + "/authorize?client_id=437737824255737857"\
                                 + "&permissions=93248&scope=bot) | "\
