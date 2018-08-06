@@ -2,7 +2,6 @@ import discord
 from discord.ext import commands
 import lbxd
 import config
-import json
 import time
 import dbl
 import asyncio
