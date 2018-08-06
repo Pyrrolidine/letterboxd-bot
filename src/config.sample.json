@@ -1,0 +1,17 @@
+{
+  "cloudinary": {
+    "api_key": "",
+    "api_secret": "",
+    "cloud_name": ""
+  },
+  "keys": {
+    "discord": "",
+    "tmdb": ""
+  },
+  "letterboxd": {
+    "api_base": "https://api.letterboxd.com/api/v0",
+    "api_key": "",
+    "api_secret": ""
+  },
+  "mkdb_servers": []
+}
