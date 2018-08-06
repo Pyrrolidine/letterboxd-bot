@@ -39,11 +39,9 @@ class Crew(object):
             person_tmdb = s.get(url)
             person_tmdb.raise_for_status()
         except requests.exceptions.HTTPError as err:
-            print(err)
-            raise LbxdServerError("There was a problem trying to access TMDb.")
+            return ''
 
         self.display_name = person_tmdb.json()['name']
-
         for element in person_tmdb.json():
             if person_tmdb.json()[element] is None:
                 continue
@@ -56,7 +54,6 @@ class Crew(object):
             elif element == 'place_of_birth':
                 details_text += "**Place of Birth:** " \
                                 + person_tmdb.json()[element]
-
         return details_text
 
     def get_picture(self):

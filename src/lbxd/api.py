@@ -35,16 +35,12 @@ class API(object):
                                      {"signature": signature})
         try:
             response = self.session.send(prepared_request)
+            response.raise_for_status()
         except requests.exceptions.RequestException as error:
-            print(error)
+            print('API Error:\n' + str(error))
             raise LbxdServerError('There was a problem trying to access'
                                   + ' Letterboxd.')
-
-        if response.ok:
-            return response
-        else:
-            response.raise_for_status()
-            return response
+        return response
 
     def __add_unique_params(self, params):
         params["apikey"] = self.api_key

@@ -5,7 +5,6 @@ import lbxd
 import dbl
 import asyncio
 import json
-import requests
 import config
 
 TOKEN = config.keys['discord']
@@ -72,14 +71,9 @@ async def on_command_error(ctx, error):
             or isinstance(error, commands.CheckFailure):
         pass
     elif isinstance(error, commands.CommandInvokeError):
-        if isinstance(error.original, requests.exceptions.HTTPError):
-            if error.original.response.status_code >= 500:
-                await ctx.send('The command failed due to server issues.')
-        elif isinstance(error.original, discord.HTTPException)\
+        if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
-        elif isinstance(error.original, requests.exceptions.ConnectionError):
-            await ctx.send('The command failed due to connection issues.')
         else:
             await ctx.send('The command crashed, a report is sent to the dev.')
             print('CommandInvokeError: ', ctx.message.content)
