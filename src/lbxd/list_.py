@@ -41,6 +41,7 @@ class List(object):
         if list_json.get('descriptionLbml'):
             description += format_text(list_json['descriptionLbml'], 300)
         film_posters = list_json['previewEntries'][0]['film']['poster']
+        self.poster_url = ''
         for poster in film_posters['sizes']:
             if poster['height'] > 400:
                 self.poster_url = poster['url']
@@ -51,6 +52,5 @@ class List(object):
         list_embed = discord.Embed(title=self.list_name, url=self.url,
                                    colour=0xd8b437,
                                    description=self.description)
-        if len(self.poster_url):
-            list_embed.set_thumbnail(url=self.poster_url)
+        list_embed.set_thumbnail(url=self.poster_url)
         return list_embed

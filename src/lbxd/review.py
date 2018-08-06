@@ -65,7 +65,6 @@ class Review(object):
                                              self.film.title, self.film.year),
                                      url=embed_url, colour=0xd8b437,
                                      description=self.description)
-        if len(self.film.poster_path):
-            review_embed.set_thumbnail(url=self.film.poster_path)
+        review_embed.set_thumbnail(url=self.film.poster_path)
 
         return review_embed

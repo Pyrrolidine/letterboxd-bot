@@ -176,7 +176,6 @@ class Film(object):
             title += ' (' + str(self.year) + ')'
         film_embed = discord.Embed(title=title, description=self.description,
                                    url=self.lbxd_url, colour=0xd8b437)
-        if len(self.poster_path):
-            film_embed.set_thumbnail(url=self.poster_path)
+        film_embed.set_thumbnail(url=self.poster_path)
 
         return film_embed
