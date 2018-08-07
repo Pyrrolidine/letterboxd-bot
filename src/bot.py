@@ -87,7 +87,7 @@ async def send_msg(ctx, msg):
         # Displays the response time in the test server
         if ctx.guild is not None and ctx.guild.id in config.test_server:
             global start_time
-            msg.set_footer(text="cmd time: {:.3}"
+            msg.set_footer(text='cmd time: {:.3}'
                            .format(time.perf_counter() - start_time))
         await ctx.send(embed=msg)
     else:

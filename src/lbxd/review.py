@@ -44,7 +44,7 @@ class Review(object):
                 if not review.get('review'):
                     continue
                 if review['review']['containsSpoilers']:
-                    spoiler_warning = "This review may contain spoilers."
+                    spoiler_warning = 'This review may contain spoilers.'
                     description += '```' + spoiler_warning + '```'
                 else:
                     description += format_text(review['review']['lbml'], 400)
@@ -60,7 +60,7 @@ class Review(object):
         else:
             embed_url = self.review_url
 
-        review_embed = discord.Embed(title="{0} {1} of {2} ({3})"
+        review_embed = discord.Embed(title='{0} {1} of {2} ({3})'
                                      .format(self.user.display_name, review_word,
                                              self.film.title, self.film.year),
                                      url=embed_url, colour=0xd8b437,

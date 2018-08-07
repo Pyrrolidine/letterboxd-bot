@@ -42,7 +42,7 @@ class Film(object):
             response = api.api_call('search', params)
             results = response.json()['items']
             if not len(results):
-                raise LbxdNotFound("No film was found with this search.")
+                raise LbxdNotFound('No film was found with this search.')
             if self.has_year:
                 for result in results:
                     if not result['film'].get('releaseYear'):
@@ -55,7 +55,7 @@ class Film(object):
             else:
                 film_json = results[0]['film']
         if self.has_year and not found:
-            raise LbxdNotFound("No film was found with this search.")
+            raise LbxdNotFound('No film was found with this search.')
         self.lbxd_id = film_json['id']
         self.title = film_json['name']
         self.year = film_json.get('releaseYear')
@@ -98,8 +98,8 @@ class Film(object):
                 text += '**Director:** '
             text += director_str[:-2] + '\n'
 
-        api_url = "https://api.themoviedb.org/3/movie/" + self.tmdb_id\
-                  + "?api_key=" + tmdb_api_key
+        api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
+                  + '?api_key=' + tmdb_api_key
         try:
             response = s.get(api_url)
             response.raise_for_status()

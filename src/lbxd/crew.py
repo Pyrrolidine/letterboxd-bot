@@ -24,7 +24,7 @@ class Crew(object):
                 tmdb_id = link['id']
             elif link['type'] == 'letterboxd':
                 self.url = link['url']
-        self.api_url = "https://api.themoviedb.org/3/person/{}".format(tmdb_id)
+        self.api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
 
         description = ''
         for contrib_stats in person_json['statistics']['contributions']:
@@ -34,7 +34,7 @@ class Crew(object):
 
     def get_details(self):
         details_text = ''
-        url = self.api_url + "?api_key={}".format(tmdb_api_key)
+        url = self.api_url + '?api_key={}'.format(tmdb_api_key)
         try:
             person_tmdb = s.get(url)
             person_tmdb.raise_for_status()
@@ -46,24 +46,24 @@ class Crew(object):
             if person_tmdb.json()[element] is None:
                 continue
             if element == 'birthday':
-                details_text += "**Birthday:** " \
+                details_text += '**Birthday:** ' \
                                 + person_tmdb.json()[element] + '\n'
             elif element == 'deathday':
-                details_text += "**Day of Death:** " \
+                details_text += '**Day of Death:** ' \
                                 + person_tmdb.json()[element] + '\n'
             elif element == 'place_of_birth':
-                details_text += "**Place of Birth:** " \
+                details_text += '**Place of Birth:** ' \
                                 + person_tmdb.json()[element]
         return details_text
 
     def get_picture(self):
         try:
-            person_img = s.get(self.api_url + "/images?api_key={}"
+            person_img = s.get(self.api_url + '/images?api_key={}'
                                .format(tmdb_api_key))
             person_img.raise_for_status()
             if not len(person_img.json()['profiles']):
                 return ''
-            img_url = "https://image.tmdb.org/t/p/w200"
+            img_url = 'https://image.tmdb.org/t/p/w200'
             highest_vote = 0
             for img in person_img.json()['profiles']:
                 if img['vote_average'] >= highest_vote:

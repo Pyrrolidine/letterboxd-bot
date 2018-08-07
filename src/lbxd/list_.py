@@ -25,8 +25,8 @@ class List(object):
                     break
             if match:
                 return user_list['id']
-        raise LbxdNotFound("No list was found (limit to 100 most recent).\n"
-                           + "Make sure the first word is a **username**.")
+        raise LbxdNotFound('No list was found (limit to 100 most recent).\n'
+                           + 'Make sure the first word is a **username**.')
 
     def get_infos(self):
         list_json = api.api_call('list/{}'.format(self.lbxd_id)).json()

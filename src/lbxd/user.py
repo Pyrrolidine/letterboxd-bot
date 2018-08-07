@@ -19,7 +19,7 @@ class User(object):
         self.fav_posters_link = list()
         self.fav_posters = ''
         self.user = username.lower()
-        self.url = "https://letterboxd.com/{}".format(username)
+        self.url = 'https://letterboxd.com/{}'.format(username)
         self.lbxd_id = self.search_profile()
         if not with_info:
             return
@@ -49,7 +49,7 @@ class User(object):
                 params['cursor'] = cursor
             else:
                 break
-        raise LbxdNotFound("The user **" + self.user + "** wasn't found.")
+        raise LbxdNotFound('The user **' + self.user + '** wasn\'t found.')
 
     def get_user_infos(self):
         member_json = api.api_call('member/{}'.format(self.lbxd_id)).json()
@@ -90,7 +90,7 @@ class User(object):
             return check_album
         else:
             self.download_fav_posters()
-            self.img_cmd += "+append {}/fav.jpg".format(self.user)
+            self.img_cmd += '+append {}/fav.jpg'.format(self.user)
             subprocess.call(self.img_cmd, shell=True)
             with open('{}/fav.jpg'.format(self.user), 'rb') as pic:
                 bin_pic = pic.read()

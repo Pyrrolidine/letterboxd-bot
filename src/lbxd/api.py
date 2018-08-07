@@ -19,8 +19,8 @@ class API(object):
         self.session = requests.Session()
         self.session.params = {}
 
-    def api_call(self, path, params={}, form=None, headers={}, method="get"):
-        url = f"{self.api_base}/{path}"
+    def api_call(self, path, params={}, form=None, headers={}, method='get'):
+        url = f'{self.api_base}/{path}'
         params = self.__add_unique_params(params)
         request = requests.Request(
             method.upper(), url, params=params, data=[], headers=headers
@@ -32,7 +32,7 @@ class API(object):
             body=prepared_request.body,
         )
         prepared_request.prepare_url(prepared_request.url,
-                                     {"signature": signature})
+                                     {'signature': signature})
         try:
             response = self.session.send(prepared_request)
             response.raise_for_status()
@@ -43,18 +43,18 @@ class API(object):
         return response
 
     def __add_unique_params(self, params):
-        params["apikey"] = self.api_key
+        params['apikey'] = self.api_key
         # nonce: UUID string, must be unique for each API request
-        params["nonce"] = uuid.uuid4()
+        params['nonce'] = uuid.uuid4()
         # timestamp: number of seconds since epoch, Jan 1, 1970 (UTC)
-        params["timestamp"] = int(time.time())
+        params['timestamp'] = int(time.time())
         return params
 
-    def __sign(self, method, url, body=""):
+    def __sign(self, method, url, body=''):
         # Create the salted bytestring
         if body is None:
-            body = ""
-        signing_bytestring = b"\x00".join(
+            body = ''
+        signing_bytestring = b'\x00'.join(
             [str.encode(method), str.encode(url), str.encode(body)]
         )
         # applying an HMAC/SHA-256 transformation, using our API Secret
