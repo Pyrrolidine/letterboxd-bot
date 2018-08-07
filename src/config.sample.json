@@ -34,6 +34,7 @@
         "api_key": "",
         "api_secret": ""
     },
+    "mkdb_only_channels": [],
     "mkdb_servers": [],
     "test_server": []
 }

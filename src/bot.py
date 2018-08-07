@@ -137,7 +137,10 @@ async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
         if ctx.guild is not None and ctx.guild.id in config.mkdb_servers:
-            cmd_film = lbxd.film.Film(arg, True, True)
+            if ctx.channel.id in config.mkdb_only_channels:
+                cmd_film = lbxd.film.Film(arg, True, True, True)
+            else:
+                cmd_film = lbxd.film.Film(arg, True, True)
         else:
             cmd_film = lbxd.film.Film(arg)
         msg = cmd_film.create_embed()

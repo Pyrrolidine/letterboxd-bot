@@ -4,18 +4,23 @@ import re
 
 class Film(object):
 
-    def __init__(self, keywords, with_info=True, is_metropolis=False):
+    def __init__(self, keywords, with_info=True, with_mkdb=False,
+                 mkdb_only=False):
         self.has_year = False
         self.fix_search = False
+        self.mkdb_only = mkdb_only
+        self.description = ''
         self.input_year = self.check_year(keywords)
         self.lbxd_id = self.check_if_fixed_search(keywords)
         self.search_request(keywords)
         if not with_info:
             return
-        self.description = self.create_description()
-        if is_metropolis:
+        if not mkdb_only:
+            self.description = self.create_description()
+        if with_mkdb:
             self.description += self.get_mkdb_rating()
-        self.description += self.get_stats()
+        if not mkdb_only:
+            self.description += self.get_stats()
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -168,11 +173,16 @@ class Film(object):
         return mkdb_description
 
     def create_embed(self):
+        film_embed = discord.Embed(colour=0xd8b437,
+                                   description=self.description)
         title = self.title
         if self.year:
             title += ' (' + str(self.year) + ')'
-        film_embed = discord.Embed(title=title, description=self.description,
-                                   url=self.lbxd_url, colour=0xd8b437)
-        film_embed.set_thumbnail(url=self.poster_path)
+        film_embed.set_author(name=title, url=self.lbxd_url,
+                              icon_url=self.poster_path)
+        if not self.mkdb_only:
+            film_embed = discord.Embed(title=title, description=self.description,
+                                       url=self.lbxd_url, colour=0xd8b437)
+            film_embed.set_thumbnail(url=self.poster_path)
 
         return film_embed
