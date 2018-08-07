@@ -5,6 +5,7 @@ import config
 import time
 import dbl
 import asyncio
+import requests
 
 TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True,
@@ -72,6 +73,8 @@ async def on_command_error(ctx, error):
         if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
+        elif isinstance(error.original, requests.exceptions.ConnectionError):
+            await ctx.send('The command failed due to connection issues.')
         else:
             await ctx.send('The command crashed, a report was sent to the dev.')
             print('CommandInvokeError: ', ctx.message.content)
