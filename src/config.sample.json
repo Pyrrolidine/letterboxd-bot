@@ -16,6 +16,9 @@
         "Tabu": "29aM",
         "The Wrong Man": "1AqK"
     },
+    "fixed_user_search": {
+        "Supe": "bdJr"
+    },
     "help": {
         "!film/!movie/!f <film-name> (<year>)": "Searches a film on Letterboxd. The year is optional.",
         "!crew/!c/director/!d/!actor/!a <name>": "Searches a crew person.",

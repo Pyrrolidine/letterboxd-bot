@@ -20,7 +20,9 @@ class User(object):
         self.fav_posters = ''
         self.user = username.lower()
         self.url = 'https://letterboxd.com/{}'.format(username)
-        self.lbxd_id = self.search_profile()
+        self.lbxd_id = self.check_if_fixed_search(username)
+        if not len(self.lbxd_id):
+            self.lbxd_id = self.search_profile()
         if not with_info:
             return
         self.description = self.get_user_infos()
@@ -30,6 +32,15 @@ class User(object):
             os.popen('mkdir ' + self.user)
         self.fav_img_link = self.upload_cloudinary()
         os.popen('rm -r ' + self.user)
+
+    def check_if_fixed_search(self, username):
+        for fixed_username, lbxd_id in config.fixed_user_search.items():
+            if fixed_username.lower() == username.lower():
+                api_path = 'member/{}'.format(lbxd_id)
+                member_json = api.api_call(api_path).json()
+                self.display_name = member_json['displayName']
+                return lbxd_id
+        return ''
 
     def search_profile(self):
         username = self.user.replace('_', ' ')

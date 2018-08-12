@@ -7,7 +7,7 @@ class Film(object):
     def __init__(self, keywords, with_info=True, with_mkdb=False,
                  mkdb_only=False):
         self.has_year = False
-        self.fix_search = False
+        self.fixed_search = False
         self.mkdb_only = mkdb_only
         self.description = ''
         self.input_year = self.check_year(keywords)
@@ -31,7 +31,7 @@ class Film(object):
     def check_if_fixed_search(self, keywords):
         for title, lbxd_id in config.fixed_film_search.items():
             if title.lower() == keywords.lower():
-                self.fix_search = True
+                self.fixed_search = True
                 return lbxd_id
         return ''
 
@@ -39,7 +39,7 @@ class Film(object):
         found = False
         if self.has_year:
             keywords = ' '.join(keywords.split()[:-1])
-        if self.fix_search:
+        if self.fixed_search:
             film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
         else:
             params = {'input': keywords,
