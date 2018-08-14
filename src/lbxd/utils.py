@@ -32,5 +32,5 @@ def help_lbxd():
                             + '&permissions=93248&scope=bot) | '\
                             + '[Website](https://boxdbot.com) | '\
                             + '[GitLab](https://gitlab.com/Porkepik/'\
-                            + 'PublicLetterboxdDiscordBot)'
+                            + 'LetterboxdDiscordBot)'
     return help_embed
