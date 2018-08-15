@@ -22,14 +22,13 @@ class Crew(object):
             response = api.api_call('contributor/' + self.lbxd_id)
             person_json = response.json()
         else:
-            path = 'search'
             params = {'input': item,
                       'include': 'ContributorSearchItem'}
             if alias in ['a', 'actor']:
                 params['contributionType'] = 'Actor'
             elif alias in ['d', 'director']:
                 params['contributionType'] = 'Director'
-            response = api.api_call(path, params)
+            response = api.api_call('search', params)
             if not len(response.json()['items']):
                 raise LbxdNotFound('No person was found with this search.')
             person_json = response.json()['items'][0]['contributor']
