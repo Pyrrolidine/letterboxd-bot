@@ -4,21 +4,35 @@ from .core import *
 class Crew(object):
 
     def __init__(self, input_name, alias):
+        self.fixed_search = False
+        self.lbxd_id = self.check_if_fixed_search(input_name)
         self.description = self.search_letterboxd(input_name, alias)
         self.description += self.get_details()
         self.pic_url = self.get_picture()
 
+    def check_if_fixed_search(self, keywords):
+        for name, lbxd_id in config.fixed_crew_search.items():
+            if name.lower() == keywords.lower():
+                self.fixed_search = True
+                return lbxd_id
+        return ''
+
     def search_letterboxd(self, item, alias):
-        params = {'input': item,
-                  'include': 'ContributorSearchItem'}
-        if alias in ['a', 'actor']:
-            params['contributionType'] = 'Actor'
-        elif alias in ['d', 'director']:
-            params['contributionType'] = 'Director'
-        response = api.api_call('search', params)
-        if not len(response.json()['items']):
-            raise LbxdNotFound('No person was found with this search.')
-        person_json = response.json()['items'][0]['contributor']
+        if self.fixed_search:
+            response = api.api_call('contributor/' + self.lbxd_id)
+            person_json = response.json()
+        else:
+            path = 'search'
+            params = {'input': item,
+                      'include': 'ContributorSearchItem'}
+            if alias in ['a', 'actor']:
+                params['contributionType'] = 'Actor'
+            elif alias in ['d', 'director']:
+                params['contributionType'] = 'Director'
+            response = api.api_call(path, params)
+            if not len(response.json()['items']):
+                raise LbxdNotFound('No person was found with this search.')
+            person_json = response.json()['items'][0]['contributor']
         for link in person_json['links']:
             if link['type'] == 'tmdb':
                 tmdb_id = link['id']

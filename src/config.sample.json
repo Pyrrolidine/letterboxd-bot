@@ -4,6 +4,9 @@
         "api_secret": "",
         "cloud_name": ""
     },
+    "fixed_crew_search": {
+        "Johnnie To": "2xkp"
+    },
     "fixed_film_search": {
         "Boudu": "IDg",
         "Intolerance": "25Qk",
