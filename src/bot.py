@@ -8,8 +8,10 @@ import asyncio
 import requests
 
 TOKEN = config.keys['discord']
-bot = commands.Bot(command_prefix='!', case_insensitive=True,
-                   activity=discord.Game('!helplb - boxdbot.com'))
+bot = commands.Bot(
+    command_prefix='!',
+    case_insensitive=True,
+    activity=discord.Game('!helplb - boxdbot.com'))
 bot.remove_command('help')
 start_time = 0
 cmd_list = list()
@@ -28,7 +30,7 @@ async def on_ready():
         cmd_list.append(command.name)
         for alias in command.aliases:
             cmd_list.append(alias)
-    #bot.loop.create_task(update_stats())
+    # bot.loop.create_task(update_stats())
 
 
 # Update the server count of the discordbots.org page
@@ -76,7 +78,8 @@ async def on_command_error(ctx, error):
         elif isinstance(error.original, requests.exceptions.ConnectionError):
             await ctx.send('The command failed due to connection issues.')
         else:
-            await ctx.send('The command crashed, a report was sent to the dev.')
+            await ctx.send('The command crashed, a report was sent to the dev.'
+                           )
             print('CommandInvokeError: ', ctx.message.content)
             raise error
     else:

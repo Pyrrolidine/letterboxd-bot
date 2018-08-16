@@ -2,16 +2,17 @@ from .core import *
 
 
 class Review(object):
-
     def __init__(self, user, film):
         self.user = user
         self.film = film
         self.description = self.find_reviews()
 
     def find_reviews(self):
-        params = {'film': self.film.lbxd_id,
-                  'member': self.user.lbxd_id,
-                  'memberRelationship': 'Owner'}
+        params = {
+            'film': self.film.lbxd_id,
+            'member': self.user.lbxd_id,
+            'memberRelationship': 'Owner'
+        }
         response = api.api_call('log-entries', params).json()
         self.n_reviews = len(response['items'])
         if not self.n_reviews:
@@ -54,17 +55,19 @@ class Review(object):
     def create_embed(self):
         review_word = 'entries' if self.n_reviews > 1 else 'entry'
         if self.n_reviews > 1:
-            embed_url = self.film.lbxd_url.replace('.com/', '.com/{}/'
-                                                   .format(self.user.user))
+            embed_url = self.film.lbxd_url.replace(
+                '.com/', '.com/{}/'.format(self.user.user))
             embed_url += 'activity'
         else:
             embed_url = self.review_url
 
-        review_embed = discord.Embed(title='{0} {1} of {2} ({3})'
-                                     .format(self.user.display_name, review_word,
-                                             self.film.title, self.film.year),
-                                     url=embed_url, colour=0xd8b437,
-                                     description=self.description)
+        review_embed = discord.Embed(
+            title='{0} {1} of {2} ({3})'
+            .format(self.user.display_name, review_word, self.film.title,
+                    self.film.year),
+            url=embed_url,
+            colour=0xd8b437,
+            description=self.description)
         review_embed.set_thumbnail(url=self.film.poster_path)
 
         return review_embed

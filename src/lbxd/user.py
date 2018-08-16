@@ -8,12 +8,10 @@ import urllib.request
 cloudinary.config(
     cloud_name=config.cloudinary['cloud_name'],
     api_key=config.cloudinary['api_key'],
-    api_secret=config.cloudinary['api_secret']
-)
+    api_secret=config.cloudinary['api_secret'])
 
 
 class User(object):
-
     def __init__(self, username, with_info=True):
         self.img_cmd = 'convert '
         self.fav_posters_link = list()
@@ -44,9 +42,11 @@ class User(object):
 
     def search_profile(self):
         username = self.user.replace('_', ' ')
-        params = {'input': username,
-                  'include': 'MemberSearchItem',
-                  'perPage': '100'}
+        params = {
+            'input': username,
+            'include': 'MemberSearchItem',
+            'perPage': '100'
+        }
         while True:
             response = api.api_call('search', params).json()
             if not len(response['items']):
@@ -105,9 +105,11 @@ class User(object):
             subprocess.call(self.img_cmd, shell=True)
             with open('{}/fav.jpg'.format(self.user), 'rb') as pic:
                 bin_pic = pic.read()
-            result = cloudinary.uploader.upload(bin_pic, public_id=self.user,
-                                                folder='bot favs',
-                                                tags=self.fav_posters)
+            result = cloudinary.uploader.upload(
+                bin_pic,
+                public_id=self.user,
+                folder='bot favs',
+                tags=self.fav_posters)
             return result['url']
 
     def update_favs(self):
@@ -122,9 +124,11 @@ class User(object):
         return ''
 
     def create_embed(self):
-        user_embed = discord.Embed(title=self.display_name, url=self.url,
-                                   description=self.description,
-                                   colour=0xd8b437)
+        user_embed = discord.Embed(
+            title=self.display_name,
+            url=self.url,
+            description=self.description,
+            colour=0xd8b437)
         user_embed.set_thumbnail(url=self.avatar_url)
         if len(self.fav_posters_link):
             user_embed.set_image(url=self.fav_img_link)

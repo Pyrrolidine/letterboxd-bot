@@ -3,8 +3,10 @@ import re
 
 
 class Film(object):
-
-    def __init__(self, keywords, with_info=True, with_mkdb=False,
+    def __init__(self,
+                 keywords,
+                 with_info=True,
+                 with_mkdb=False,
                  mkdb_only=False):
         self.has_year = False
         self.fixed_search = False
@@ -41,8 +43,7 @@ class Film(object):
         if self.fixed_search:
             film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
         else:
-            params = {'input': keywords,
-                      'include': 'FilmSearchItem'}
+            params = {'input': keywords, 'include': 'FilmSearchItem'}
             response = api.api_call('search', params)
             results = response.json()['items']
             if not len(results):
@@ -172,16 +173,19 @@ class Film(object):
         return mkdb_description
 
     def create_embed(self):
-        film_embed = discord.Embed(colour=0xd8b437,
-                                   description=self.description)
+        film_embed = discord.Embed(
+            colour=0xd8b437, description=self.description)
         title = self.title
         if self.year:
             title += ' (' + str(self.year) + ')'
-        film_embed.set_author(name=title, url=self.lbxd_url,
-                              icon_url=self.poster_path)
+        film_embed.set_author(
+            name=title, url=self.lbxd_url, icon_url=self.poster_path)
         if not self.mkdb_only:
-            film_embed = discord.Embed(title=title, description=self.description,
-                                       url=self.lbxd_url, colour=0xd8b437)
+            film_embed = discord.Embed(
+                title=title,
+                description=self.description,
+                url=self.lbxd_url,
+                colour=0xd8b437)
             film_embed.set_thumbnail(url=self.poster_path)
 
         return film_embed

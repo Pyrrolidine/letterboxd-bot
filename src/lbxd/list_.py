@@ -2,17 +2,18 @@ from .core import *
 
 
 class List(object):
-
     def __init__(self, user, keywords):
         self.user = user
         self.lbxd_id = self.find_list(keywords)
         self.description = self.get_infos()
 
     def find_list(self, keywords):
-        params = {'member': self.user.lbxd_id,
-                  'memberRelationship': 'Owner',
-                  'perPage': 100,
-                  'where': 'Published'}
+        params = {
+            'member': self.user.lbxd_id,
+            'memberRelationship': 'Owner',
+            'perPage': 100,
+            'where': 'Published'
+        }
         response = api.api_call('lists', params).json()
         match = False
         for user_list in response['items']:
@@ -25,8 +26,8 @@ class List(object):
                     break
             if match:
                 return user_list['id']
-        raise LbxdNotFound('No list was found (limit to 100 most recent).\n'
-                           + 'Make sure the first word is a **username**.')
+        raise LbxdNotFound('No list was found (limit to 100 most recent).\n' +
+                           'Make sure the first word is a **username**.')
 
     def get_infos(self):
         list_json = api.api_call('list/{}'.format(self.lbxd_id)).json()
@@ -49,8 +50,10 @@ class List(object):
         return description
 
     def create_embed(self):
-        list_embed = discord.Embed(title=self.list_name, url=self.url,
-                                   colour=0xd8b437,
-                                   description=self.description)
+        list_embed = discord.Embed(
+            title=self.list_name,
+            url=self.url,
+            colour=0xd8b437,
+            description=self.description)
         list_embed.set_thumbnail(url=self.poster_url)
         return list_embed

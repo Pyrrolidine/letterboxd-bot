@@ -2,7 +2,6 @@ from .core import *
 
 
 class Crew(object):
-
     def __init__(self, input_name, alias):
         self.fixed_search = False
         self.lbxd_id = self.check_if_fixed_search(input_name)
@@ -22,8 +21,7 @@ class Crew(object):
             response = api.api_call('contributor/' + self.lbxd_id)
             person_json = response.json()
         else:
-            params = {'input': item,
-                      'include': 'ContributorSearchItem'}
+            params = {'input': item, 'include': 'ContributorSearchItem'}
             if alias in ['a', 'actor']:
                 params['contributionType'] = 'Actor'
             elif alias in ['d', 'director']:
@@ -87,8 +85,10 @@ class Crew(object):
             return ''
 
     def create_embed(self):
-        crew_embed = discord.Embed(title=self.name, url=self.url,
-                                   description=self.description,
-                                   colour=0xd8b437)
+        crew_embed = discord.Embed(
+            title=self.name,
+            url=self.url,
+            description=self.description,
+            colour=0xd8b437)
         crew_embed.set_thumbnail(url=self.pic_url)
         return crew_embed
