@@ -9,8 +9,9 @@ class Crew(object):
     def __init__(self, input_name, alias):
         self.fixed_search = False
         self.lbxd_id = self.check_if_fixed_search(input_name)
-        self.description = self.search_letterboxd(input_name, alias)
-        self.description += self.get_details()
+        person_json = self.search_letterboxd(input_name, alias)
+        self.description = self.get_details(person_json)
+        self.description += self.get_dates()
         self.pic_url = self.get_picture()
 
     def check_if_fixed_search(self, keywords):
@@ -34,6 +35,9 @@ class Crew(object):
             if not len(response.json()['items']):
                 raise LbxdNotFound('No person was found with this search.')
             person_json = response.json()['items'][0]['contributor']
+        return person_json
+
+    def get_details(self, person_json):
         for link in person_json['links']:
             if link['type'] == 'tmdb':
                 tmdb_id = link['id']
@@ -41,14 +45,13 @@ class Crew(object):
                 self.url = link['url']
         self.api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
         self.name = person_json['name']
-
         description = ''
         for contrib_stats in person_json['statistics']['contributions']:
             description += '**' + contrib_stats['type'] + ':** '
             description += str(contrib_stats['filmCount']) + '\n'
         return description
 
-    def get_details(self):
+    def get_dates(self):
         details_text = ''
         url = self.api_url + '?api_key={}'.format(config.keys['tmdb'])
         try:
