@@ -38,6 +38,7 @@ class Crew(object):
             elif link['type'] == 'letterboxd':
                 self.url = link['url']
         self.api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
+        self.name = person_json['name']
 
         description = ''
         for contrib_stats in person_json['statistics']['contributions']:
@@ -54,7 +55,6 @@ class Crew(object):
         except requests.exceptions.HTTPError as err:
             return ''
 
-        self.display_name = person_tmdb.json()['name']
         for element in person_tmdb.json():
             if person_tmdb.json()[element] is None:
                 continue
@@ -87,7 +87,7 @@ class Crew(object):
             return ''
 
     def create_embed(self):
-        crew_embed = discord.Embed(title=self.display_name, url=self.url,
+        crew_embed = discord.Embed(title=self.name, url=self.url,
                                    description=self.description,
                                    colour=0xd8b437)
         crew_embed.set_thumbnail(url=self.pic_url)
