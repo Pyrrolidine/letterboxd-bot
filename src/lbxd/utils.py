@@ -9,7 +9,7 @@ def check_lbxd():
         icon_url='https://i.imgur.com/5VALKVy.jpg',
         url='https://letterboxd.com/')
     try:
-        page = s.get('https://letterboxd.com')
+        page = api.session.get('https://letterboxd.com')
         page.raise_for_status()
         status_embed.description = ':white_check_mark: {} is **up**'\
                                    .format(lbxd_link)

@@ -89,7 +89,7 @@ class User(object):
 
     def download_fav_posters(self):
         for index, fav_poster in enumerate(self.fav_posters_link):
-            img_data = s.get(fav_poster).content
+            img_data = api.session.get(fav_poster).content
             temp_fav = '{0}/fav{1}.jpg'.format(self.user, index)
             self.img_cmd += temp_fav + ' '
             with open(temp_fav, 'wb') as handler:

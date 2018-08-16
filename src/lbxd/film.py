@@ -106,7 +106,7 @@ class Film(object):
         api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
                   + '?api_key=' + tmdb_api_key
         try:
-            response = s.get(api_url)
+            response = api.session.get(api_url)
             response.raise_for_status()
             country_str = ''
             country_count = 0
@@ -159,7 +159,7 @@ class Film(object):
     def get_mkdb_rating(self):
         mkdb_url = self.lbxd_url.replace('letterboxd.com', 'eiga.me/api')
         try:
-            page = s.get(mkdb_url + 'summary')
+            page = api.session.get(mkdb_url + 'summary')
             page.raise_for_status()
         except requests.exceptions.HTTPError as err:
             return ''

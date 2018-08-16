@@ -48,7 +48,7 @@ class Crew(object):
         details_text = ''
         url = self.api_url + '?api_key={}'.format(tmdb_api_key)
         try:
-            person_tmdb = s.get(url)
+            person_tmdb = api.session.get(url)
             person_tmdb.raise_for_status()
         except requests.exceptions.HTTPError as err:
             return ''
@@ -69,8 +69,8 @@ class Crew(object):
 
     def get_picture(self):
         try:
-            person_img = s.get(self.api_url + '/images?api_key={}'
-                               .format(tmdb_api_key))
+            person_img = api.session.get(self.api_url + '/images?api_key={}'
+                                         .format(tmdb_api_key))
             person_img.raise_for_status()
             if not len(person_img.json()['profiles']):
                 return ''

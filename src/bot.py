@@ -15,7 +15,7 @@ bot = commands.Bot(
 bot.remove_command('help')
 start_time = 0
 cmd_list = list()
-#dblpy = dbl.Client(bot, config.keys['dbl'])
+# dblpy = dbl.Client(bot, config.keys['dbl'])
 
 
 @bot.event
