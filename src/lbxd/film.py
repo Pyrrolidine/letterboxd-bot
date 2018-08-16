@@ -19,8 +19,7 @@ class Film(object):
             self.description = self.create_description()
         if with_mkdb:
             self.description += self.get_mkdb_rating()
-        if not mkdb_only:
-            self.description += self.get_stats()
+        self.description += self.get_stats()
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
