@@ -1,4 +1,8 @@
-from .core import *
+from .core import api
+from .exceptions import LbxdNotFound
+import config
+import discord
+import requests
 
 
 class Crew(object):
@@ -46,7 +50,7 @@ class Crew(object):
 
     def get_details(self):
         details_text = ''
-        url = self.api_url + '?api_key={}'.format(tmdb_api_key)
+        url = self.api_url + '?api_key={}'.format(config.keys['tmdb'])
         try:
             person_tmdb = api.session.get(url)
             person_tmdb.raise_for_status()
@@ -70,7 +74,7 @@ class Crew(object):
     def get_picture(self):
         try:
             person_img = api.session.get(self.api_url + '/images?api_key={}'
-                                         .format(tmdb_api_key))
+                                         .format(config.keys['tmdb']))
             person_img.raise_for_status()
             if not len(person_img.json()['profiles']):
                 return ''

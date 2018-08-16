@@ -1,4 +1,8 @@
-from .core import *
+from .core import api
+from .exceptions import LbxdNotFound
+import config
+import discord
+import requests
 import re
 
 
@@ -128,7 +132,7 @@ class Film(object):
 
     def get_countries(self):
         api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
-                  + '?api_key=' + tmdb_api_key
+                  + '?api_key=' + config.keys['tmdb']
         country_text = ''
         try:
             response = api.session.get(api_url)

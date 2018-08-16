@@ -1,4 +1,7 @@
-from .core import *
+from .core import api
+import config
+import discord
+import requests
 
 
 def check_lbxd():

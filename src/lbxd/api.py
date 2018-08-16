@@ -3,7 +3,7 @@ import hmac
 import time
 import uuid
 import requests
-from .exceptions import *
+from .exceptions import LbxdServerError
 
 # Credits for this file goes to bobtiki
 # https://github.com/bobtiki/letterboxd
