@@ -30,7 +30,7 @@ class Film(object):
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
-        if re.fullmatch('\(\d{4}\)', last_word) is not None:
+        if re.fullmatch(r'\(\d{4}\)', last_word) is not None:
             self.has_year = True
             return last_word.replace('(', '').replace(')', '')
 
