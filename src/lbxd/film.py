@@ -14,7 +14,8 @@ class Film(object):
         self.description = ''
         self.input_year = self.check_year(keywords)
         self.lbxd_id = self.check_if_fixed_search(keywords)
-        self.search_request(keywords)
+        film_json = self.search_request(keywords)
+        self.get_details(film_json)
         if not with_info:
             return
         if not mkdb_only:
@@ -61,6 +62,9 @@ class Film(object):
                 film_json = results[0]['film']
         if self.has_year and not found:
             raise LbxdNotFound('No film was found with this search.')
+        return film_json
+
+    def get_details(self, film_json):
         self.lbxd_id = film_json['id']
         self.title = film_json['name']
         self.year = film_json.get('releaseYear')
@@ -103,30 +107,7 @@ class Film(object):
                 text += '**Director:** '
             text += director_str[:-2] + '\n'
 
-        api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
-                  + '?api_key=' + tmdb_api_key
-        try:
-            response = api.session.get(api_url)
-            response.raise_for_status()
-            country_str = ''
-            country_count = 0
-            if response.json()['title'] == self.title:
-                for country in response.json()['production_countries']:
-                    country_count += 1
-                    if country['name'] == 'United Kingdom':
-                        country_str += 'UK, '
-                    elif country['name'] == 'United States of America':
-                        country_str += 'USA, '
-                    else:
-                        country_str += country['name'] + ', '
-                if len(country_str):
-                    if country_count > 1:
-                        text += '**Countries:** '
-                    else:
-                        text += '**Country:** '
-                    text += country_str[:-2] + '\n'
-        except requests.exceptions.HTTPError as err:
-            pass
+        text += self.get_countries()
 
         runtime = film_json.get('runTime')
         text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
@@ -144,6 +125,34 @@ class Film(object):
             text += genres_str[:-2] + '\n'
 
         return text
+
+    def get_countries(self):
+        api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
+                  + '?api_key=' + tmdb_api_key
+        country_text = ''
+        try:
+            response = api.session.get(api_url)
+            response.raise_for_status()
+            country_str = ''
+            country_count = 0
+            if response.json()['title'] == self.title:
+                for country in response.json()['production_countries']:
+                    country_count += 1
+                    if country['name'] == 'United Kingdom':
+                        country_str += 'UK, '
+                    elif country['name'] == 'United States of America':
+                        country_str += 'USA, '
+                    else:
+                        country_str += country['name'] + ', '
+                if len(country_str):
+                    if country_count > 1:
+                        country_text += '**Countries:** '
+                    else:
+                        country_text += '**Country:** '
+                    country_text += country_str[:-2] + '\n'
+        except requests.exceptions.HTTPError as err:
+            pass
+        return country_text
 
     def get_stats(self):
         response = api.api_call('film/{}/statistics'.format(self.lbxd_id))
