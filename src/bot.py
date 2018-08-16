@@ -120,7 +120,7 @@ async def user(ctx, arg):
     try:
         cmd_user = lbxd.user.User(arg)
         msg = cmd_user.create_embed()
-    except lbxd.core.LbxdErrors as err:
+    except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -130,7 +130,7 @@ async def crew(ctx, *, arg):
     try:
         crew = lbxd.crew.Crew(arg, ctx.invoked_with)
         msg = crew.create_embed()
-    except lbxd.core.LbxdErrors as err:
+    except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -147,7 +147,7 @@ async def film(ctx, *, arg):
         else:
             cmd_film = lbxd.film.Film(arg)
         msg = cmd_film.create_embed()
-    except lbxd.core.LbxdErrors as err:
+    except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -166,7 +166,7 @@ async def list(ctx, username, *args):
         cmd_user = lbxd.user.User(username, False)
         cmd_list_ = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
         msg = cmd_list_.create_embed()
-    except lbxd.core.LbxdErrors as err:
+    except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -179,7 +179,7 @@ async def review(ctx, user, *args):
         cmd_user = lbxd.user.User(user, False)
         cmd_review = lbxd.review.Review(cmd_user, cmd_film)
         msg = cmd_review.create_embed()
-    except lbxd.core.LbxdErrors as err:
+    except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 

@@ -7,7 +7,8 @@ class Review(object):
     def __init__(self, user, film):
         self.user = user
         self.film = film
-        self.description = self.find_reviews()
+        response = self.find_reviews()
+        self.description = self.create_description(response)
 
     def find_reviews(self):
         params = {
@@ -21,7 +22,9 @@ class Review(object):
             raise LbxdNotFound('{0} does not have activity for {1} ({2}).'
                                .format(self.user.display_name, self.film.title,
                                        self.film.year))
+        return response
 
+    def create_description(self, response):
         description = ''
         preview_done = False
         for review in response['items']:
@@ -44,15 +47,19 @@ class Review(object):
                 description += ' ♥'
             description += '\n'
             if not preview_done:
-                if not review.get('review'):
-                    continue
-                if review['review']['containsSpoilers']:
-                    spoiler_warning = 'This review may contain spoilers.'
-                    description += '```' + spoiler_warning + '```'
-                else:
-                    description += format_text(review['review']['lbml'], 400)
-                preview_done = True
+                description += self.create_preview(review)
+                if len(description):
+                    preview_done = True
         return description
+
+    def create_preview(self, review):
+        preview = ''
+        if review.get('review'):
+            if review['review']['containsSpoilers']:
+                preview += '```This review may contain spoilers.```'
+            else:
+                preview += format_text(review['review']['lbml'], 400)
+        return preview
 
     def create_embed(self):
         review_word = 'entries' if self.n_reviews > 1 else 'entry'
