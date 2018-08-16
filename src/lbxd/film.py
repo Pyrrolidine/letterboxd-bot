@@ -22,11 +22,11 @@ class Film(object):
         self.get_details(film_json)
         if not with_info:
             return
-        if not mkdb_only:
-            self.description = self.create_description()
+        self.description = self.create_description()
         if with_mkdb:
             self.description += self.get_mkdb_rating()
-        self.description += self.get_stats()
+        if not mkdb_only:
+            self.description += self.get_stats()
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -91,6 +91,9 @@ class Film(object):
     def create_description(self):
         text = ''
         film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
+        if self.mkdb_only:
+            runtime = film_json.get('runTime')
+            return '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
         original_title = film_json.get('originalName')
         if original_title:
@@ -112,7 +115,6 @@ class Film(object):
             text += director_str[:-2] + '\n'
 
         text += self.get_countries()
-
         runtime = film_json.get('runTime')
         text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
