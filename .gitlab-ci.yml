@@ -1,8 +1,0 @@
-image: python:latest
-
-test:
-  script:
-    - python -V
-    - pip install tox flake8
-    - tox -e py37,flake8
-
