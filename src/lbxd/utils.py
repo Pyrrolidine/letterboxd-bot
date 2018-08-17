@@ -1,11 +1,11 @@
 from .core import api
+from .exceptions import LbxdServerError
 import config
 import discord
 import requests
 
 
 def check_lbxd():
-    lbxd_link = '[Letterboxd](https://letterboxd.com/)'
     status_embed = discord.Embed(colour=0xd8b437)
     status_embed.set_author(
         name='Letterboxd Status',
@@ -14,10 +14,14 @@ def check_lbxd():
     try:
         page = api.session.get('https://letterboxd.com')
         page.raise_for_status()
-        status_embed.description = ':white_check_mark: {} is **up**'\
-                                   .format(lbxd_link)
+        status_embed.description = ':white_check_mark: **Website**\n'
     except requests.exceptions.HTTPError:
-        status_embed.description = ':x: ' + lbxd_link + ' is **down**'
+        status_embed.description = ':x: **Website**\n'
+    try:
+        api.api_call('film/E4G')
+        status_embed.description += ':white_check_mark: **API**'
+    except LbxdServerError:
+        status_embed.description += ':x: **API**'
     return status_embed
 
 

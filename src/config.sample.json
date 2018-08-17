@@ -28,7 +28,7 @@
         "!user/!u <username>": "Displays the details of a Letterboxd member.",
         "!review/!r <username> <film-name> (<year>)": "Displays the logged entries (review, diary) from a member.",
         "!list/!l <username> <list-name>": "Searches a list by the specified member.",
-        "!checklb": "Checks if letterboxd.com is down.",
+        "!checklb": "Checks the website and API status.",
         "!del": "Deletes the last message the bot sent in a channel."
     },
     "keys": {
