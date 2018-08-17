@@ -14,7 +14,6 @@ bot = commands.Bot(
     activity=discord.Game('!helplb - boxdbot.com'))
 bot.remove_command('help')
 start_time = 0
-cmd_list = list()
 # dblpy = dbl.Client(bot, config.keys['dbl'])
 
 
@@ -24,12 +23,6 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    await asyncio.sleep(1)
-    # List of commands and their aliases to be recognized when !del is used
-    for command in bot.commands:
-        cmd_list.append(command.name)
-        for alias in command.aliases:
-            cmd_list.append(alias)
     # bot.loop.create_task(update_stats())
 
 
@@ -160,8 +153,8 @@ async def check_if_two_args(ctx):
 async def list(ctx, username, *args):
     try:
         cmd_user = lbxd.user.User(username, False)
-        cmd_list_ = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
-        msg = cmd_list_.create_embed()
+        cmd_list = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
+        msg = cmd_list.create_embed()
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -186,6 +179,13 @@ async def delete(ctx):
     await ctx.message.delete()
     found_bot_msg = False
     found_usr_cmd = False
+    cmd_list = []
+    # Get list of commands and their aliases
+    for command in bot.commands:
+        cmd_list.append(command.name)
+        for alias in command.aliases:
+            cmd_list.append(alias)
+
     async for log_message in ctx.channel.history(limit=30):
         if log_message.author == bot.user and not found_bot_msg:
             bot_message = log_message
