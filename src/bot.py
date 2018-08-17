@@ -65,9 +65,6 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send('The bot needs the {} permission to use this command.'
                        .format(', '.join(err for err in error.missing_perms)))
-    elif isinstance(error, commands.MissingPermissions):
-        await ctx.send('You need the {} permission to use this command.'
-                       .format(', '.join(err for err in error.missing_perms)))
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
@@ -78,8 +75,7 @@ async def on_command_error(ctx, error):
         elif isinstance(error.original, requests.exceptions.ConnectionError):
             await ctx.send('The command failed due to connection issues.')
         else:
-            await ctx.send('The command crashed, a report was sent to the dev.'
-                           )
+            await ctx.send('The command crashed, a report was sent to the dev')
             print('CommandInvokeError: ', ctx.message.content)
             raise error
     else:
