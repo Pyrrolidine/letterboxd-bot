@@ -156,7 +156,7 @@ class Film(object):
                     else:
                         country_text += '**Country:** '
                     country_text += country_str[:-2] + '\n'
-        except requests.exceptions.HTTPError as err:
+        except requests.exceptions.HTTPError:
             pass
         return country_text
 
@@ -176,7 +176,7 @@ class Film(object):
         try:
             page = api.session.get(mkdb_url + 'summary')
             page.raise_for_status()
-        except requests.exceptions.HTTPError as err:
+        except requests.exceptions.HTTPError:
             return ''
         if not page.json()['total']:
             return ''

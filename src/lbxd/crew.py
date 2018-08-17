@@ -57,7 +57,7 @@ class Crew(object):
         try:
             person_tmdb = api.session.get(url)
             person_tmdb.raise_for_status()
-        except requests.exceptions.HTTPError as err:
+        except requests.exceptions.HTTPError:
             return ''
 
         for element in person_tmdb.json():
@@ -88,7 +88,7 @@ class Crew(object):
                     highest_vote = img['vote_average']
                     path = img['file_path']
             return img_url + path
-        except requests.exceptions.HTTPError as err:
+        except requests.exceptions.HTTPError:
             return ''
 
     def create_embed(self):
