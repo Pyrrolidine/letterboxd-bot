@@ -8,7 +8,7 @@ class Review(object):
         self.user = user
         self.film = film
         self.activity_url = self.film.lbxd_url.replace(
-            '.com/', '.com/{}/'.format(self.user.user)) + 'activity'
+            '.com/', '.com/{}/'.format(self.user.username)) + 'activity'
         response = self.find_reviews()
         self.description = self.create_description(response)
 

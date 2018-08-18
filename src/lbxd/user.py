@@ -16,23 +16,24 @@ cloudinary.config(
 
 class User(object):
     def __init__(self, username, with_info=True):
+        self.with_info = with_info
         self.img_cmd = 'convert '
         self.fav_posters_link = list()
         self.fav_posters = ''
-        self.user = username.lower()
+        self.username = username.lower()
         self.url = 'https://letterboxd.com/{}'.format(username)
         self.lbxd_id = self.check_if_fixed_search(username)
         if not len(self.lbxd_id):
             self.lbxd_id = self.search_profile()
+        self.description = self.get_user_infos()
         if not with_info:
             return
-        self.description = self.get_user_infos()
         if not len(self.fav_posters_link):
             return
         if not os.path.exists(username):
-            os.popen('mkdir ' + self.user)
+            os.popen('mkdir ' + self.username)
         self.fav_img_link = self.upload_cloudinary()
-        os.popen('rm -r ' + self.user)
+        os.popen('rm -r ' + self.username)
 
     def check_if_fixed_search(self, username):
         for fixed_username, lbxd_id in config.fixed_user_search.items():
@@ -44,7 +45,7 @@ class User(object):
         return ''
 
     def search_profile(self):
-        username = self.user.replace('_', ' ')
+        username = self.username.replace('_', ' ')
         params = {
             'input': username,
             'include': 'MemberSearchItem',
@@ -55,7 +56,7 @@ class User(object):
             if not len(response['items']):
                 break
             for result in response['items']:
-                if result['member']['username'].lower() == self.user:
+                if result['member']['username'].lower() == self.username:
                     self.display_name = result['member']['displayName']
                     return result['member']['id']
             if response.get('next'):
@@ -63,11 +64,13 @@ class User(object):
                 params['cursor'] = cursor
             else:
                 break
-        raise LbxdNotFound('The user **' + self.user + '** wasn\'t found.')
+        raise LbxdNotFound('The user **' + self.username + '** wasn\'t found.')
 
     def get_user_infos(self):
         member_json = api.api_call('member/{}'.format(self.lbxd_id)).json()
         self.avatar_url = member_json['avatar']['sizes'][-1]['url']
+        if not self.with_info:
+            return
         description = '**'
         if member_json.get('location'):
             description += member_json['location'] + '** -- **'
@@ -93,7 +96,7 @@ class User(object):
     def download_fav_posters(self):
         for index, fav_poster in enumerate(self.fav_posters_link):
             img_data = api.session.get(fav_poster).content
-            temp_fav = '{0}/fav{1}.jpg'.format(self.user, index)
+            temp_fav = '{0}/fav{1}.jpg'.format(self.username, index)
             self.img_cmd += temp_fav + ' '
             with open(temp_fav, 'wb') as handler:
                 handler.write(img_data)
@@ -104,19 +107,19 @@ class User(object):
             return check_album
         else:
             self.download_fav_posters()
-            self.img_cmd += '+append {}/fav.jpg'.format(self.user)
+            self.img_cmd += '+append {}/fav.jpg'.format(self.username)
             subprocess.call(self.img_cmd, shell=True)
-            with open('{}/fav.jpg'.format(self.user), 'rb') as pic:
+            with open('{}/fav.jpg'.format(self.username), 'rb') as pic:
                 bin_pic = pic.read()
             result = cloudinary.uploader.upload(
                 bin_pic,
-                public_id=self.user,
+                public_id=self.username,
                 folder='bot favs',
                 tags=self.fav_posters)
             return result['url']
 
     def update_favs(self):
-        details_id = urllib.parse.quote(('bot favs/' + self.user)
+        details_id = urllib.parse.quote(('bot favs/' + self.username)
                                         .encode('utf-8'), '')
         try:
             details = cloudinary.api.resource(details_id)
