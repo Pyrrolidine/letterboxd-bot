@@ -29,9 +29,9 @@ class Diary(object):
                     entry_url = link['url']
                     break
             description += '**[' + diary_entry['film']['name']
-            film_year = ' ({})'.format(diary_entry['film'].get('releaseYear'))
+            film_year = diary_entry['film'].get('releaseYear')
             if film_year:
-                description += film_year
+                description += ' ({})'.format(film_year)
             description += ']({})**\n'.format(entry_url)
             if diary_entry.get('diaryDetails'):
                 description += '**' + \
