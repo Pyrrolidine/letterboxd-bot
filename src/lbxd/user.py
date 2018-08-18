@@ -16,6 +16,7 @@ cloudinary.config(
 
 class User(object):
     def __init__(self, username, with_info=True):
+        self.with_info = with_info
         self.img_cmd = 'convert '
         self.fav_posters_link = list()
         self.fav_posters = ''
@@ -24,9 +25,9 @@ class User(object):
         self.lbxd_id = self.check_if_fixed_search(username)
         if not len(self.lbxd_id):
             self.lbxd_id = self.search_profile()
+        self.description = self.get_user_infos()
         if not with_info:
             return
-        self.description = self.get_user_infos()
         if not len(self.fav_posters_link):
             return
         if not os.path.exists(username):
@@ -68,6 +69,8 @@ class User(object):
     def get_user_infos(self):
         member_json = api.api_call('member/{}'.format(self.lbxd_id)).json()
         self.avatar_url = member_json['avatar']['sizes'][-1]['url']
+        if not self.with_info:
+            return
         description = '**'
         if member_json.get('location'):
             description += member_json['location'] + '** -- **'

@@ -117,7 +117,7 @@ async def user(ctx, arg):
 @bot.command()
 async def diary(ctx, arg):
     try:
-        cmd_user = lbxd.user.User(arg)
+        cmd_user = lbxd.user.User(arg, False)
         cmd_diary = lbxd.diary.Diary(cmd_user)
         msg = cmd_diary.create_embed()
     except lbxd.exceptions.LbxdErrors as err:
