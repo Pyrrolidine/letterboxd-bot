@@ -34,7 +34,8 @@ class Diary(object):
                 description += film_year
             description += ']({})**\n'.format(entry_url)
             if diary_entry.get('diaryDetails'):
-                description += diary_entry['diaryDetails']['diaryDate'] + ' '
+                description += '**' + \
+                    diary_entry['diaryDetails']['diaryDate'] + '** '
             if diary_entry.get('rating'):
                 description += '★' * int(diary_entry['rating'])
                 if abs(diary_entry['rating'] * 10) % 10:
