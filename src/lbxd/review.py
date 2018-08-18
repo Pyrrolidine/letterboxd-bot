@@ -7,6 +7,8 @@ class Review(object):
     def __init__(self, user, film):
         self.user = user
         self.film = film
+        self.activity_url = self.film.lbxd_url.replace(
+            '.com/', '.com/{}/'.format(self.user.user)) + 'activity'
         response = self.find_reviews()
         self.description = self.create_description(response)
 
@@ -28,6 +30,10 @@ class Review(object):
         description = ''
         preview_done = False
         for review in response['items']:
+            if len(description) > 1500:
+                description += '**[Click here for more activity]({})**'.format(
+                    self.activity_url)
+                break
             for link in review['links']:
                 if link['type'] == 'letterboxd':
                     self.review_url = link['url']
@@ -64,9 +70,7 @@ class Review(object):
     def create_embed(self):
         review_word = 'entries' if self.n_reviews > 1 else 'entry'
         if self.n_reviews > 1:
-            embed_url = self.film.lbxd_url.replace(
-                '.com/', '.com/{}/'.format(self.user.user))
-            embed_url += 'activity'
+            embed_url = self.activity_url
         else:
             embed_url = self.review_url
 
