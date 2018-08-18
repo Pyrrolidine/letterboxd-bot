@@ -114,6 +114,17 @@ async def user(ctx, arg):
     await send_msg(ctx, msg)
 
 
+@bot.command()
+async def diary(ctx, arg):
+    try:
+        cmd_user = lbxd.user.User(arg)
+        cmd_diary = lbxd.diary.Diary(cmd_user)
+        msg = cmd_diary.create_embed()
+    except lbxd.exceptions.LbxdErrors as err:
+        msg = err
+    await send_msg(ctx, msg)
+
+
 @bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
 async def crew(ctx, *, arg):
     try:
