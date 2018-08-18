@@ -53,8 +53,9 @@ class Review(object):
                 description += ' ♥'
             description += '\n'
             if not preview_done:
-                description += self.create_preview(review)
-                if len(description):
+                preview = self.create_preview(review)
+                if len(preview):
+                    description += preview
                     preview_done = True
         return description
 
