@@ -15,11 +15,9 @@ class Diary(object):
         }
         response = api.api_call('log-entries', params)
         description = ''
-        n_entries = 0
-        for diary_entry in response.json()['items']:
+        for n_entries, diary_entry in enumerate(response.json()['items']):
             if n_entries > 4:
                 break
-            n_entries += 1
             for link in diary_entry['links']:
                 if link['type'] == 'letterboxd':
                     entry_url = link['url']
