@@ -9,20 +9,16 @@ class Diary(object):
 
     def get_activity(self):
         params = {
-            'include': 'DiaryEntryActivity',
-            'where': 'OwnActivity',
-            'perPage': 50
+            'member': self.user.lbxd_id,
+            'memberRelationship': 'Owner',
+            'where': 'HasDiaryDate'
         }
-        response = api.api_call('member/{}/activity'.format(self.user.lbxd_id),
-                                params)
+        response = api.api_call('log-entries', params)
         description = ''
         n_entries = 0
-        for entry in response.json()['items']:
+        for diary_entry in response.json()['items']:
             if n_entries > 4:
                 break
-            if not entry.get('diaryEntry'):
-                continue
-            diary_entry = entry['diaryEntry']
             n_entries += 1
             for link in diary_entry['links']:
                 if link['type'] == 'letterboxd':
@@ -43,16 +39,13 @@ class Diary(object):
             if diary_entry['like']:
                 description += ' ♥'
             description += '\n'
-        if not len(description):
-            description += 'No diary entry was found among the '\
-                + 'last 50 activity entries.'
         return description
 
     def create_embed(self):
         title = 'Recent diary activity from {}'.format(self.user.display_name)
         diary_embed = discord.Embed(
             title=title,
-            url=self.user.url,
+            url=self.user.url + '/films/diary/',
             colour=0xd8b437,
             description=self.description)
         diary_embed.set_thumbnail(url=self.user.avatar_url)
