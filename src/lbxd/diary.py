@@ -11,7 +11,7 @@ class Diary(object):
         params = {
             'include': 'DiaryEntryActivity',
             'where': 'OwnActivity',
-            'perPage': 100
+            'perPage': 50
         }
         response = api.api_call('member/{}/activity'.format(self.user.lbxd_id),
                                 params)
