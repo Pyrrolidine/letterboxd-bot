@@ -8,6 +8,8 @@ class Diary(object):
         self.user = user
 
     def create_embed(self):
-        diary_embed = discord.Embed(title='', colour=0xd8b437, description='')
+        title = 'Recent diary activity from {}'.format(self.user.display_name)
+        diary_embed = discord.Embed(
+            title=title, url=self.user.url, colour=0xd8b437, description='')
         diary_embed.set_thumbnail(url=self.user.avatar_url)
         return diary_embed
