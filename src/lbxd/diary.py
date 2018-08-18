@@ -43,6 +43,9 @@ class Diary(object):
             if diary_entry['like']:
                 description += ' ♥'
             description += '\n'
+        if not len(description):
+            description += 'No diary entry was found among the '\
+                + 'last 50 activity entries.'
         return description
 
     def create_embed(self):
