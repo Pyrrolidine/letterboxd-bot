@@ -16,6 +16,11 @@ class Film(object):
         self.fixed_search = False
         self.mkdb_only = mkdb_only
         self.description = ''
+        self.url = ''
+        self.poster_path = ''
+        self.title = ''
+        self.tmdb_id = ''
+        self.year = 0
         self.input_year = self.check_year(keywords)
         self.lbxd_id = self.check_if_fixed_search(keywords)
         film_json = self.search_request(keywords)

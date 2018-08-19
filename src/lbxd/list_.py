@@ -6,6 +6,9 @@ import discord
 class List(object):
     def __init__(self, user, keywords):
         self.user = user
+        self.list_name = ''
+        self.url = ''
+        self.poster_url = ''
         self.lbxd_id = self.find_list(keywords)
         self.description = self.get_infos()
 
@@ -38,8 +41,7 @@ class List(object):
                 self.url = link['url']
                 break
         description = 'By **' + list_json['owner']['displayName'] + '**\n'
-        description += str(list_json['filmCount']) + ' films\n'
-        description += 'Published '
+        description += str(list_json['filmCount']) + ' films\nPublished '
         description += list_json['whenPublished'].split('T')[0].strip() + '\n'
         if list_json.get('descriptionLbml'):
             description += format_text(list_json['descriptionLbml'], 300)

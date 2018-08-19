@@ -10,7 +10,5 @@ api = API(config.letterboxd['api_base'], config.letterboxd['api_key'],
 def format_text(input_html, max_char):
     html = BeautifulSoup(input_html, 'html.parser')
     text = '```' + html.text[:max_char].strip()
-    if len(text) > max_char:
-        text += '...'
-    text += '```'
+    text += '...```' if len(text) > max_char else '```'
     return text

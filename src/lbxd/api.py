@@ -14,7 +14,6 @@ class API(object):
         self.api_base = api_base
         self.api_key = api_key
         self.api_secret = api_secret
-
         self.session = requests.Session()
         self.session.params = {}
 

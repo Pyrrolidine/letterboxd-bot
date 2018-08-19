@@ -7,6 +7,8 @@ class Review(object):
     def __init__(self, user, film):
         self.user = user
         self.film = film
+        self.n_reviews = 0
+        self.review_url = ''
         self.activity_url = self.film.lbxd_url.replace(
             '.com/', '.com/{}/'.format(self.user.username)) + 'activity'
         response = self.find_reviews()

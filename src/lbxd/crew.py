@@ -7,6 +7,9 @@ import requests
 
 class Crew(object):
     def __init__(self, input_name, alias):
+        self.api_url = ''
+        self.name = ''
+        self.url = ''
         self.fixed_search = False
         self.lbxd_id = self.check_if_fixed_search(input_name)
         person_json = self.search_letterboxd(input_name, alias)

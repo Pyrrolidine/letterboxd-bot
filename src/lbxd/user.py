@@ -20,6 +20,8 @@ class User(object):
         self.img_cmd = 'convert '
         self.fav_posters_link = list()
         self.fav_posters = ''
+        self.avatar_url = ''
+        self.display_name = ''
         self.username = username.lower()
         self.url = 'https://letterboxd.com/{}'.format(username)
         self.lbxd_id = self.check_if_fixed_search(username)
