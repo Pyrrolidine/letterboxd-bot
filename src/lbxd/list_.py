@@ -16,7 +16,7 @@ class List(object):
         params = {
             'member': self.user.lbxd_id,
             'memberRelationship': 'Owner',
-            'perPage': 100,
+            'perPage': 50,
             'where': 'Published'
         }
         response = api.api_call('lists', params).json()
@@ -45,12 +45,13 @@ class List(object):
         description += list_json['whenPublished'].split('T')[0].strip() + '\n'
         if list_json.get('descriptionLbml'):
             description += format_text(list_json['descriptionLbml'], 300)
-        film_posters = list_json['previewEntries'][0]['film']['poster']
-        self.poster_url = ''
-        for poster in film_posters['sizes']:
-            if poster['height'] > 400:
-                self.poster_url = poster['url']
-                break
+        poster_json = list_json['previewEntries'][0]['film'].get('poster')
+        if poster_json:
+            film_posters = poster_json
+            for poster in film_posters['sizes']:
+                if poster['height'] > 400:
+                    self.poster_url = poster['url']
+                    break
         return description
 
     def create_embed(self):

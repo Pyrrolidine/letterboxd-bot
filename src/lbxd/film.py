@@ -83,7 +83,6 @@ class Film(object):
             elif link['type'] == 'tmdb':
                 self.tmdb_id = link['id']
 
-        self.poster_path = ''
         if not film_json.get('poster'):
             return
         for poster in film_json['poster']['sizes']:
