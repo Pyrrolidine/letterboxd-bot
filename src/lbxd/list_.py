@@ -31,7 +31,7 @@ class List(object):
                     break
             if match:
                 return user_list['id']
-        raise LbxdNotFound('No list was found (limit to 100 most recent).\n' +
+        raise LbxdNotFound('No list was found (limit to 50 most recent).\n' +
                            'Make sure the first word is a **username**.')
 
     def get_infos(self):
