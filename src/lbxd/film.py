@@ -96,9 +96,6 @@ class Film(object):
     def create_description(self):
         text = ''
         film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
-        if self.mkdb_only:
-            runtime = film_json.get('runTime')
-            return '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
         original_title = film_json.get('originalName')
         if original_title:
@@ -119,9 +116,13 @@ class Film(object):
                 text += '**Director:** '
             text += director_str[:-2] + '\n'
 
-        text += self.get_countries()
+        if not self.mkdb_only:
+            text += self.get_countries()
         runtime = film_json.get('runTime')
         text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
+
+        if self.mkdb_only:
+            return text
 
         genres_str = ''
         genres_count = 0
@@ -198,14 +199,11 @@ class Film(object):
         title = self.title
         if self.year:
             title += ' (' + str(self.year) + ')'
-        film_embed.set_author(
-            name=title, url=self.lbxd_url, icon_url=self.poster_path)
-        if not self.mkdb_only:
-            film_embed = discord.Embed(
-                title=title,
-                description=self.description,
-                url=self.lbxd_url,
-                colour=0xd8b437)
-            film_embed.set_thumbnail(url=self.poster_path)
+        film_embed = discord.Embed(
+            title=title,
+            description=self.description,
+            url=self.lbxd_url,
+            colour=0xd8b437)
+        film_embed.set_thumbnail(url=self.poster_path)
 
         return film_embed

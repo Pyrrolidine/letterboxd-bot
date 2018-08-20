@@ -38,7 +38,7 @@ async def update_stats():
 
 @bot.event
 async def on_message(message):
-    if message.author == bot.user:
+    if message.author.id == bot.user.id:
         return
     message.content = message.content.replace('’', '').replace('‘', '')
     await bot.process_commands(message)
