@@ -23,9 +23,9 @@ class Review(object):
         response = api.api_call('log-entries', params).json()
         self.n_reviews = len(response['items'])
         if not self.n_reviews:
-            raise LbxdNotFound('{0} does not have activity for {1} ({2}).'
-                               .format(self.user.display_name, self.film.title,
-                                       self.film.year))
+            raise LbxdNotFound(
+                '{0} does not have logged activity for {1} ({2}).'.format(
+                    self.user.display_name, self.film.title, self.film.year))
         return response
 
     def create_description(self, response):
