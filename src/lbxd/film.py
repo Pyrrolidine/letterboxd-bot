@@ -7,14 +7,9 @@ import re
 
 
 class Film(object):
-    def __init__(self,
-                 keywords,
-                 with_info=True,
-                 with_mkdb=False,
-                 mkdb_only=False):
+    def __init__(self, keywords, with_info=True, with_mkdb=False):
         self.has_year = False
         self.fixed_search = False
-        self.mkdb_only = mkdb_only
         self.description = ''
         self.url = ''
         self.poster_path = ''
@@ -30,8 +25,7 @@ class Film(object):
         self.description = self.create_description()
         if with_mkdb:
             self.description += self.get_mkdb_rating()
-        if not mkdb_only:
-            self.description += self.get_stats()
+        self.description += self.get_stats()
 
     def check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -115,13 +109,9 @@ class Film(object):
                 text += '**Director:** '
             text += director_str[:-2] + '\n'
 
-        if not self.mkdb_only:
-            text += self.get_countries()
+        text += self.get_countries()
         runtime = film_json.get('runTime')
         text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
-
-        if self.mkdb_only:
-            return text
 
         genres_str = ''
         genres_count = 0
