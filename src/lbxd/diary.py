@@ -30,12 +30,18 @@ class Diary(object):
             if diary_entry.get('diaryDetails'):
                 description += '**' + \
                     diary_entry['diaryDetails']['diaryDate'] + '** '
+                if diary_entry['diaryDetails']['rewatch']:
+                    rewatch = True
+                else:
+                    rewatch = False
             if diary_entry.get('rating'):
                 description += '★' * int(diary_entry['rating'])
                 if abs(diary_entry['rating'] * 10) % 10:
                     description += '½'
             if diary_entry['like']:
                 description += ' ♥'
+            if rewatch:
+                description += ' ⭯'
             description += '\n'
         return description
 
