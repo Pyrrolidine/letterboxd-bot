@@ -37,7 +37,7 @@ class Diary(object):
             if diary_entry['like']:
                 description += ' ♥'
             if diary_entry['diaryDetails']['rewatch']:
-                description += ' ⭯'
+                description += ' ↺'
             if diary_entry.get('review'):
                 description += ' ☰'
             description += '\n'
