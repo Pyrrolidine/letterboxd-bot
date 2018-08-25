@@ -32,7 +32,7 @@ class Diary(object):
                     diary_entry['diaryDetails']['diaryDate'] + '** '
             if diary_entry.get('rating'):
                 description += '★' * int(diary_entry['rating'])
-                if abs(diary_entry['rating'] * 10) % 10:
+                if str(diary_entry['rating'])[-1] == '5':
                     description += '½'
             if diary_entry['like']:
                 description += ' ♥'

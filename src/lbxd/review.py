@@ -49,7 +49,7 @@ class Review(object):
                 description += '**' + date + '** '
             if review.get('rating'):
                 description += '★' * int(review['rating'])
-                if abs(review['rating'] * 10) % 10:
+                if str(review['rating'])[-1] == '5':
                     description += '½'
             if review['like']:
                 description += ' ♥'
