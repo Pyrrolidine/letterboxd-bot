@@ -156,6 +156,7 @@ class Film(object):
         return country_text
 
     def get_stats(self):
+        text = ''
         response = api.api_call('film/{}/statistics'.format(self.lbxd_id))
         stats_json = response.json()
         views = stats_json['counts']['watches']
@@ -163,7 +164,12 @@ class Film(object):
             views = str(round(views / 1000)) + 'k'
         elif views > 999:
             views = str(round(views / 1000, 1)) + 'k'
-        text = 'Watched by ' + str(views) + ' members'
+        if stats_json.get('rating'):
+            rating = stats_json['rating']
+            ratings_count = stats_json['counts']['ratings']
+            text += '**Average Rating:** ' + str(round(rating, 2))
+            text += ' out of ' + str(ratings_count) + ' ratings\n'
+        text += 'Watched by ' + str(views) + ' members'
         return text
 
     def get_mkdb_rating(self):
