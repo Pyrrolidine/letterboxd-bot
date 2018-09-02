@@ -167,6 +167,8 @@ class Film(object):
         if stats_json.get('rating'):
             rating = stats_json['rating']
             ratings_count = stats_json['counts']['ratings']
+            if ratings_count > 999:
+                ratings_count = str(round(ratings_count / 1000, 1)) + 'k'
             text += '**Average Rating:** ' + str(round(rating, 2))
             text += ' out of ' + str(ratings_count) + ' ratings\n'
         text += 'Watched by ' + str(views) + ' members'
