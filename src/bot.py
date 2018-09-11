@@ -56,8 +56,9 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
     elif isinstance(error, commands.BotMissingPermissions):
-        await ctx.send('The bot needs the {} permission to use this command.'
-                       .format(', '.join(err for err in error.missing_perms)))
+        await ctx.send(
+            'The bot needs the {} permission to use this command.'.format(
+                ', '.join(err for err in error.missing_perms)))
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         pass
@@ -82,8 +83,8 @@ async def send_msg(ctx, msg):
         # Displays the response time in the test server
         if ctx.guild is not None and ctx.guild.id in config.test_server:
             global start_time
-            msg.set_footer(text='cmd time: {:.3}'
-                           .format(time.perf_counter() - start_time))
+            msg.set_footer(text='cmd time: {:.3}'.format(time.perf_counter() -
+                                                         start_time))
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)

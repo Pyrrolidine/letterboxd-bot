@@ -69,7 +69,13 @@ class User(object):
         raise LbxdNotFound('The user **' + self.username + '** wasn\'t found.')
 
     def get_user_infos(self):
-        member_json = api.api_call('member/{}'.format(self.lbxd_id)).json()
+        member_response = api.api_call('member/{}'.format(self.lbxd_id))
+        if not len(member_response):
+            raise LbxdNotFound(
+                'The user **' + self.username +
+                '** wasn\'t found. They may have refused to be reachable via the API.'
+            )
+        member_json = member_response.json()
         self.avatar_url = member_json['avatar']['sizes'][-1]['url']
         if not self.with_info:
             return
@@ -121,8 +127,8 @@ class User(object):
             return result['url']
 
     def update_favs(self):
-        details_id = urllib.parse.quote(('bot favs/' + self.username)
-                                        .encode('utf-8'), '')
+        details_id = urllib.parse.quote(
+            ('bot favs/' + self.username).encode('utf-8'), '')
         try:
             details = cloudinary.api.resource(details_id)
             if details['tags'][0] == self.fav_posters:
