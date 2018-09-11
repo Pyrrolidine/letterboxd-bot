@@ -70,7 +70,7 @@ class User(object):
 
     def get_user_infos(self):
         member_response = api.api_call('member/{}'.format(self.lbxd_id))
-        if not len(member_response):
+        if member_response == '':
             raise LbxdNotFound(
                 'The user **' + self.username +
                 '** wasn\'t found. They may have refused to be reachable via the API.'
