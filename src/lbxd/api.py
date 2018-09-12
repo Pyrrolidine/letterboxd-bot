@@ -34,7 +34,7 @@ class API(object):
             response = self.session.send(prepared_request)
             response.raise_for_status()
         except requests.exceptions.RequestException as error:
-            if error.response.status_code == 404:
+            if error.response is not None and error.response.status_code == 404:
                 return ''
             print('API Error:\n' + str(error))
             raise LbxdServerError('A request to the Letterboxd API failed.' +
