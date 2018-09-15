@@ -20,8 +20,6 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    await bot.change_presence(
-        activity=discord.Game('!helplb - {} servers'.format(len(bot.guilds))))
     # bot.loop.create_task(update_stats())
 
 
@@ -30,6 +28,9 @@ async def update_stats():
     while True:
         try:
             await dblpy.post_server_count()
+            await bot.change_presence(
+                activity=discord.Game('!helplb - {} servers'.format(
+                    len(bot.guilds))))
         except Exception:
             pass
         await asyncio.sleep(1800)
