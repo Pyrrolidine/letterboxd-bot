@@ -8,10 +8,7 @@ import asyncio
 import requests
 
 TOKEN = config.keys['discord']
-bot = commands.Bot(
-    command_prefix='!',
-    case_insensitive=True,
-    activity=discord.Game('!helplb - boxdbot.com'))
+bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
 start_time = 0
 # dblpy = dbl.Client(bot, config.keys['dbl'])
@@ -23,6 +20,8 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    await bot.change_presence(
+        activity=discord.Game('!helplb - {} servers'.format(len(bot.guilds))))
     # bot.loop.create_task(update_stats())
 
 
