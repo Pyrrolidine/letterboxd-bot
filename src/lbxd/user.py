@@ -88,9 +88,10 @@ class User(object):
 
         for fav_film in member_json['favoriteFilms']:
             fav_name = fav_film['name']
-            for poster in fav_film['poster']['sizes']:
-                if 150 < poster['width'] < 250:
-                    self.fav_posters_link.append(poster['url'])
+            if fav_film.get('poster'):
+                for poster in fav_film['poster']['sizes']:
+                    if 150 < poster['width'] < 250:
+                        self.fav_posters_link.append(poster['url'])
             if fav_film.get('releaseYear'):
                 fav_name += ' (' + str(fav_film['releaseYear']) + ')'
             for link in fav_film['links']:
