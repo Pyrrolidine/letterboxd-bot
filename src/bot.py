@@ -18,6 +18,7 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
+    bot.loop.create_task(update_stats())
 
 
 async def update_stats():
