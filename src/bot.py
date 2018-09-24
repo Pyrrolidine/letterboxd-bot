@@ -2,14 +2,12 @@ import discord
 from discord.ext import commands
 import lbxd
 import config
-import time
 import asyncio
 import requests
 
 TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
-start_time = 0
 
 
 @bot.event
@@ -33,13 +31,6 @@ async def update_stats():
 async def on_message(message):
     message.content = message.content.replace('’', '').replace('‘', '')
     await bot.process_commands(message)
-
-
-# To track the time it took to respond
-@bot.before_invoke
-async def before_invoke(ctx):
-    global start_time
-    start_time = time.perf_counter()
 
 
 @bot.event
@@ -71,11 +62,6 @@ async def on_command_error(ctx, error):
 # Abstraction sending the response either as an embed or normal message
 async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
-        # Displays the response time in the test server
-        if ctx.guild is not None and ctx.guild.id in config.test_server:
-            global start_time
-            msg.set_footer(text='cmd time: {:.3}'.format(time.perf_counter() -
-                                                         start_time))
         await ctx.send(embed=msg)
     else:
         await ctx.send(msg)
