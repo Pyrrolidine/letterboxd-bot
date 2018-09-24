@@ -5,7 +5,6 @@ import config
 import asyncio
 import requests
 
-TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
 
@@ -194,4 +193,4 @@ async def delete(ctx):
         await cmd_message.delete()
 
 
-bot.run(TOKEN)
+bot.run(config.keys['discord'])
