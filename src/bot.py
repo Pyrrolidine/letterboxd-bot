@@ -3,7 +3,6 @@ from discord.ext import commands
 import lbxd
 import config
 import time
-import dbl
 import asyncio
 import requests
 
@@ -11,7 +10,6 @@ TOKEN = config.keys['discord']
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
 start_time = 0
-# dblpy = dbl.Client(bot, config.keys['dbl'])
 
 
 @bot.event
@@ -20,19 +18,13 @@ async def on_ready():
     print(bot.user.name)
     print(bot.user.id)
     print('------')
-    # bot.loop.create_task(update_stats())
 
 
-# Update the server count of the discordbots.org page
 async def update_stats():
     while True:
-        try:
-            await bot.change_presence(
-                activity=discord.Game('!helplb - {} servers'.format(
-                    len(bot.guilds))))
-            await dblpy.post_server_count()
-        except Exception:
-            pass
+        await bot.change_presence(
+            activity=discord.Game('!helplb - {} servers'.format(
+                len(bot.guilds))))
         await asyncio.sleep(1800)
 
 
