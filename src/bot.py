@@ -59,7 +59,6 @@ async def on_command_error(ctx, error):
         raise error
 
 
-# Abstraction sending the response either as an embed or normal message
 async def send_msg(ctx, msg):
     if isinstance(msg, discord.Embed):
         await ctx.send(embed=msg)
