@@ -65,6 +65,12 @@ async def send_msg(ctx, msg):
         await ctx.send(msg)
 
 
+@bot.event
+async def on_command_completion(ctx):
+    log_channel = bot.get_channel(494198610028920832)
+    await log_channel.send(ctx.command.name)
+
+
 # Commands
 
 
