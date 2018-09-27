@@ -13,8 +13,6 @@ bot.remove_command('help')
 async def on_ready():
     print('Logged in {} servers as'.format(len(bot.guilds)))
     print(bot.user.name)
-    print(bot.user.id)
-    print('------')
     bot.loop.create_task(update_stats())
 
 
@@ -36,20 +34,16 @@ async def on_command_error(ctx, error):
                 ', '.join(err for err in error.missing_perms)))
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
-        pass
+        return
     elif isinstance(error, commands.CommandInvokeError):
         if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
         elif isinstance(error.original, requests.exceptions.ConnectionError):
             await ctx.send('The command failed due to connection issues.')
-        else:
-            await ctx.send('The command crashed, a report was sent to the dev')
-            print('CommandInvokeError: ', ctx.message.content)
-            raise error
-    else:
-        print(ctx.message.content)
-        raise error
+    await ctx.send('The command crashed, a report was sent to the dev.')
+    print(ctx.message.content)
+    raise error
 
 
 async def send_msg(ctx, msg):
