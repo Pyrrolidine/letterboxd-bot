@@ -1,4 +1,4 @@
 # [Letterboxd Bot](https://boxdbot.com)
 
-This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests such as getting the page of a film, director, user or review.  
-See the [website](https://boxdbot.com) for more informations and an invite link.
+This is a [Discord](https://discordapp.com/) bot for [Letterboxd](https://letterboxd.com/) requests, displaying details on a film, member, list, review and more.  
+See the [website](https://boxdbot.com) for more informations and a link to invite the bot to your server.
