@@ -28,10 +28,12 @@ async def update_stats():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
+        return
     elif isinstance(error, commands.BotMissingPermissions):
         await ctx.send(
             'The bot needs the {} permission to use this command.'.format(
                 ', '.join(err for err in error.missing_perms)))
+        return
     elif isinstance(error, commands.CommandNotFound)\
             or isinstance(error, commands.CheckFailure):
         return
@@ -41,6 +43,7 @@ async def on_command_error(ctx, error):
             return
         elif isinstance(error.original, requests.exceptions.ConnectionError):
             await ctx.send('The command failed due to connection issues.')
+            return
     await ctx.send('The command crashed, a report was sent to the dev.')
     print(ctx.message.content)
     raise error
@@ -165,16 +168,15 @@ async def delete(ctx):
             cmd_list.append(alias)
 
     async for log_message in ctx.channel.history(limit=30):
-        if log_message.author == bot.user and not found_bot_msg:
+        if log_message.author.id == bot.user.id and not found_bot_msg:
             bot_message = log_message
             found_bot_msg = True
         elif found_bot_msg:
+            first_word = log_message.content.split()[0] + ' '
             for cmd in cmd_list:
-                if log_message.content.startswith('!{} '.format(cmd)):
+                if first_word == '!{} '.format(cmd):
                     found_usr_cmd = True
                     break
-            if log_message.content in ['!checklb', '!helplb']:
-                found_usr_cmd = True
             if found_usr_cmd:
                 cmd_message = log_message
                 break
