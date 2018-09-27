@@ -7,12 +7,12 @@ class List:
         self._list_name = ''
         self._url = ''
         self._poster_url = ''
-        list_lbxd_id = self.find_list(keywords, user.lbxd_id)
-        description = self.get_infos(list_lbxd_id)
+        list_lbxd_id = self.__find_list(keywords, user.lbxd_id)
+        description = self.__get_infos(list_lbxd_id)
         self.embed = create_embed(self._list_name, self._url, description,
                                   self._poster_url)
 
-    def find_list(self, keywords, user_lbxd_id):
+    def __find_list(self, keywords, user_lbxd_id):
         params = {
             'member': user_lbxd_id,
             'memberRelationship': 'Owner',
@@ -34,7 +34,7 @@ class List:
         raise LbxdNotFound('No list was found (limit to 50 most recent).\n' +
                            'Make sure the first word is a **username**.')
 
-    def get_infos(self, list_lbxd_id):
+    def __get_infos(self, list_lbxd_id):
         list_json = api.api_call('list/{}'.format(list_lbxd_id)).json()
         for link in list_json['links']:
             if link['type'] == 'letterboxd':

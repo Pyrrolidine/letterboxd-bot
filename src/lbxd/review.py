@@ -10,8 +10,8 @@ class Review:
         self._review_url = ''
         activity_url = self._film.lbxd_url.replace(
             '.com/', '.com/{}/'.format(self._user.username)) + 'activity'
-        response = self.find_reviews()
-        description = self.create_description(response, activity_url)
+        response = self.__find_reviews()
+        description = self.__create_description(response, activity_url)
 
         if self._num_reviews > 1:
             embed_url = activity_url
@@ -24,7 +24,7 @@ class Review:
         self.embed = create_embed(title, embed_url, description,
                                   self._film.poster_path)
 
-    def find_reviews(self):
+    def __find_reviews(self):
         params = {
             'film': self._film.lbxd_id,
             'member': self._user.lbxd_id,
@@ -39,7 +39,7 @@ class Review:
                     self._film.year))
         return response
 
-    def create_description(self, response, activity_url):
+    def __create_description(self, response, activity_url):
         description = ''
         preview_done = False
         for review in response['items']:
@@ -66,13 +66,13 @@ class Review:
                 description += ' ♥'
             description += '\n'
             if not preview_done:
-                preview = self.create_preview(review)
+                preview = self.__create_preview(review)
                 if len(preview):
                     description += preview
                     preview_done = True
         return description
 
-    def create_preview(self, review):
+    def __create_preview(self, review):
         preview = ''
         if review.get('review'):
             if review['review']['containsSpoilers']:

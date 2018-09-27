@@ -10,21 +10,21 @@ class Crew:
         self._name = ''
         self._url = ''
         self._fixed_search = False
-        lbxd_id = self.check_if_fixed_search(input_name)
-        person_json = self.search_letterboxd(input_name, alias, lbxd_id)
-        description = self.get_details(person_json)
-        description += self.get_dates()
+        lbxd_id = self.__check_if_fixed_search(input_name)
+        person_json = self.__search_letterboxd(input_name, alias, lbxd_id)
+        description = self.__get_details(person_json)
+        description += self.__get_dates()
         self.embed = create_embed(self._name, self._url, description,
-                                  self.get_picture())
+                                  self.__get_picture())
 
-    def check_if_fixed_search(self, keywords):
+    def __check_if_fixed_search(self, keywords):
         for name, lbxd_id in config.fixed_crew_search.items():
             if name.lower() == keywords.lower():
                 self._fixed_search = True
                 return lbxd_id
         return ''
 
-    def search_letterboxd(self, item, alias, lbxd_id):
+    def __search_letterboxd(self, item, alias, lbxd_id):
         if self._fixed_search:
             response = api.api_call('contributor/' + lbxd_id)
             person_json = response.json()
@@ -40,7 +40,7 @@ class Crew:
             person_json = response.json()['items'][0]['contributor']
         return person_json
 
-    def get_details(self, person_json):
+    def __get_details(self, person_json):
         for link in person_json['links']:
             if link['type'] == 'tmdb':
                 tmdb_id = link['id']
@@ -55,7 +55,7 @@ class Crew:
             description += str(contrib_stats['filmCount']) + '\n'
         return description
 
-    def get_dates(self):
+    def __get_dates(self):
         details_text = ''
         url = self._api_url + '?api_key={}'.format(config.keys['tmdb'])
         try:
@@ -78,7 +78,7 @@ class Crew:
                                 + person_tmdb.json()[element]
         return details_text
 
-    def get_picture(self):
+    def __get_picture(self):
         try:
             person_img = api.session.get(self._api_url + '/images?api_key={}'.
                                          format(config.keys['tmdb']))

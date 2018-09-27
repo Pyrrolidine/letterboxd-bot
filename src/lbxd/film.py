@@ -1,46 +1,49 @@
-from .core import api
+from .core import api, create_embed
 from .exceptions import LbxdNotFound
 import config
-import discord
 import requests
 import re
 
 
-class Film(object):
+class Film:
     def __init__(self, keywords, with_info=True, with_mkdb=False):
         self.has_year = False
         self.fixed_search = False
-        self.description = ''
         self.url = ''
         self.poster_path = ''
         self.title = ''
         self.tmdb_id = ''
         self.year = 0
-        self.input_year = self.check_year(keywords)
-        self.lbxd_id = self.check_if_fixed_search(keywords)
-        film_json = self.search_request(keywords)
-        self.get_details(film_json)
+        self.input_year = self.__check_year(keywords)
+        self.lbxd_id = self.__check_if_fixed_search(keywords)
+        film_json = self.__search_request(keywords)
+        self.__get_details(film_json)
         if not with_info:
             return
-        self.description = self.create_description()
+        description = self.create_description()
         if with_mkdb:
-            self.description += self.get_mkdb_rating()
-        self.description += self.get_stats()
+            description += self.__get_mkdb_rating()
+        description += self.__get_stats()
+        title = self.title
+        if self.year:
+            title += ' (' + str(self.year) + ')'
+        self.embed = create_embed(title, self.lbxd_url, description,
+                                  self.poster_path)
 
-    def check_year(self, keywords):
+    def __check_year(self, keywords):
         last_word = keywords.split()[-1]
         if re.fullmatch(r'\(\d{4}\)', last_word) is not None:
             self.has_year = True
             return last_word.replace('(', '').replace(')', '')
 
-    def check_if_fixed_search(self, keywords):
+    def __check_if_fixed_search(self, keywords):
         for title, lbxd_id in config.fixed_film_search.items():
             if title.lower() == keywords.lower():
                 self.fixed_search = True
                 return lbxd_id
         return ''
 
-    def search_request(self, keywords):
+    def __search_request(self, keywords):
         found = False
         if self.has_year:
             keywords = ' '.join(keywords.split()[:-1])
@@ -67,7 +70,7 @@ class Film(object):
             raise LbxdNotFound('No film was found with this search.')
         return film_json
 
-    def get_details(self, film_json):
+    def __get_details(self, film_json):
         self.lbxd_id = film_json['id']
         self.title = film_json['name']
         self.year = film_json.get('releaseYear')
@@ -155,7 +158,7 @@ class Film(object):
             pass
         return country_text
 
-    def get_stats(self):
+    def __get_stats(self):
         text = ''
         response = api.api_call('film/{}/statistics'.format(self.lbxd_id))
         stats_json = response.json()
@@ -174,7 +177,7 @@ class Film(object):
         text += 'Watched by ' + str(views) + ' members'
         return text
 
-    def get_mkdb_rating(self):
+    def __get_mkdb_rating(self):
         mkdb_url = self.lbxd_url.replace('letterboxd.com', 'eiga.me/api')
         try:
             page = api.session.get(mkdb_url + 'summary')
@@ -189,16 +192,3 @@ class Film(object):
         mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n]'
         mkdb_description += '(' + mkdb_url.replace('/api', '') + ')'
         return mkdb_description
-
-    def create_embed(self):
-        title = self.title
-        if self.year:
-            title += ' (' + str(self.year) + ')'
-        film_embed = discord.Embed(
-            title=title,
-            description=self.description,
-            url=self.lbxd_url,
-            colour=0xd8b437)
-        film_embed.set_thumbnail(url=self.poster_path)
-
-        return film_embed

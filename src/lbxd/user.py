@@ -1,8 +1,7 @@
-from .core import api
+from .core import api, create_embed
 from .exceptions import LbxdNotFound
 import config
 import subprocess
-import discord
 import os
 import cloudinary
 import cloudinary.uploader
@@ -14,39 +13,41 @@ cloudinary.config(
     api_secret=config.cloudinary['api_secret'])
 
 
-class User(object):
+class User:
     def __init__(self, username, with_info=True):
-        self.with_info = with_info
-        self.img_cmd = 'convert '
-        self.fav_posters_link = list()
-        self.fav_posters = ''
+        self._img_cmd = 'convert '
+        self._fav_posters_link = list()
+        self._fav_posters = ''
         self.avatar_url = ''
         self.display_name = ''
         self.username = username.lower()
         self.url = 'https://letterboxd.com/{}'.format(username)
-        self.lbxd_id = self.check_if_fixed_search(username)
+        self.lbxd_id = self.__check_if_fixed_search()
         if not len(self.lbxd_id):
-            self.lbxd_id = self.search_profile()
-        self.description = self.get_user_infos()
+            self.lbxd_id = self.__search_profile()
+        description = self.__get_user_infos(with_info)
         if not with_info:
             return
-        if not len(self.fav_posters_link):
+        if not len(self._fav_posters_link):
             return
         if not os.path.exists(username):
             os.popen('mkdir ' + self.username)
-        self.fav_img_link = self.upload_cloudinary()
+        fav_img_link = self.__upload_cloudinary()
         os.popen('rm -r ' + self.username)
 
-    def check_if_fixed_search(self, username):
+        self.embed = create_embed(self.display_name, self.url, description,
+                                  self.avatar_url, fav_img_link)
+
+    def __check_if_fixed_search(self):
         for fixed_username, lbxd_id in config.fixed_user_search.items():
-            if fixed_username.lower() == username.lower():
+            if fixed_username.lower() == self.username:
                 api_path = 'member/{}'.format(lbxd_id)
                 member_json = api.api_call(api_path).json()
                 self.display_name = member_json['displayName']
                 return lbxd_id
         return ''
 
-    def search_profile(self):
+    def __search_profile(self):
         username = self.username.replace('_', ' ')
         params = {
             'input': username,
@@ -68,7 +69,7 @@ class User(object):
                 break
         raise LbxdNotFound('The user **' + self.username + '** wasn\'t found.')
 
-    def get_user_infos(self):
+    def __get_user_infos(self, with_info):
         member_response = api.api_call('member/{}'.format(self.lbxd_id))
         if member_response == '':
             raise LbxdNotFound(
@@ -77,7 +78,7 @@ class User(object):
             )
         member_json = member_response.json()
         self.avatar_url = member_json['avatar']['sizes'][-1]['url']
-        if not self.with_info:
+        if not with_info:
             return
         description = '**'
         if member_json.get('location'):
@@ -91,61 +92,49 @@ class User(object):
             if fav_film.get('poster'):
                 for poster in fav_film['poster']['sizes']:
                     if 150 < poster['width'] < 250:
-                        self.fav_posters_link.append(poster['url'])
+                        self._fav_posters_link.append(poster['url'])
             if fav_film.get('releaseYear'):
                 fav_name += ' (' + str(fav_film['releaseYear']) + ')'
             for link in fav_film['links']:
                 if link['type'] == 'letterboxd':
                     fav_url = link['url']
                     temp_url = fav_url.replace('https://letterboxd.com', '')
-                    self.fav_posters += temp_url[:-1]
+                    self._fav_posters += temp_url[:-1]
             description += '[{0}]({1})\n'.format(fav_name, fav_url)
         return description
 
-    def download_fav_posters(self):
-        for index, fav_poster in enumerate(self.fav_posters_link):
+    def __download_fav_posters(self):
+        for index, fav_poster in enumerate(self._fav_posters_link):
             img_data = api.session.get(fav_poster).content
             temp_fav = '{0}/fav{1}.jpg'.format(self.username, index)
-            self.img_cmd += temp_fav + ' '
+            self._img_cmd += temp_fav + ' '
             with open(temp_fav, 'wb') as handler:
                 handler.write(img_data)
 
-    def upload_cloudinary(self):
-        check_album = self.update_favs()
+    def __upload_cloudinary(self):
+        check_album = self.__update_favs()
         if len(check_album):
             return check_album
         else:
-            self.download_fav_posters()
-            self.img_cmd += '+append {}/fav.jpg'.format(self.username)
-            subprocess.call(self.img_cmd, shell=True)
+            self.__download_fav_posters()
+            self._img_cmd += '+append {}/fav.jpg'.format(self.username)
+            subprocess.call(self._img_cmd, shell=True)
             with open('{}/fav.jpg'.format(self.username), 'rb') as pic:
                 bin_pic = pic.read()
             result = cloudinary.uploader.upload(
                 bin_pic,
                 public_id=self.username,
                 folder='bot favs',
-                tags=self.fav_posters)
+                tags=self._fav_posters)
             return result['url']
 
-    def update_favs(self):
+    def __update_favs(self):
         details_id = urllib.parse.quote(
             ('bot favs/' + self.username).encode('utf-8'), '')
         try:
             details = cloudinary.api.resource(details_id)
-            if details['tags'][0] == self.fav_posters:
+            if details['tags'][0] == self._fav_posters:
                 return details['url']
         except cloudinary.api.NotFound:
             pass
         return ''
-
-    def create_embed(self):
-        user_embed = discord.Embed(
-            title=self.display_name,
-            url=self.url,
-            description=self.description,
-            colour=0xd8b437)
-        user_embed.set_thumbnail(url=self.avatar_url)
-        if len(self.fav_posters_link):
-            user_embed.set_image(url=self.fav_img_link)
-
-        return user_embed

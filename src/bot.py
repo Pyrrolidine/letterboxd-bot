@@ -90,7 +90,7 @@ async def checklb(ctx):
 async def user(ctx, arg):
     try:
         cmd_user = lbxd.user.User(arg)
-        msg = cmd_user.create_embed()
+        msg = cmd_user.embed
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -125,7 +125,7 @@ async def film(ctx, *, arg):
             cmd_film = lbxd.film.Film(arg, True, True)
         else:
             cmd_film = lbxd.film.Film(arg)
-        msg = cmd_film.create_embed()
+        msg = cmd_film.embed
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
