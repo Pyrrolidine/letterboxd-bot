@@ -23,7 +23,7 @@ async def update_stats():
         await bot.change_presence(
             activity=discord.Game('!helplb - {} servers'.format(
                 len(bot.guilds))))
-        await asyncio.sleep(1800)
+        await asyncio.sleep(900)
 
 
 @bot.event

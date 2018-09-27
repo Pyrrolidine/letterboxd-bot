@@ -15,7 +15,6 @@ class API(object):
         self._api_key = api_key
         self._api_secret = api_secret
         self.session = requests.Session()
-        self.session.params = {}
 
     def api_call(self, path, params={}):
         url = f'{self._api_base}/{path}'

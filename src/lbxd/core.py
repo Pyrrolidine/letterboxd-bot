@@ -1,5 +1,5 @@
 import config
-import discord
+from discord import Embed
 from bs4 import BeautifulSoup
 from .api import API
 
@@ -15,9 +15,8 @@ def format_text(input_html, max_char):
     return text
 
 
-def create_embed(title, url, description, thumbnail_url, image_url=''):
-    embed = discord.Embed(
-        title=title, url=url, colour=0xd8b437, description=description)
+def create_embed(title, url, descript, thumbnail_url, image_url=''):
+    embed = Embed(title=title, url=url, colour=0xd8b437, description=descript)
     embed.set_thumbnail(url=thumbnail_url)
     if len(image_url):
         embed.set_image(url=image_url)
