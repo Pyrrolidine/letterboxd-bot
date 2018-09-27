@@ -191,8 +191,6 @@ class Film(object):
         return mkdb_description
 
     def create_embed(self):
-        film_embed = discord.Embed(
-            colour=0xd8b437, description=self.description)
         title = self.title
         if self.year:
             title += ' (' + str(self.year) + ')'
