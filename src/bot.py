@@ -172,9 +172,9 @@ async def delete(ctx):
             bot_message = log_message
             found_bot_msg = True
         elif found_bot_msg:
-            first_word = log_message.content.split()[0] + ' '
+            first_word = log_message.content.split()[0]
             for cmd in cmd_list:
-                if first_word == '!{} '.format(cmd):
+                if first_word == '!{}'.format(cmd):
                     found_usr_cmd = True
                     break
             if found_usr_cmd:
