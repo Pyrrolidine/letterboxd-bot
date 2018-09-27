@@ -1,49 +1,60 @@
-from .core import api, format_text
+from .core import api, format_text, create_embed
 from .exceptions import LbxdNotFound
-import discord
 
 
-class Review(object):
+class Review:
     def __init__(self, user, film):
-        self.user = user
-        self.film = film
-        self.n_reviews = 0
-        self.review_url = ''
-        self.activity_url = self.film.lbxd_url.replace(
-            '.com/', '.com/{}/'.format(self.user.username)) + 'activity'
+        self._user = user
+        self._film = film
+        self._num_reviews = 0
+        self._review_url = ''
+        activity_url = self._film.lbxd_url.replace(
+            '.com/', '.com/{}/'.format(self._user.username)) + 'activity'
         response = self.find_reviews()
-        self.description = self.create_description(response)
+        description = self.create_description(response, activity_url)
+
+        if self._num_reviews > 1:
+            embed_url = activity_url
+        else:
+            embed_url = self._review_url
+        review_word = 'entries' if self._num_reviews > 1 else 'entry'
+        title = '{0} {1} of {2} ({3})'.format(self._user.display_name,
+                                              review_word, self._film.title,
+                                              self._film.year)
+        self.embed = create_embed(title, embed_url, description,
+                                  self._film.poster_path)
 
     def find_reviews(self):
         params = {
-            'film': self.film.lbxd_id,
-            'member': self.user.lbxd_id,
+            'film': self._film.lbxd_id,
+            'member': self._user.lbxd_id,
             'memberRelationship': 'Owner'
         }
         response = api.api_call('log-entries', params).json()
-        self.n_reviews = len(response['items'])
-        if not self.n_reviews:
+        self._num_reviews = len(response['items'])
+        if not self._num_reviews:
             raise LbxdNotFound(
                 '{0} does not have logged activity for {1} ({2}).'.format(
-                    self.user.display_name, self.film.title, self.film.year))
+                    self._user.display_name, self._film.title,
+                    self._film.year))
         return response
 
-    def create_description(self, response):
+    def create_description(self, response, activity_url):
         description = ''
         preview_done = False
         for review in response['items']:
             if len(description) > 1500:
                 description += '**[Click here for more activity]({})**'.format(
-                    self.activity_url)
+                    activity_url)
                 break
             for link in review['links']:
                 if link['type'] == 'letterboxd':
-                    self.review_url = link['url']
+                    self._review_url = link['url']
                     break
             word = 'Entry'
             if review.get('review'):
                 word = 'Review'
-            description += '**[{}]('.format(word) + self.review_url + ')** '
+            description += '**[{}]('.format(word) + self._review_url + ')** '
             if review.get('diaryDetails'):
                 date = review['diaryDetails']['diaryDate']
                 description += '**' + date + '** '
@@ -69,21 +80,3 @@ class Review(object):
             else:
                 preview += format_text(review['review']['lbml'], 400)
         return preview
-
-    def create_embed(self):
-        review_word = 'entries' if self.n_reviews > 1 else 'entry'
-        if self.n_reviews > 1:
-            embed_url = self.activity_url
-        else:
-            embed_url = self.review_url
-
-        review_embed = discord.Embed(
-            title='{0} {1} of {2} ({3})'
-            .format(self.user.display_name, review_word, self.film.title,
-                    self.film.year),
-            url=embed_url,
-            colour=0xd8b437,
-            description=self.description)
-        review_embed.set_thumbnail(url=self.film.poster_path)
-
-        return review_embed

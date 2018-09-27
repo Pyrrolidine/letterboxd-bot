@@ -1,15 +1,16 @@
-from .core import api
-import discord
+from .core import api, create_embed
 
 
-class Diary(object):
+class Diary:
     def __init__(self, user):
-        self.user = user
-        self.description = self.get_activity()
+        url = user.url + '/films/diary'
+        title = 'Recent diary activity from {}'.format(user.display_name)
+        self.embed = create_embed(title, url, self.__get_activity(
+            user.lbxd_id), user.avatar_url)
 
-    def get_activity(self):
+    def __get_activity(self, lbxd_id):
         params = {
-            'member': self.user.lbxd_id,
+            'member': lbxd_id,
             'memberRelationship': 'Owner',
             'where': 'HasDiaryDate'
         }
@@ -42,13 +43,3 @@ class Diary(object):
                 description += ' ☰'
             description += '\n'
         return description
-
-    def create_embed(self):
-        title = 'Recent diary activity from {}'.format(self.user.display_name)
-        diary_embed = discord.Embed(
-            title=title,
-            url=self.user.url + '/films/diary/',
-            colour=0xd8b437,
-            description=self.description)
-        diary_embed.set_thumbnail(url=self.user.avatar_url)
-        return diary_embed

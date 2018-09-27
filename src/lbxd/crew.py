@@ -1,32 +1,32 @@
-from .core import api
+from .core import api, create_embed
 from .exceptions import LbxdNotFound
 import config
-import discord
 import requests
 
 
-class Crew(object):
+class Crew:
     def __init__(self, input_name, alias):
-        self.api_url = ''
-        self.name = ''
-        self.url = ''
-        self.fixed_search = False
-        self.lbxd_id = self.check_if_fixed_search(input_name)
-        person_json = self.search_letterboxd(input_name, alias)
-        self.description = self.get_details(person_json)
-        self.description += self.get_dates()
-        self.pic_url = self.get_picture()
+        self._api_url = ''
+        self._name = ''
+        self._url = ''
+        self._fixed_search = False
+        lbxd_id = self.check_if_fixed_search(input_name)
+        person_json = self.search_letterboxd(input_name, alias, lbxd_id)
+        description = self.get_details(person_json)
+        description += self.get_dates()
+        self.embed = create_embed(self._name, self._url, description,
+                                  self.get_picture())
 
     def check_if_fixed_search(self, keywords):
         for name, lbxd_id in config.fixed_crew_search.items():
             if name.lower() == keywords.lower():
-                self.fixed_search = True
+                self._fixed_search = True
                 return lbxd_id
         return ''
 
-    def search_letterboxd(self, item, alias):
-        if self.fixed_search:
-            response = api.api_call('contributor/' + self.lbxd_id)
+    def search_letterboxd(self, item, alias, lbxd_id):
+        if self._fixed_search:
+            response = api.api_call('contributor/' + lbxd_id)
             person_json = response.json()
         else:
             params = {'input': item, 'include': 'ContributorSearchItem'}
@@ -45,9 +45,10 @@ class Crew(object):
             if link['type'] == 'tmdb':
                 tmdb_id = link['id']
             elif link['type'] == 'letterboxd':
-                self.url = link['url']
-        self.api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
-        self.name = person_json['name']
+                self._url = link['url']
+        self._api_url = 'https://api.themoviedb.org/3/person/{}'.format(
+            tmdb_id)
+        self._name = person_json['name']
         description = ''
         for contrib_stats in person_json['statistics']['contributions']:
             description += '**' + contrib_stats['type'] + ':** '
@@ -56,7 +57,7 @@ class Crew(object):
 
     def get_dates(self):
         details_text = ''
-        url = self.api_url + '?api_key={}'.format(config.keys['tmdb'])
+        url = self._api_url + '?api_key={}'.format(config.keys['tmdb'])
         try:
             person_tmdb = api.session.get(url)
             person_tmdb.raise_for_status()
@@ -79,8 +80,8 @@ class Crew(object):
 
     def get_picture(self):
         try:
-            person_img = api.session.get(self.api_url + '/images?api_key={}'
-                                         .format(config.keys['tmdb']))
+            person_img = api.session.get(self._api_url + '/images?api_key={}'.
+                                         format(config.keys['tmdb']))
             person_img.raise_for_status()
             if not len(person_img.json()['profiles']):
                 return ''
@@ -93,12 +94,3 @@ class Crew(object):
             return img_url + path
         except requests.exceptions.HTTPError:
             return ''
-
-    def create_embed(self):
-        crew_embed = discord.Embed(
-            title=self.name,
-            url=self.url,
-            description=self.description,
-            colour=0xd8b437)
-        crew_embed.set_thumbnail(url=self.pic_url)
-        return crew_embed
