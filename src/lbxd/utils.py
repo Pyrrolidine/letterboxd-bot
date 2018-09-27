@@ -1,28 +1,5 @@
-from .core import api
-from .exceptions import LbxdServerError
 import config
 import discord
-import requests
-
-
-def check_lbxd():
-    status_embed = discord.Embed(colour=0xd8b437)
-    status_embed.set_author(
-        name='Letterboxd Status',
-        icon_url='https://i.imgur.com/5VALKVy.jpg',
-        url='https://letterboxd.com/')
-    try:
-        page = api.session.get('https://letterboxd.com')
-        page.raise_for_status()
-        status_embed.description = ':white_check_mark: **Website**\n'
-    except requests.exceptions.HTTPError:
-        status_embed.description = ':x: **Website**\n'
-    try:
-        api.api_call('film/E4G')
-        status_embed.description += ':white_check_mark: **API**'
-    except LbxdServerError:
-        status_embed.description += ':x: **API**'
-    return status_embed
 
 
 def help_lbxd():

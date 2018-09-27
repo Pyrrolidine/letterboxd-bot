@@ -71,12 +71,6 @@ async def helplb(ctx):
     await send_msg(ctx, msg)
 
 
-@bot.command()
-async def checklb(ctx):
-    msg = lbxd.utils.check_lbxd()
-    await send_msg(ctx, msg)
-
-
 @bot.command(aliases=['u'])
 async def user(ctx, arg):
     try:
