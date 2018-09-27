@@ -27,12 +27,6 @@ async def update_stats():
 
 
 @bot.event
-async def on_message(message):
-    message.content = message.content.replace('’', '').replace('‘', '')
-    await bot.process_commands(message)
-
-
-@bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')

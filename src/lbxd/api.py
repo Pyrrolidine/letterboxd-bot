@@ -9,7 +9,7 @@ from .exceptions import LbxdServerError
 # https://github.com/bobtiki/letterboxd
 
 
-class API(object):
+class API:
     def __init__(self, api_base, api_key, api_secret):
         self._api_base = api_base
         self._api_key = api_key
