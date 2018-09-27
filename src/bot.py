@@ -11,8 +11,8 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    print('Logged in {} servers as'.format(len(bot.guilds)))
-    print(bot.user.name)
+    print('Logged in {0} servers as {1}'.format(
+        len(bot.guilds), bot.user.name))
     bot.loop.create_task(update_stats())
 
 
