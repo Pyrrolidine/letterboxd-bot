@@ -11,23 +11,19 @@ from .exceptions import LbxdServerError
 
 class API(object):
     def __init__(self, api_base, api_key, api_secret):
-        self.api_base = api_base
-        self.api_key = api_key
-        self.api_secret = api_secret
+        self._api_base = api_base
+        self._api_key = api_key
+        self._api_secret = api_secret
         self.session = requests.Session()
         self.session.params = {}
 
-    def api_call(self, path, params={}, form=None, headers={}, method='get'):
-        url = f'{self.api_base}/{path}'
+    def api_call(self, path, params={}):
+        url = f'{self._api_base}/{path}'
         params = self.__add_unique_params(params)
-        request = requests.Request(
-            method.upper(), url, params=params, data=[], headers=headers)
+        request = requests.Request('GET', url, params=params)
         prepared_request = self.session.prepare_request(request)
         signature = self.__sign(
-            method=prepared_request.method,
-            url=prepared_request.url,
-            body=prepared_request.body,
-        )
+            method=prepared_request.method, url=prepared_request.url)
         prepared_request.prepare_url(prepared_request.url,
                                      {'signature': signature})
         try:
@@ -42,24 +38,20 @@ class API(object):
         return response
 
     def __add_unique_params(self, params):
-        params['apikey'] = self.api_key
-        # nonce: UUID string, must be unique for each API request
+        params['apikey'] = self._api_key
         params['nonce'] = uuid.uuid4()
-        # timestamp: number of seconds since epoch, Jan 1, 1970 (UTC)
         params['timestamp'] = int(time.time())
         return params
 
     def __sign(self, method, url, body=''):
         # Create the salted bytestring
-        if body is None:
-            body = ''
         signing_bytestring = b'\x00'.join(
             [str.encode(method),
              str.encode(url),
              str.encode(body)])
         # applying an HMAC/SHA-256 transformation, using our API Secret
         signature = hmac.new(
-            str.encode(self.api_secret),
+            str.encode(self._api_secret),
             signing_bytestring,
             digestmod=hashlib.sha256)
         # get the string representation of the hash
