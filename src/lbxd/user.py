@@ -23,17 +23,17 @@ class User:
         self.username = username.lower()
         self.url = 'https://letterboxd.com/{}'.format(username)
         self.lbxd_id = self.__check_if_fixed_search()
+        fav_img_link = ''
         if not len(self.lbxd_id):
             self.lbxd_id = self.__search_profile()
         description = self.__get_user_infos(with_info)
         if not with_info:
             return
-        if not len(self._fav_posters_link):
-            return
-        if not os.path.exists(username):
-            os.popen('mkdir ' + self.username)
-        fav_img_link = self.__upload_cloudinary()
-        os.popen('rm -r ' + self.username)
+        if len(self._fav_posters_link):
+            if not os.path.exists(username):
+                os.popen('mkdir ' + self.username)
+            fav_img_link = self.__upload_cloudinary()
+            os.popen('rm -r ' + self.username)
 
         self.embed = create_embed(self.display_name, self.url, description,
                                   self.avatar_url, fav_img_link)
