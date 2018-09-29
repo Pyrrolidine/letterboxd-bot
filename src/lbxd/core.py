@@ -7,7 +7,7 @@ api = API(config.letterboxd['api_base'], config.letterboxd['api_key'],
           config.letterboxd['api_secret'])
 
 
-class MyHTMLParser(HTMLParser):
+class BotHTMLParser(HTMLParser):
     def __init__(self):
         self.text = ''
         HTMLParser.__init__(self)
@@ -18,7 +18,7 @@ class MyHTMLParser(HTMLParser):
 
 # Converting the review or list description in HTML to text
 def format_text(input_html, max_char):
-    html = MyHTMLParser()
+    html = BotHTMLParser()
     html.feed(input_html)
     text = '```' + html.text[:max_char].strip()
     text += '...```' if len(text) > max_char else '```'
