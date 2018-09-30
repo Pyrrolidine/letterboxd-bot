@@ -38,6 +38,7 @@ class Film:
         if re.fullmatch(r'\(\d{4}\)', last_word) is not None:
             self.has_year = True
             return last_word.replace('(', '').replace(')', '')
+        return ''
 
     def __check_if_fixed_search(self, keywords):
         for title, lbxd_id in config.fixed_film_search.items():

@@ -15,8 +15,8 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
-    logging.info('Logged in {0} servers as {1}'.format(
-        len(bot.guilds), bot.user.name))
+    logging.info(
+        'Logged in %d servers as %s' % (len(bot.guilds), bot.user.name))
     bot.loop.create_task(update_stats())
 
 
@@ -33,19 +33,18 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
         return
-    elif isinstance(error, commands.BotMissingPermissions):
+    if isinstance(error, commands.BotMissingPermissions):
         await ctx.send(
             'The bot needs the {} permission to use this command.'.format(
                 ', '.join(err for err in error.missing_perms)))
         return
-    elif isinstance(error, commands.CommandNotFound)\
-            or isinstance(error, commands.CheckFailure):
+    if isinstance(error, (commands.CommandNotFound, commands.CheckFailure)):
         return
-    elif isinstance(error, commands.CommandInvokeError):
+    if isinstance(error, commands.CommandInvokeError):
         if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
             return
-        elif isinstance(error.original, requests.exceptions.ConnectionError):
+        if isinstance(error.original, requests.exceptions.ConnectionError):
             await ctx.send('The command failed due to connection issues.')
             return
     await ctx.send('The command crashed, a report was sent to the dev.')
@@ -113,8 +112,8 @@ async def diary(ctx, arg):
 @bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
 async def crew(ctx, *, arg):
     try:
-        crew = lbxd.crew.Crew(arg, ctx.invoked_with)
-        msg = crew.embed
+        cmd_crew = lbxd.crew.Crew(arg, ctx.invoked_with)
+        msg = cmd_crew.embed
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -141,9 +140,9 @@ async def check_if_two_args(ctx):
     return len(msg) > 2
 
 
-@bot.command(aliases=['l'])
+@bot.command(aliases=['l'], name='list')
 @commands.check(check_if_two_args)
-async def list(ctx, username, *args):
+async def list_(ctx, username, *args):
     try:
         cmd_user = lbxd.user.User(username, False)
         cmd_list = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
@@ -155,10 +154,10 @@ async def list(ctx, username, *args):
 
 @bot.command(aliases=['r'])
 @commands.check(check_if_two_args)
-async def review(ctx, user, *args):
+async def review(ctx, username, *args):
     try:
         cmd_film = lbxd.film.Film(' '.join(str(i) for i in args), False)
-        cmd_user = lbxd.user.User(user, False)
+        cmd_user = lbxd.user.User(username, False)
         cmd_review = lbxd.review.Review(cmd_user, cmd_film)
         msg = cmd_review.embed
     except lbxd.exceptions.LbxdErrors as err:

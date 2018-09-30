@@ -118,18 +118,17 @@ class User:
         check_album = self.__update_favs()
         if check_album:
             return check_album
-        else:
-            self.__download_fav_posters()
-            self._img_cmd += '+append {}/fav.jpg'.format(self.username)
-            subprocess.call(self._img_cmd, shell=True)
-            with open('{}/fav.jpg'.format(self.username), 'rb') as pic:
-                bin_pic = pic.read()
-            result = cloudinary.uploader.upload(
-                bin_pic,
-                public_id=self.username,
-                folder='bot favs',
-                tags=self._fav_posters)
-            return result['url']
+        self.__download_fav_posters()
+        self._img_cmd += '+append {}/fav.jpg'.format(self.username)
+        subprocess.call(self._img_cmd, shell=True)
+        with open('{}/fav.jpg'.format(self.username), 'rb') as pic:
+            bin_pic = pic.read()
+        result = cloudinary.uploader.upload(
+            bin_pic,
+            public_id=self.username,
+            folder='bot favs',
+            tags=self._fav_posters)
+        return result['url']
 
     def __update_favs(self):
         details_id = urllib.parse.quote(
