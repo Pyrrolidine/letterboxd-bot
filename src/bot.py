@@ -4,14 +4,16 @@ import lbxd
 import config
 import asyncio
 import requests
+import logging
 
+logging.basicConfig(level=logging.INFO)
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
 
 
 @bot.event
 async def on_ready():
-    print('Logged in {0} servers as {1}'.format(
+    logging.info('Logged in {0} servers as {1}'.format(
         len(bot.guilds), bot.user.name))
     bot.loop.create_task(update_stats())
 
@@ -45,7 +47,7 @@ async def on_command_error(ctx, error):
             await ctx.send('The command failed due to connection issues.')
             return
     await ctx.send('The command crashed, a report was sent to the dev.')
-    print(ctx.message.content)
+    logging.error(ctx.message.content)
     raise error
 
 

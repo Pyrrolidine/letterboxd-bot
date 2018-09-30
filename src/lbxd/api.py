@@ -3,6 +3,7 @@ import hmac
 import time
 import uuid
 import requests
+import logging
 from .exceptions import LbxdServerError
 
 # Credits for this file goes to bobtiki
@@ -31,7 +32,7 @@ class API:
         except requests.exceptions.RequestException as error:
             if error.response is not None and error.response.status_code == 404:
                 return ''
-            print('API Error:\n' + str(error))
+            logging.warning('API Error:\n' + str(error))
             raise LbxdServerError('A request to the Letterboxd API failed.' +
                                   ' This may be due to a server issue.')
         return response
