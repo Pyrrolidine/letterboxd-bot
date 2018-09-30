@@ -1,7 +1,10 @@
-import config
-from discord import Embed
-from .api import API
 from html.parser import HTMLParser
+
+from discord import Embed
+
+import config
+
+from .api import API
 
 api = API(config.letterboxd['api_base'], config.letterboxd['api_key'],
           config.letterboxd['api_secret'])
@@ -28,6 +31,6 @@ def format_text(input_html, max_char):
 def create_embed(title, url, descript, thumbnail_url, image_url=''):
     embed = Embed(title=title, url=url, colour=0xd8b437, description=descript)
     embed.set_thumbnail(url=thumbnail_url)
-    if len(image_url):
+    if image_url:
         embed.set_image(url=image_url)
     return embed

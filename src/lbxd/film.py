@@ -1,8 +1,11 @@
+import re
+
+import requests
+
+import config
+
 from .core import api, create_embed
 from .exceptions import LbxdNotFound
-import config
-import requests
-import re
 
 
 class Film:
@@ -53,7 +56,7 @@ class Film:
             params = {'input': keywords, 'include': 'FilmSearchItem'}
             response = api.api_call('search', params)
             results = response.json()['items']
-            if not len(results):
+            if not results:
                 raise LbxdNotFound('No film was found with this search.')
             if self.has_year:
                 for result in results:
@@ -86,7 +89,7 @@ class Film:
             if poster['height'] > 400:
                 self.poster_path = poster['url']
                 break
-        if not len(self.poster_path):
+        if not self.poster_path:
             self.poster_path = film_json['poster']['sizes'][0]['url']
 
     def create_description(self):
@@ -105,7 +108,7 @@ class Film:
                     director_count += 1
                     director_str += director['name'] + ', '
                 break
-        if len(director_str):
+        if director_str:
             if director_count > 1:
                 text += '**Directors:** '
             else:
@@ -121,7 +124,7 @@ class Film:
         for genre in film_json['genres']:
             genres_str += genre['name'] + ', '
             genres_count += 1
-        if len(genres_str):
+        if genres_str:
             if genres_count > 1:
                 text += '**Genres:** '
             else:
@@ -148,7 +151,7 @@ class Film:
                         country_str += 'USA, '
                     else:
                         country_str += country['name'] + ', '
-                if len(country_str):
+                if country_str:
                     if country_count > 1:
                         country_text += '**Countries:** '
                     else:

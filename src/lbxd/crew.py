@@ -1,7 +1,9 @@
+import requests
+
+import config
+
 from .core import api, create_embed
 from .exceptions import LbxdNotFound
-import config
-import requests
 
 
 class Crew:
@@ -35,7 +37,7 @@ class Crew:
             elif alias in ['d', 'director']:
                 params['contributionType'] = 'Director'
             response = api.api_call('search', params)
-            if not len(response.json()['items']):
+            if not response.json()['items']:
                 raise LbxdNotFound('No person was found with this search.')
             person_json = response.json()['items'][0]['contributor']
         return person_json
@@ -83,7 +85,7 @@ class Crew:
             person_img = api.session.get(self._api_url + '/images?api_key={}'.
                                          format(config.keys['tmdb']))
             person_img.raise_for_status()
-            if not len(person_img.json()['profiles']):
+            if not person_img.json()['profiles']:
                 return ''
             img_url = 'https://image.tmdb.org/t/p/w200'
             highest_vote = 0

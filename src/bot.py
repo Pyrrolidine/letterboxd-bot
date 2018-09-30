@@ -1,10 +1,12 @@
-import discord
-from discord.ext import commands
-import lbxd
-import config
 import asyncio
-import requests
 import logging
+
+import discord
+import requests
+from discord.ext import commands
+
+import config
+import lbxd
 
 logging.basicConfig(level=logging.INFO)
 bot = commands.Bot(command_prefix='!', case_insensitive=True)

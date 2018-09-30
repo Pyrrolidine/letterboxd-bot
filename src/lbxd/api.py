@@ -1,16 +1,20 @@
 import hashlib
 import hmac
+import logging
 import time
 import uuid
-import requests
-import logging
-from .exceptions import LbxdServerError
 
-# Credits for this file goes to bobtiki
-# https://github.com/bobtiki/letterboxd
+import requests
+
+from .exceptions import LbxdServerError
 
 
 class API:
+    """
+    Class to handle the requests to the Letterboxd API
+    Credits for this file goes to bobtiki (https://github.com/bobtiki/letterboxd)
+    """
+
     def __init__(self, api_base, api_key, api_secret):
         self._api_base = api_base
         self._api_key = api_key

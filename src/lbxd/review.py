@@ -1,4 +1,4 @@
-from .core import api, format_text, create_embed
+from .core import api, create_embed, format_text
 from .exceptions import LbxdNotFound
 
 
@@ -66,17 +66,18 @@ class Review:
                 description += ' ♥'
             description += '\n'
             if not preview_done:
-                preview = self.__create_preview(review)
-                if len(preview):
+                preview = create_preview(review)
+                if preview:
                     description += preview
                     preview_done = True
         return description
 
-    def __create_preview(self, review):
-        preview = ''
-        if review.get('review'):
-            if review['review']['containsSpoilers']:
-                preview += '```This review may contain spoilers.```'
-            else:
-                preview += format_text(review['review']['lbml'], 400)
-        return preview
+
+def create_preview(review):
+    preview = ''
+    if review.get('review'):
+        if review['review']['containsSpoilers']:
+            preview += '```This review may contain spoilers.```'
+        else:
+            preview += format_text(review['review']['lbml'], 400)
+    return preview

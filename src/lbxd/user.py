@@ -1,11 +1,14 @@
-from .core import api, create_embed
-from .exceptions import LbxdNotFound
-import config
-import subprocess
 import os
+import subprocess
+import urllib.request
+
 import cloudinary
 import cloudinary.uploader
-import urllib.request
+
+import config
+
+from .core import api, create_embed
+from .exceptions import LbxdNotFound
 
 cloudinary.config(
     cloud_name=config.cloudinary['cloud_name'],
@@ -24,12 +27,12 @@ class User:
         self.url = 'https://letterboxd.com/{}'.format(username)
         self.lbxd_id = self.__check_if_fixed_search()
         fav_img_link = ''
-        if not len(self.lbxd_id):
+        if not self.lbxd_id:
             self.lbxd_id = self.__search_profile()
         description = self.__get_user_infos(with_info)
         if not with_info:
             return
-        if len(self._fav_posters_link):
+        if self._fav_posters_link:
             if not os.path.exists(username):
                 os.popen('mkdir ' + self.username)
             fav_img_link = self.__upload_cloudinary()
@@ -56,7 +59,7 @@ class User:
         }
         while True:
             response = api.api_call('search', params).json()
-            if not len(response['items']):
+            if not response['items']:
                 break
             for result in response['items']:
                 if result['member']['username'].lower() == self.username:
@@ -113,7 +116,7 @@ class User:
 
     def __upload_cloudinary(self):
         check_album = self.__update_favs()
-        if len(check_album):
+        if check_album:
             return check_album
         else:
             self.__download_fav_posters()

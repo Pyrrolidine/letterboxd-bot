@@ -1,4 +1,4 @@
-from .core import api, format_text, create_embed
+from .core import api, create_embed, format_text
 from .exceptions import LbxdNotFound
 
 
@@ -45,7 +45,7 @@ class List:
         description += list_json['whenPublished'].split('T')[0].strip() + '\n'
         if list_json.get('descriptionLbml'):
             description += format_text(list_json['descriptionLbml'], 300)
-        if len(list_json['previewEntries']):
+        if list_json['previewEntries']:
             poster_json = list_json['previewEntries'][0]['film'].get('poster')
             if poster_json:
                 film_posters = poster_json
