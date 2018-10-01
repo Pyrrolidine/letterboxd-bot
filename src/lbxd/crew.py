@@ -66,7 +66,7 @@ def __get_dates(api_url):
         return ''
 
     for element in person_tmdb.json():
-        if person_tmdb.json()[element] is None:
+        if not person_tmdb.json()[element]:
             continue
         if element == 'birthday':
             details_text += '**Birthday:** ' \
