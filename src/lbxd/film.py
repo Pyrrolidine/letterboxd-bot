@@ -23,7 +23,7 @@ class Film:
         self.__get_details(film_json)
         if not with_info:
             return
-        description = self.create_description()
+        description = self.__create_description()
         if with_mkdb:
             description += self.__get_mkdb_rating()
         description += self.__get_stats()
@@ -93,7 +93,7 @@ class Film:
         if not self.poster_path:
             self.poster_path = film_json['poster']['sizes'][0]['url']
 
-    def create_description(self):
+    def __create_description(self):
         text = ''
         film_json = api.api_call('film/{}'.format(self.lbxd_id)).json()
 
@@ -116,7 +116,7 @@ class Film:
                 text += '**Director:** '
             text += director_str[:-2] + '\n'
 
-        text += self.get_countries()
+        text += self.__get_countries()
         runtime = film_json.get('runTime')
         text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
@@ -134,7 +134,7 @@ class Film:
 
         return text
 
-    def get_countries(self):
+    def __get_countries(self):
         api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
                   + '?api_key=' + config.keys['tmdb']
         country_text = ''
