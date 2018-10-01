@@ -79,7 +79,7 @@ async def helplb(ctx):
     help_embed.set_footer(
         text='Created by Porkepik#2664',
         icon_url='https://i.imgur.com/li4cLpd.png')
-    for key, value in config.help_text.items():
+    for key, value in config.settings['help'].items():
         help_embed.add_field(name=key, value=value, inline=False)
     help_embed.description = '[Invite Bot](https://discordapp.com/oauth2'\
         + '/authorize?client_id=437737824255737857'\
@@ -121,7 +121,7 @@ async def crew(ctx, *, arg):
 async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
-        if ctx.guild is not None and ctx.guild.id in config.mkdb_servers:
+        if ctx.guild and ctx.guild.id in config.settings['mkdb_servers']:
             cmd_film = lbxd.film.Film(arg, True, True)
         else:
             cmd_film = lbxd.film.Film(arg)
@@ -196,4 +196,4 @@ async def delete(ctx):
         await cmd_message.delete()
 
 
-bot.run(config.keys['discord'])
+bot.run(config.settings['discord'])

@@ -4,7 +4,7 @@ import requests
 
 import config
 
-from .core import api, __create_embed
+from .core import api, create_embed
 from .exceptions import LbxdNotFound
 
 
@@ -30,8 +30,8 @@ class Film:
         title = self.title
         if self.year:
             title += ' (' + str(self.year) + ')'
-        self.embed = __create_embed(title, self.lbxd_url, description,
-                                    self.poster_path)
+        self.embed = create_embed(title, self.lbxd_url, description,
+                                  self.poster_path)
 
     def __check_year(self, keywords):
         last_word = keywords.split()[-1]
@@ -41,7 +41,7 @@ class Film:
         return ''
 
     def __check_if_fixed_search(self, keywords):
-        for title, lbxd_id in config.fixed_film_search.items():
+        for title, lbxd_id in config.settings['fixed_film_search'].items():
             if title.lower() == keywords.lower():
                 self.fixed_search = True
                 return lbxd_id
@@ -136,7 +136,7 @@ class Film:
 
     def __get_countries(self):
         api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
-                  + '?api_key=' + config.keys['tmdb']
+                  + '?api_key=' + config.settings['tmdb']
         country_text = ''
         try:
             response = api.session.get(api_url)

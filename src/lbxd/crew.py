@@ -2,7 +2,7 @@ import requests
 
 import config
 
-from .core import api, __create_embed
+from .core import api, create_embed
 from .exceptions import LbxdNotFound
 
 
@@ -12,12 +12,12 @@ def crew_embed(input_name, alias):
     person_json = __search_letterboxd(input_name, alias, lbxd_id, fixed_search)
     description = __get_details(person_json, crew_dict)
     description += __get_dates(crew_dict['api_url'])
-    return __create_embed(crew_dict['name'], crew_dict['url'], description,
-                          __get_picture(crew_dict['api_url']))
+    return create_embed(crew_dict['name'], crew_dict['url'], description,
+                        __get_picture(crew_dict['api_url']))
 
 
 def __check_if_fixed_search(keywords):
-    for name, lbxd_id in config.fixed_crew_search.items():
+    for name, lbxd_id in config.settings['fixed_crew_search'].items():
         if name.lower() == keywords.lower():
             return lbxd_id, True
     return '', False
@@ -58,7 +58,7 @@ def __get_details(person_json, crew_dict):
 
 def __get_dates(api_url):
     details_text = ''
-    url = api_url + '?api_key={}'.format(config.keys['tmdb'])
+    url = api_url + '?api_key={}'.format(config.setttings['tmdb'])
     try:
         person_tmdb = api.session.get(url)
         person_tmdb.raise_for_status()
@@ -83,7 +83,7 @@ def __get_dates(api_url):
 def __get_picture(api_url):
     try:
         person_img = api.session.get(
-            api_url + '/images?api_key={}'.format(config.keys['tmdb']))
+            api_url + '/images?api_key={}'.format(config.settings['tmdb']))
         person_img.raise_for_status()
         if not person_img.json()['profiles']:
             return ''

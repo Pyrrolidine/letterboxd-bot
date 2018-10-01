@@ -1,11 +1,11 @@
-from .core import api, __create_embed
+from .core import api, create_embed
 
 
 def diary_embed(user):
     url = user.url + '/films/diary'
     title = 'Recent diary activity from {}'.format(user.display_name)
-    return __create_embed(title, url, __get_activity(user.lbxd_id),
-                          user.avatar_url)
+    return create_embed(title, url, __get_activity(user.lbxd_id),
+                        user.avatar_url)
 
 
 def __get_activity(lbxd_id):

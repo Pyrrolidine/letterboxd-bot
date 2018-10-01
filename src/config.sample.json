@@ -32,10 +32,8 @@
         "!diary <username>": "Displays the recent diary entries from the specified member.",
         "!del": "Deletes the last message the bot sent in a channel."
     },
-    "keys": {
-        "discord": "",
-        "tmdb": ""
-    },
+    "discord": "",
+    "tmdb": "",
     "letterboxd": {
         "api_base": "https://api.letterboxd.com/api/v0",
         "api_key": "",
