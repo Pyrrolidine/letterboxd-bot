@@ -102,8 +102,7 @@ async def user(ctx, arg):
 async def diary(ctx, arg):
     try:
         cmd_user = lbxd.user.User(arg, False)
-        cmd_diary = lbxd.diary.Diary(cmd_user)
-        msg = cmd_diary.embed
+        msg = lbxd.diary.diary_embed(cmd_user)
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -112,8 +111,7 @@ async def diary(ctx, arg):
 @bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
 async def crew(ctx, *, arg):
     try:
-        cmd_crew = lbxd.crew.Crew(arg, ctx.invoked_with)
-        msg = cmd_crew.embed
+        msg = lbxd.crew.crew_embed(arg, ctx.invoked_with)
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -145,8 +143,7 @@ async def check_if_two_args(ctx):
 async def list_(ctx, username, *args):
     try:
         cmd_user = lbxd.user.User(username, False)
-        cmd_list = lbxd.list_.List(cmd_user, ' '.join(str(i) for i in args))
-        msg = cmd_list.embed
+        msg = lbxd.list_.list_embed(cmd_user, ' '.join(str(i) for i in args))
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -158,8 +155,7 @@ async def review(ctx, username, *args):
     try:
         cmd_film = lbxd.film.Film(' '.join(str(i) for i in args), False)
         cmd_user = lbxd.user.User(username, False)
-        cmd_review = lbxd.review.Review(cmd_user, cmd_film)
-        msg = cmd_review.embed
+        msg = lbxd.review.review_embed(cmd_user, cmd_film)
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)

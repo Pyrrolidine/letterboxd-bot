@@ -82,7 +82,7 @@ class User:
         member_json = member_response.json()
         self.avatar_url = member_json['avatar']['sizes'][-1]['url']
         if not with_info:
-            return
+            return ''
         description = '**'
         if member_json.get('location'):
             description += member_json['location'] + '** -- **'

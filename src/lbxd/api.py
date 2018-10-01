@@ -21,8 +21,10 @@ class API:
         self._api_secret = api_secret
         self.session = requests.Session()
 
-    def api_call(self, path, params={}):
+    def api_call(self, path, params=None):
         url = f'{self._api_base}/{path}'
+        if not params:
+            params = dict()
         params = self.__add_unique_params(params)
         request = requests.Request('GET', url, params=params)
         prepared_request = self.session.prepare_request(request)
