@@ -6,9 +6,9 @@ import config
 
 from .api import API
 
-api = API(config.settings['letterboxd']['api_base'],
-          config.settings['letterboxd']['api_key'],
-          config.settings['letterboxd']['api_secret'])
+api = API(config.SETTINGS['letterboxd']['api_base'],
+          config.SETTINGS['letterboxd']['api_key'],
+          config.SETTINGS['letterboxd']['api_secret'])
 
 
 class BotHTMLParser(HTMLParser):

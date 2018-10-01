@@ -17,7 +17,7 @@ def crew_embed(input_name, alias):
 
 
 def __check_if_fixed_search(keywords):
-    for name, lbxd_id in config.settings['fixed_crew_search'].items():
+    for name, lbxd_id in config.SETTINGS['fixed_crew_search'].items():
         if name.lower() == keywords.lower():
             return lbxd_id, True
     return '', False
@@ -58,7 +58,7 @@ def __get_details(person_json, crew_dict):
 
 def __get_dates(api_url):
     details_text = ''
-    url = api_url + '?api_key={}'.format(config.setttings['tmdb'])
+    url = api_url + '?api_key={}'.format(config.SETTINGS['tmdb'])
     try:
         person_tmdb = api.session.get(url)
         person_tmdb.raise_for_status()
@@ -83,7 +83,7 @@ def __get_dates(api_url):
 def __get_picture(api_url):
     try:
         person_img = api.session.get(
-            api_url + '/images?api_key={}'.format(config.settings['tmdb']))
+            api_url + '/images?api_key={}'.format(config.SETTINGS['tmdb']))
         person_img.raise_for_status()
         if not person_img.json()['profiles']:
             return ''

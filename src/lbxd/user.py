@@ -11,9 +11,9 @@ from .core import api, create_embed
 from .exceptions import LbxdNotFound
 
 cloudinary.config(
-    cloud_name=config.settings['cloudinary']['cloud_name'],
-    api_key=config.settings['cloudinary']['api_key'],
-    api_secret=config.settings['cloudinary']['api_secret'])
+    cloud_name=config.SETTINGS['cloudinary']['cloud_name'],
+    api_key=config.SETTINGS['cloudinary']['api_key'],
+    api_secret=config.SETTINGS['cloudinary']['api_secret'])
 
 
 class User:
@@ -42,7 +42,7 @@ class User:
                                   self.avatar_url, fav_img_link)
 
     def __check_if_fixed_search(self):
-        for fixed_username, lbxd_id in config.settings[
+        for fixed_username, lbxd_id in config.SETTINGS[
                 'fixed_user_search'].items():
             if fixed_username.lower() == self.username:
                 api_path = 'member/{}'.format(lbxd_id)

@@ -41,7 +41,7 @@ class Film:
         return ''
 
     def __check_if_fixed_search(self, keywords):
-        for title, lbxd_id in config.settings['fixed_film_search'].items():
+        for title, lbxd_id in config.SETTINGS['fixed_film_search'].items():
             if title.lower() == keywords.lower():
                 self.fixed_search = True
                 return lbxd_id
@@ -136,7 +136,7 @@ class Film:
 
     def __get_countries(self):
         api_url = 'https://api.themoviedb.org/3/movie/' + self.tmdb_id\
-                  + '?api_key=' + config.settings['tmdb']
+                  + '?api_key=' + config.SETTINGS['tmdb']
         country_text = ''
         try:
             response = api.session.get(api_url)
