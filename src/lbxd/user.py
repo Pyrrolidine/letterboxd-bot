@@ -1,6 +1,5 @@
 import os
 import subprocess
-import urllib.request
 
 import cloudinary
 import cloudinary.uploader
@@ -20,7 +19,6 @@ class User:
     def __init__(self, username, with_info=True):
         self._img_cmd = 'convert '
         self._fav_posters_link = list()
-        self._fav_posters = ''
         self.avatar_url = ''
         self.display_name = ''
         self.username = username.lower()
@@ -102,8 +100,6 @@ class User:
             for link in fav_film['links']:
                 if link['type'] == 'letterboxd':
                     fav_url = link['url']
-                    temp_url = fav_url.replace('https://letterboxd.com', '')
-                    self._fav_posters += temp_url[:-1]
             description += '[{0}]({1})\n'.format(fav_name, fav_url)
         return description
 
@@ -116,28 +112,11 @@ class User:
                 handler.write(img_data)
 
     def __upload_cloudinary(self):
-        check_album = self.__update_favs()
-        if check_album:
-            return check_album
         self.__download_fav_posters()
         self._img_cmd += '+append {}/fav.jpg'.format(self.username)
         subprocess.call(self._img_cmd, shell=True)
         with open('{}/fav.jpg'.format(self.username), 'rb') as pic:
             bin_pic = pic.read()
         result = cloudinary.uploader.upload(
-            bin_pic,
-            public_id=self.username,
-            folder='bot favs',
-            tags=self._fav_posters)
+            bin_pic, public_id=self.username, folder='bot favs')
         return result['url']
-
-    def __update_favs(self):
-        details_id = urllib.parse.quote(
-            ('bot favs/' + self.username).encode('utf-8'), '')
-        try:
-            details = cloudinary.api.resource(details_id)
-            if details['tags'][0] == self._fav_posters:
-                return details['url']
-        except cloudinary.api.NotFound:
-            pass
-        return ''
