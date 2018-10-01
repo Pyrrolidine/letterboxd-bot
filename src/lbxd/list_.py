@@ -3,14 +3,12 @@ from .exceptions import LbxdNotFound
 
 
 def list_embed(user, keywords):
-    list_dict = {'name': '', 'url': '', 'poster_url': '', 'id': ''}
-    list_dict['id'] = __find_list(keywords, user.lbxd_id, list_dict)
-    description = __get_infos(list_dict)
-    return create_embed(list_dict['name'], list_dict['url'], description,
-                        list_dict['poster_url'])
+    list_id, name = __find_list(keywords, user.lbxd_id)
+    description, url, poster_url = __get_infos(list_id)
+    return create_embed(name, url, description, poster_url)
 
 
-def __find_list(keywords, user_lbxd_id, list_dict):
+def __find_list(keywords, user_lbxd_id):
     params = {
         'member': user_lbxd_id,
         'memberRelationship': 'Owner',
@@ -23,21 +21,21 @@ def __find_list(keywords, user_lbxd_id, list_dict):
         for word in keywords.lower().split():
             if word in user_list['name'].lower():
                 match = True
-                list_dict['name'] = user_list['name']
+                name = user_list['name']
             else:
                 match = False
                 break
         if match:
-            return user_list['id']
+            return user_list['id'], name
     raise LbxdNotFound('No list was found (limit to 50 most recent).\n' +
                        'Make sure the first word is a **username**.')
 
 
-def __get_infos(list_dict):
-    list_json = api.api_call('list/{}'.format(list_dict['id'])).json()
+def __get_infos(list_id):
+    list_json = api.api_call('list/{}'.format(list_id)).json()
     for link in list_json['links']:
         if link['type'] == 'letterboxd':
-            list_dict['url'] = link['url']
+            url = link['url']
             break
     description = 'By **' + list_json['owner']['displayName'] + '**\n'
     description += str(list_json['filmCount']) + ' films\nPublished '
@@ -50,6 +48,6 @@ def __get_infos(list_dict):
             film_posters = poster_json
             for poster in film_posters['sizes']:
                 if poster['height'] > 400:
-                    list_dict['poster_url'] = poster['url']
+                    poster_url = poster['url']
                     break
-    return description
+    return description, url, poster_url

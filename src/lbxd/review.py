@@ -3,37 +3,35 @@ from .exceptions import LbxdNotFound
 
 
 def review_embed(user, film):
-    review_dict = {'nb_reviews': 0, 'embed_url': ''}
     activity_url = film.lbxd_url.replace('.com/', '.com/{}/'.format(
         user.username)) + 'activity'
-    response = __find_reviews(user, film, review_dict)
-    description = __create_description(response, activity_url, review_dict)
+    response, nb_reviews = __find_reviews(user, film)
+    description, embed_url = __create_description(response, activity_url)
 
-    if review_dict['nb_reviews'] > 1:
-        review_dict['embed_url'] = activity_url
-    review_word = 'entries' if review_dict['nb_reviews'] > 1 else 'entry'
+    if nb_reviews > 1:
+        embed_url = activity_url
+    review_word = 'entries' if nb_reviews > 1 else 'entry'
     title = '{0} {1} of {2} ({3})'.format(user.display_name, review_word,
                                           film.title, film.year)
-    return create_embed(title, review_dict['embed_url'], description,
-                        film.poster_path)
+    return create_embed(title, embed_url, description, film.poster_path)
 
 
-def __find_reviews(user, film, review_dict):
+def __find_reviews(user, film):
     params = {
         'film': film.lbxd_id,
         'member': user.lbxd_id,
         'memberRelationship': 'Owner'
     }
     response = api.api_call('log-entries', params).json()
-    review_dict['nb_reviews'] = len(response['items'])
-    if not review_dict['nb_reviews']:
+    nb_reviews = len(response['items'])
+    if not nb_reviews:
         raise LbxdNotFound(
             '{0} does not have logged activity for {1} ({2}).'.format(
                 user.display_name, film.title, film.year))
-    return response
+    return response, nb_reviews
 
 
-def __create_description(response, activity_url, review_dict):
+def __create_description(response, activity_url):
     description = ''
     preview_done = False
     for review in response['items']:
@@ -43,13 +41,12 @@ def __create_description(response, activity_url, review_dict):
             break
         for link in review['links']:
             if link['type'] == 'letterboxd':
-                review_dict['embed_url'] = link['url']
+                review_link = link['url']
                 break
         word = 'Entry'
         if review.get('review'):
             word = 'Review'
-        description += '**[{}]('.format(
-            word) + review_dict['embed_url'] + ')** '
+        description += '**[{}]('.format(word) + review_link + ')** '
         if review.get('diaryDetails'):
             date = review['diaryDetails']['diaryDate']
             description += '**' + date + '** '
@@ -65,7 +62,7 @@ def __create_description(response, activity_url, review_dict):
             if preview:
                 description += preview
                 preview_done = True
-    return description
+    return description, review_link
 
 
 def __create_preview(review):
