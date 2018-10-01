@@ -4,6 +4,7 @@
         "api_secret": "",
         "cloud_name": ""
     },
+    "discord": "",
     "fixed_crew_search": {
         "Johnnie To": "2xkp",
         "McG": "2Rst"
@@ -32,12 +33,11 @@
         "!diary <username>": "Displays the recent diary entries from the specified member.",
         "!del": "Deletes the last message the bot sent in a channel."
     },
-    "discord": "",
-    "tmdb": "",
     "letterboxd": {
         "api_base": "https://api.letterboxd.com/api/v0",
         "api_key": "",
         "api_secret": ""
     },
-    "mkdb_servers": []
+    "mkdb_servers": [],
+    "tmdb": ""
 }
