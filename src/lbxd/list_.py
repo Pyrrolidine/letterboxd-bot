@@ -1,4 +1,4 @@
-from .core import api, create_embed, format_text
+from .core import api, __create_embed, __format_text
 from .exceptions import LbxdNotFound
 
 
@@ -6,8 +6,8 @@ def list_embed(user, keywords):
     list_dict = {'name': '', 'url': '', 'poster_url': '', 'id': ''}
     list_dict['id'] = __find_list(keywords, user.lbxd_id, list_dict)
     description = __get_infos(list_dict)
-    return create_embed(list_dict['name'], list_dict['url'], description,
-                        list_dict['poster_url'])
+    return __create_embed(list_dict['name'], list_dict['url'], description,
+                          list_dict['poster_url'])
 
 
 def __find_list(keywords, user_lbxd_id, list_dict):
@@ -43,7 +43,7 @@ def __get_infos(list_dict):
     description += str(list_json['filmCount']) + ' films\nPublished '
     description += list_json['whenPublished'].split('T')[0].strip() + '\n'
     if list_json.get('descriptionLbml'):
-        description += format_text(list_json['descriptionLbml'], 300)
+        description += __format_text(list_json['descriptionLbml'], 300)
     if list_json['previewEntries']:
         poster_json = list_json['previewEntries'][0]['film'].get('poster')
         if poster_json:

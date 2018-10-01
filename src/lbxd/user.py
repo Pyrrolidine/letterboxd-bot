@@ -7,7 +7,7 @@ import cloudinary.uploader
 
 import config
 
-from .core import api, create_embed
+from .core import api, __create_embed
 from .exceptions import LbxdNotFound
 
 cloudinary.config(
@@ -38,8 +38,8 @@ class User:
             fav_img_link = self.__upload_cloudinary()
             os.popen('rm -r ' + self.username)
 
-        self.embed = create_embed(self.display_name, self.url, description,
-                                  self.avatar_url, fav_img_link)
+        self.embed = __create_embed(self.display_name, self.url, description,
+                                    self.avatar_url, fav_img_link)
 
     def __check_if_fixed_search(self):
         for fixed_username, lbxd_id in config.fixed_user_search.items():

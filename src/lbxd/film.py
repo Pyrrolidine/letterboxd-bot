@@ -4,7 +4,7 @@ import requests
 
 import config
 
-from .core import api, create_embed
+from .core import api, __create_embed
 from .exceptions import LbxdNotFound
 
 
@@ -30,8 +30,8 @@ class Film:
         title = self.title
         if self.year:
             title += ' (' + str(self.year) + ')'
-        self.embed = create_embed(title, self.lbxd_url, description,
-                                  self.poster_path)
+        self.embed = __create_embed(title, self.lbxd_url, description,
+                                    self.poster_path)
 
     def __check_year(self, keywords):
         last_word = keywords.split()[-1]

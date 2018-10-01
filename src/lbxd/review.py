@@ -1,4 +1,4 @@
-from .core import api, create_embed, format_text
+from .core import api, __create_embed, __format_text
 from .exceptions import LbxdNotFound
 
 
@@ -14,8 +14,8 @@ def review_embed(user, film):
     review_word = 'entries' if review_dict['nb_reviews'] > 1 else 'entry'
     title = '{0} {1} of {2} ({3})'.format(user.display_name, review_word,
                                           film.title, film.year)
-    return create_embed(title, review_dict['embed_url'], description,
-                        film.poster_path)
+    return __create_embed(title, review_dict['embed_url'], description,
+                          film.poster_path)
 
 
 def __find_reviews(user, film, review_dict):
@@ -74,5 +74,5 @@ def __create_preview(review):
         if review['review']['containsSpoilers']:
             preview += '```This review may contain spoilers.```'
         else:
-            preview += format_text(review['review']['lbml'], 400)
+            preview += __format_text(review['review']['lbml'], 400)
     return preview

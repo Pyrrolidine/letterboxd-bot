@@ -20,7 +20,7 @@ class BotHTMLParser(HTMLParser):
 
 
 # Converting the review or list description in HTML to text
-def format_text(input_html, max_char):
+def __format_text(input_html, max_char):
     html = BotHTMLParser()
     html.feed(input_html)
     text = '```' + html.text[:max_char].strip()
@@ -28,7 +28,7 @@ def format_text(input_html, max_char):
     return text
 
 
-def create_embed(title, url, descript, thumbnail_url, image_url=''):
+def __create_embed(title, url, descript, thumbnail_url, image_url=''):
     embed = Embed(title=title, url=url, colour=0xd8b437, description=descript)
     embed.set_thumbnail(url=thumbnail_url)
     if image_url:

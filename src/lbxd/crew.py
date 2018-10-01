@@ -2,7 +2,7 @@ import requests
 
 import config
 
-from .core import api, create_embed
+from .core import api, __create_embed
 from .exceptions import LbxdNotFound
 
 
@@ -12,8 +12,8 @@ def crew_embed(input_name, alias):
     person_json = __search_letterboxd(input_name, alias, lbxd_id, fixed_search)
     description = __get_details(person_json, crew_dict)
     description += __get_dates(crew_dict['api_url'])
-    return create_embed(crew_dict['name'], crew_dict['url'], description,
-                        __get_picture(crew_dict['api_url']))
+    return __create_embed(crew_dict['name'], crew_dict['url'], description,
+                          __get_picture(crew_dict['api_url']))
 
 
 def __check_if_fixed_search(keywords):
