@@ -6,8 +6,9 @@ import uuid
 
 import requests
 
-from .exceptions import LbxdServerError
 from config import SETTINGS
+
+from .exceptions import LbxdServerError
 
 api_session = requests.Session()
 

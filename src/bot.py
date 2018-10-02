@@ -1,18 +1,18 @@
-from asyncio import sleep
 import logging
+from asyncio import sleep
 
 import discord
 import requests
 from discord.ext import commands
 
 from config import SETTINGS
+from lbxd.crew import crew_embed
+from lbxd.diary import diary_embed
 from lbxd.exceptions import LbxdErrors
 from lbxd.film import film_embed
-from lbxd.crew import crew_embed
-from lbxd.user import user_embed
 from lbxd.list_ import list_embed
 from lbxd.review import review_embed
-from lbxd.diary import diary_embed
+from lbxd.user import user_embed
 
 logging.basicConfig(level=logging.INFO)
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
