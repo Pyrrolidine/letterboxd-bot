@@ -1,4 +1,5 @@
-from .core import api, create_embed, format_text
+from .api import api_call
+from .core import create_embed, format_text
 from .exceptions import LbxdNotFound
 from .user import user_embed
 
@@ -17,7 +18,7 @@ def __find_list(keywords, user_lbxd_id):
         'perPage': 50,
         'where': 'Published'
     }
-    response = api.api_call('lists', params).json()
+    response = api_call('lists', params).json()
     match = False
     for user_list in response['items']:
         for word in keywords.lower().split():
@@ -34,7 +35,7 @@ def __find_list(keywords, user_lbxd_id):
 
 
 def __get_infos(list_id):
-    list_json = api.api_call('list/{}'.format(list_id)).json()
+    list_json = api_call('list/{}'.format(list_id)).json()
     for link in list_json['links']:
         if link['type'] == 'letterboxd':
             url = link['url']

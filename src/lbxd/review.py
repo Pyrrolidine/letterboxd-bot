@@ -1,4 +1,5 @@
-from .core import api, create_embed, format_text
+from .api import api_call
+from .core import create_embed, format_text
 from .exceptions import LbxdNotFound
 from .film import film_embed
 from .user import user_embed
@@ -29,7 +30,7 @@ def __find_reviews(user_lbxd_id, display_name, film_lbxd_id, film_title,
         'member': user_lbxd_id,
         'memberRelationship': 'Owner'
     }
-    response = api.api_call('log-entries', params).json()
+    response = api_call('log-entries', params).json()
     nb_reviews = len(response['items'])
     if not nb_reviews:
         raise LbxdNotFound(

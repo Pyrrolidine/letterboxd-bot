@@ -4,7 +4,8 @@ import requests
 
 from config import SETTINGS
 
-from .core import api, create_embed
+from .api import api_call, api_session
+from .core import create_embed
 from .exceptions import LbxdNotFound
 
 
@@ -45,10 +46,10 @@ def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id):
     if has_year:
         keywords = ' '.join(keywords.split()[:-1])
     if fixed_search:
-        film_json = api.api_call('film/{}'.format(lbxd_id)).json()
+        film_json = api_call('film/{}'.format(lbxd_id)).json()
     else:
         params = {'input': keywords, 'include': 'FilmSearchItem'}
-        response = api.api_call('search', params)
+        response = api_call('search', params)
         results = response.json()['items']
         if not results:
             raise LbxdNotFound('No film was found with this search.')
@@ -91,7 +92,7 @@ def __get_details(film_json):
 
 def __create_description(lbxd_id, tmdb_id, title):
     text = ''
-    film_json = api.api_call('film/{}'.format(lbxd_id)).json()
+    film_json = api_call('film/{}'.format(lbxd_id)).json()
 
     original_title = film_json.get('originalName')
     if original_title:
@@ -136,7 +137,7 @@ def __get_countries(tmdb_id, title):
                 + '?api_key=' + SETTINGS['tmdb']
     country_text = ''
     try:
-        response = api.session.get(api_url)
+        response = api_session.get(api_url)
         response.raise_for_status()
         country_str = ''
         country_count = 0
@@ -163,7 +164,7 @@ def __get_countries(tmdb_id, title):
 def __get_mkdb_rating(lbxd_url):
     mkdb_url = lbxd_url.replace('letterboxd.com', 'eiga.me/api')
     try:
-        page = api.session.get(mkdb_url + 'summary')
+        page = api_session.get(mkdb_url + 'summary')
         page.raise_for_status()
     except requests.exceptions.HTTPError:
         return ''
@@ -179,7 +180,7 @@ def __get_mkdb_rating(lbxd_url):
 
 def __get_stats(lbxd_id):
     text = ''
-    response = api.api_call('film/{}/statistics'.format(lbxd_id))
+    response = api_call('film/{}/statistics'.format(lbxd_id))
     stats_json = response.json()
     views = stats_json['counts']['watches']
     if views > 9999:

@@ -6,7 +6,8 @@ import cloudinary.uploader
 
 from config import SETTINGS
 
-from .core import api, create_embed
+from .api import api_call, api_session
+from .core import create_embed
 from .exceptions import LbxdNotFound
 
 cloudinary.config(
@@ -39,7 +40,7 @@ def __check_if_fixed_search(username):
     for fixed_username, lbxd_id in SETTINGS['fixed_user_search'].items():
         if fixed_username.lower() == username:
             api_path = 'member/{}'.format(lbxd_id)
-            member_json = api.api_call(api_path).json()
+            member_json = api_call(api_path).json()
             display_name = member_json['displayName']
             return lbxd_id, display_name
     return '', ''
@@ -53,7 +54,7 @@ def __search_profile(username):
         'perPage': '100'
     }
     while True:
-        response = api.api_call('search', params).json()
+        response = api_call('search', params).json()
         if not response['items']:
             break
         for result in response['items']:
@@ -69,7 +70,7 @@ def __search_profile(username):
 
 
 def __get_user_infos(username, with_info, lbxd_id):
-    member_response = api.api_call('member/{}'.format(lbxd_id))
+    member_response = api_call('member/{}'.format(lbxd_id))
     if member_response == '':
         raise LbxdNotFound(
             'The user **' + username +
@@ -83,7 +84,7 @@ def __get_user_infos(username, with_info, lbxd_id):
     if member_json.get('location'):
         description += member_json['location'] + '** -- **'
     stats_path = 'member/{}/statistics'.format(lbxd_id)
-    stats_json = api.api_call(stats_path).json()
+    stats_json = api_call(stats_path).json()
     description += str(stats_json['counts']['watches']) + ' films**\n'
 
     fav_posters_link = list()
@@ -106,7 +107,7 @@ def __upload_fav_posters(username, fav_posters_link):
     # Download posters
     img_cmd = 'convert '
     for index, fav_poster in enumerate(fav_posters_link):
-        img_data = api.session.get(fav_poster).content
+        img_data = api_session.get(fav_poster).content
         temp_fav = '{0}/fav{1}.jpg'.format(username, index)
         img_cmd += temp_fav + ' '
         with open(temp_fav, 'wb') as handler:

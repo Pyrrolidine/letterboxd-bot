@@ -41,7 +41,7 @@
         "Deletes the last message the bot sent in a channel."
     },
     "letterboxd": {
-        "api_base": "https://api.letterboxd.com/api/v0",
+        "api_base": "https://api.letterboxd.com/api/v0/",
         "api_key": "",
         "api_secret": ""
     },

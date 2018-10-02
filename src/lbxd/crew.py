@@ -2,7 +2,8 @@ import requests
 
 from config import SETTINGS
 
-from .core import api, create_embed
+from .api import api_call, api_session
+from .core import create_embed
 from .exceptions import LbxdNotFound
 
 
@@ -23,7 +24,7 @@ def __check_if_fixed_search(keywords):
 
 def __search_letterboxd(item, alias, lbxd_id, fixed_search):
     if fixed_search:
-        response = api.api_call('contributor/' + lbxd_id)
+        response = api_call('contributor/' + lbxd_id)
         person_json = response.json()
     else:
         params = {'input': item, 'include': 'ContributorSearchItem'}
@@ -31,7 +32,7 @@ def __search_letterboxd(item, alias, lbxd_id, fixed_search):
             params['contributionType'] = 'Actor'
         elif alias in ['d', 'director']:
             params['contributionType'] = 'Director'
-        response = api.api_call('search', params)
+        response = api_call('search', params)
         if not response.json()['items']:
             raise LbxdNotFound('No person was found with this search.')
         person_json = response.json()['items'][0]['contributor']
@@ -57,7 +58,7 @@ def __get_dates(api_url):
     details_text = ''
     url = api_url + '?api_key={}'.format(SETTINGS['tmdb'])
     try:
-        person_tmdb = api.session.get(url)
+        person_tmdb = api_session.get(url)
         person_tmdb.raise_for_status()
     except requests.exceptions.HTTPError:
         return ''
@@ -79,7 +80,7 @@ def __get_dates(api_url):
 
 def __get_picture(api_url):
     try:
-        person_img = api.session.get(
+        person_img = api_session.get(
             api_url + '/images?api_key={}'.format(SETTINGS['tmdb']))
         person_img.raise_for_status()
         if not person_img.json()['profiles']:

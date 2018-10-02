@@ -1,4 +1,5 @@
-from .core import api, create_embed
+from .api import api_call
+from .core import create_embed
 from .user import user_embed
 
 
@@ -16,7 +17,7 @@ def __get_activity(lbxd_id):
         'memberRelationship': 'Owner',
         'where': 'HasDiaryDate'
     }
-    response = api.api_call('log-entries', params)
+    response = api_call('log-entries', params)
     description = ''
     for n_entries, diary_entry in enumerate(response.json()['items']):
         if n_entries > 4:

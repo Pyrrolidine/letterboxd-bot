@@ -2,14 +2,6 @@ from html.parser import HTMLParser
 
 from discord import Embed
 
-from config import SETTINGS
-
-from .api import API
-
-api = API(SETTINGS['letterboxd']['api_base'],
-          SETTINGS['letterboxd']['api_key'],
-          SETTINGS['letterboxd']['api_secret'])
-
 
 class BotHTMLParser(HTMLParser):
     def __init__(self):
