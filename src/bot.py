@@ -6,7 +6,13 @@ import requests
 from discord.ext import commands
 
 from config import SETTINGS
-import lbxd
+from lbxd.exceptions import LbxdErrors
+from lbxd.film import film_embed
+from lbxd.crew import crew_embed
+from lbxd.user import user_embed
+from lbxd.list_ import list_embed
+from lbxd.review import review_embed
+from lbxd.diary import diary_embed
 
 logging.basicConfig(level=logging.INFO)
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
@@ -92,8 +98,8 @@ async def helplb(ctx):
 @bot.command(aliases=['u'])
 async def user(ctx, arg):
     try:
-        msg = lbxd.user.user_embed(arg)
-    except lbxd.exceptions.LbxdErrors as err:
+        msg = user_embed(arg)
+    except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -101,8 +107,8 @@ async def user(ctx, arg):
 @bot.command()
 async def diary(ctx, username):
     try:
-        msg = lbxd.diary.diary_embed(username)
-    except lbxd.exceptions.LbxdErrors as err:
+        msg = diary_embed(username)
+    except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -110,8 +116,8 @@ async def diary(ctx, username):
 @bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
 async def crew(ctx, *, arg):
     try:
-        msg = lbxd.crew.crew_embed(arg, ctx.invoked_with)
-    except lbxd.exceptions.LbxdErrors as err:
+        msg = crew_embed(arg, ctx.invoked_with)
+    except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -121,10 +127,10 @@ async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
         if ctx.guild and ctx.guild.id in SETTINGS['mkdb_servers']:
-            msg = lbxd.film.film_embed(arg, True, True)
+            msg = film_embed(arg, True, True)
         else:
-            msg = lbxd.film.film_embed(arg)
-    except lbxd.exceptions.LbxdErrors as err:
+            msg = film_embed(arg)
+    except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -140,8 +146,8 @@ async def check_if_two_args(ctx):
 @commands.check(check_if_two_args)
 async def list_(ctx, username, *args):
     try:
-        msg = lbxd.list_.list_embed(username, ' '.join(str(i) for i in args))
-    except lbxd.exceptions.LbxdErrors as err:
+        msg = list_embed(username, ' '.join(str(i) for i in args))
+    except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -150,9 +156,8 @@ async def list_(ctx, username, *args):
 @commands.check(check_if_two_args)
 async def review(ctx, username, *args):
     try:
-        msg = lbxd.review.review_embed(username, ' '.join(
-            str(i) for i in args))
-    except lbxd.exceptions.LbxdErrors as err:
+        msg = review_embed(username, ' '.join(str(i) for i in args))
+    except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
