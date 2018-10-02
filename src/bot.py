@@ -123,10 +123,9 @@ async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
         if ctx.guild and ctx.guild.id in config.SETTINGS['mkdb_servers']:
-            cmd_film = lbxd.film.Film(arg, True, True)
+            msg = lbxd.film.film_embed(arg, True, True)
         else:
-            cmd_film = lbxd.film.Film(arg)
-        msg = cmd_film.embed
+            msg = lbxd.film.film_embed(arg)
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -154,9 +153,8 @@ async def list_(ctx, username, *args):
 @commands.check(check_if_two_args)
 async def review(ctx, username, *args):
     try:
-        cmd_film = lbxd.film.Film(' '.join(str(i) for i in args), False)
-        cmd_user = lbxd.user.User(username, False)
-        msg = lbxd.review.review_embed(cmd_user, cmd_film)
+        msg = lbxd.review.review_embed(username, ' '.join(
+            str(i) for i in args))
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)

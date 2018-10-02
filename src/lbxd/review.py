@@ -1,24 +1,30 @@
 from .core import api, create_embed, format_text
 from .exceptions import LbxdNotFound
+from .film import film_embed
+from .user import User
 
 
-def review_embed(user, film):
-    activity_url = film.lbxd_url.replace('.com/', '.com/{}/'.format(
+def review_embed(username, film_search):
+    user = User(username, False)
+    film_lbxd_id, film_title, film_year, poster_path, film_lbxd_url = film_embed(
+        film_search, False)
+    activity_url = film_lbxd_url.replace('.com/', '.com/{}/'.format(
         user.username)) + 'activity'
-    response, nb_reviews = __find_reviews(user, film)
+    response, nb_reviews = __find_reviews(user, film_lbxd_id, film_title,
+                                          film_year)
     description, embed_url = __create_description(response, activity_url)
 
     if nb_reviews > 1:
         embed_url = activity_url
     review_word = 'entries' if nb_reviews > 1 else 'entry'
     title = '{0} {1} of {2} ({3})'.format(user.display_name, review_word,
-                                          film.title, film.year)
-    return create_embed(title, embed_url, description, film.poster_path)
+                                          film_title, film_year)
+    return create_embed(title, embed_url, description, poster_path)
 
 
-def __find_reviews(user, film):
+def __find_reviews(user, film_lbxd_id, film_title, film_year):
     params = {
-        'film': film.lbxd_id,
+        'film': film_lbxd_id,
         'member': user.lbxd_id,
         'memberRelationship': 'Owner'
     }
@@ -27,7 +33,7 @@ def __find_reviews(user, film):
     if not nb_reviews:
         raise LbxdNotFound(
             '{0} does not have logged activity for {1} ({2}).'.format(
-                user.display_name, film.title, film.year))
+                user.display_name, film_title, film_year))
     return response, nb_reviews
 
 
