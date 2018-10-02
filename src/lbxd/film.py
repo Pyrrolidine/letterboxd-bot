@@ -99,15 +99,13 @@ def __create_description(lbxd_id, tmdb_id, title):
         text += '**Original Title:** ' + original_title + '\n'
 
     director_str = ''
-    director_count = 0
     for contribution in film_json['contributions']:
         if contribution['type'] == 'Director':
-            for director in contribution['contributors']:
-                director_count += 1
+            for dir_count, director in enumerate(contribution['contributors']):
                 director_str += director['name'] + ', '
             break
     if director_str:
-        if director_count > 1:
+        if dir_count > 1:
             text += '**Directors:** '
         else:
             text += '**Director:** '
@@ -118,10 +116,8 @@ def __create_description(lbxd_id, tmdb_id, title):
     text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
     genres_str = ''
-    genres_count = 0
-    for genre in film_json['genres']:
+    for genres_count, genre in enumerate(film_json['genres']):
         genres_str += genre['name'] + ', '
-        genres_count += 1
     if genres_str:
         if genres_count > 1:
             text += '**Genres:** '
@@ -140,10 +136,9 @@ def __get_countries(tmdb_id, title):
         response = api_session.get(api_url)
         response.raise_for_status()
         country_str = ''
-        country_count = 0
         if response.json()['title'] == title:
-            for country in response.json()['production_countries']:
-                country_count += 1
+            for count, country in enumerate(
+                    response.json()['production_countries']):
                 if country['name'] == 'United Kingdom':
                     country_str += 'UK, '
                 elif country['name'] == 'United States of America':
@@ -151,7 +146,7 @@ def __get_countries(tmdb_id, title):
                 else:
                     country_str += country['name'] + ', '
             if country_str:
-                if country_count > 1:
+                if count > 1:
                     country_text += '**Countries:** '
                 else:
                     country_text += '**Country:** '
