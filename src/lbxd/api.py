@@ -17,7 +17,7 @@ def api_call(path, params=None):
     url = SETTINGS['letterboxd']['api_base'] + path
     if not params:
         params = dict()
-    params = __add_unique_params(params)
+    __add_unique_params(params)
     request = requests.Request('GET', url, params=params)
     prepared_request = api_session.prepare_request(request)
     signature = __sign(
@@ -40,7 +40,6 @@ def __add_unique_params(params):
     params['apikey'] = SETTINGS['letterboxd']['api_key']
     params['nonce'] = uuid.uuid4()
     params['timestamp'] = int(time.time())
-    return params
 
 
 def __sign(method, url, body=''):
