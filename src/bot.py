@@ -1,11 +1,11 @@
-import asyncio
+from asyncio import sleep
 import logging
 
 import discord
 import requests
 from discord.ext import commands
 
-import config
+from config import SETTINGS
 import lbxd
 
 logging.basicConfig(level=logging.INFO)
@@ -25,7 +25,7 @@ async def update_stats():
         await bot.change_presence(
             activity=discord.Game('!helplb - {} servers'.format(
                 len(bot.guilds))))
-        await asyncio.sleep(900)
+        await sleep(900)
 
 
 @bot.event
@@ -61,8 +61,8 @@ async def send_msg(ctx, msg):
 
 @bot.event
 async def on_command_completion(ctx):
-    if config.SETTINGS['log_channel']:
-        log_channel = bot.get_channel(config.SETTINGS['log_channel'])
+    if SETTINGS['log_channel']:
+        log_channel = bot.get_channel(SETTINGS['log_channel'])
         await log_channel.send(ctx.command.name)
 
 
@@ -80,7 +80,7 @@ async def helplb(ctx):
     help_embed.set_footer(
         text='Created by Porkepik#2664',
         icon_url='https://i.imgur.com/li4cLpd.png')
-    for key, value in config.SETTINGS['help'].items():
+    for key, value in SETTINGS['help'].items():
         help_embed.add_field(name=key, value=value, inline=False)
     help_embed.description = '[Invite Bot](https://discordapp.com/oauth2'\
         + '/authorize?client_id=437737824255737857'\
@@ -92,18 +92,16 @@ async def helplb(ctx):
 @bot.command(aliases=['u'])
 async def user(ctx, arg):
     try:
-        cmd_user = lbxd.user.User(arg)
-        msg = cmd_user.embed
+        msg = lbxd.user.user_embed(arg)
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
 
 
 @bot.command()
-async def diary(ctx, arg):
+async def diary(ctx, username):
     try:
-        cmd_user = lbxd.user.User(arg, False)
-        msg = lbxd.diary.diary_embed(cmd_user)
+        msg = lbxd.diary.diary_embed(username)
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -122,7 +120,7 @@ async def crew(ctx, *, arg):
 async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
-        if ctx.guild and ctx.guild.id in config.SETTINGS['mkdb_servers']:
+        if ctx.guild and ctx.guild.id in SETTINGS['mkdb_servers']:
             msg = lbxd.film.film_embed(arg, True, True)
         else:
             msg = lbxd.film.film_embed(arg)
@@ -142,8 +140,7 @@ async def check_if_two_args(ctx):
 @commands.check(check_if_two_args)
 async def list_(ctx, username, *args):
     try:
-        cmd_user = lbxd.user.User(username, False)
-        msg = lbxd.list_.list_embed(cmd_user, ' '.join(str(i) for i in args))
+        msg = lbxd.list_.list_embed(username, ' '.join(str(i) for i in args))
     except lbxd.exceptions.LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -195,4 +192,4 @@ async def delete(ctx):
         await cmd_message.delete()
 
 
-bot.run(config.SETTINGS['discord'])
+bot.run(SETTINGS['discord'])

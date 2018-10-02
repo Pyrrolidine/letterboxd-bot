@@ -1,9 +1,11 @@
 from .core import api, create_embed, format_text
 from .exceptions import LbxdNotFound
+from .user import user_embed
 
 
-def list_embed(user, keywords):
-    list_id, name = __find_list(keywords, user.lbxd_id)
+def list_embed(username, keywords):
+    __, __, user_lbxd_id, __ = user_embed(username, False)
+    list_id, name = __find_list(keywords, user_lbxd_id)
     description, url, poster_url = __get_infos(list_id)
     return create_embed(name, url, description, poster_url)
 

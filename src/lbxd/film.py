@@ -1,8 +1,8 @@
-import re
+from re import fullmatch
 
 import requests
 
-import config
+from config import SETTINGS
 
 from .core import api, create_embed
 from .exceptions import LbxdNotFound
@@ -28,13 +28,13 @@ def film_embed(keywords, with_info=True, with_mkdb=False):
 
 def __check_year(keywords):
     last_word = keywords.split()[-1]
-    if re.fullmatch(r'\(\d{4}\)', last_word):
+    if fullmatch(r'\(\d{4}\)', last_word):
         return last_word.replace('(', '').replace(')', ''), True
     return '', False
 
 
 def __check_if_fixed_search(keywords):
-    for title, lbxd_id in config.SETTINGS['fixed_film_search'].items():
+    for title, lbxd_id in SETTINGS['fixed_film_search'].items():
         if title.lower() == keywords.lower():
             return lbxd_id, True
     return '', False
@@ -133,7 +133,7 @@ def __create_description(lbxd_id, tmdb_id, title):
 
 def __get_countries(tmdb_id, title):
     api_url = 'https://api.themoviedb.org/3/movie/' + tmdb_id\
-                + '?api_key=' + config.SETTINGS['tmdb']
+                + '?api_key=' + SETTINGS['tmdb']
     country_text = ''
     try:
         response = api.session.get(api_url)

@@ -4,119 +4,119 @@ import subprocess
 import cloudinary
 import cloudinary.uploader
 
-import config
+from config import SETTINGS
 
 from .core import api, create_embed
 from .exceptions import LbxdNotFound
 
 cloudinary.config(
-    cloud_name=config.SETTINGS['cloudinary']['cloud_name'],
-    api_key=config.SETTINGS['cloudinary']['api_key'],
-    api_secret=config.SETTINGS['cloudinary']['api_secret'])
+    cloud_name=SETTINGS['cloudinary']['cloud_name'],
+    api_key=SETTINGS['cloudinary']['api_key'],
+    api_secret=SETTINGS['cloudinary']['api_secret'])
 
 
-class User:
-    def __init__(self, username, with_info=True):
-        self._img_cmd = 'convert '
-        self._fav_posters_link = list()
-        self.avatar_url = ''
-        self.display_name = ''
-        self.username = username.lower()
-        self.url = 'https://letterboxd.com/{}'.format(username)
-        self.lbxd_id = self.__check_if_fixed_search()
-        fav_img_link = ''
-        if not self.lbxd_id:
-            self.lbxd_id = self.__search_profile()
-        description = self.__get_user_infos(with_info)
-        if not with_info:
-            return
-        if self._fav_posters_link:
-            if not os.path.exists(username):
-                os.popen('mkdir ' + self.username)
-            fav_img_link = self.__upload_cloudinary()
-            os.popen('rm -r ' + self.username)
+def user_embed(username, with_info=True):
+    username = username.lower()
+    url = 'https://letterboxd.com/{}'.format(username)
+    lbxd_id, display_name = __check_if_fixed_search(username)
+    if not lbxd_id:
+        lbxd_id, display_name = __search_profile(username)
+    description, avatar_url, fav_posters_link = __get_user_infos(
+        username, with_info, lbxd_id)
+    if not with_info:
+        return username, display_name, lbxd_id, avatar_url
+    fav_img_link = ''
+    if fav_posters_link:
+        if not os.path.exists(username):
+            os.popen('mkdir ' + username)
+        fav_img_link = __upload_fav_posters(username, fav_posters_link)
+        os.popen('rm -r ' + username)
+    return create_embed(display_name, url, description, avatar_url,
+                        fav_img_link)
 
-        self.embed = create_embed(self.display_name, self.url, description,
-                                  self.avatar_url, fav_img_link)
 
-    def __check_if_fixed_search(self):
-        for fixed_username, lbxd_id in config.SETTINGS[
-                'fixed_user_search'].items():
-            if fixed_username.lower() == self.username:
-                api_path = 'member/{}'.format(lbxd_id)
-                member_json = api.api_call(api_path).json()
-                self.display_name = member_json['displayName']
-                return lbxd_id
-        return ''
+def __check_if_fixed_search(username):
+    for fixed_username, lbxd_id in SETTINGS['fixed_user_search'].items():
+        if fixed_username.lower() == username:
+            api_path = 'member/{}'.format(lbxd_id)
+            member_json = api.api_call(api_path).json()
+            display_name = member_json['displayName']
+            return lbxd_id, display_name
+    return '', ''
 
-    def __search_profile(self):
-        username = self.username.replace('_', ' ')
-        params = {
-            'input': username,
-            'include': 'MemberSearchItem',
-            'perPage': '100'
-        }
-        while True:
-            response = api.api_call('search', params).json()
-            if not response['items']:
-                break
-            for result in response['items']:
-                if result['member']['username'].lower() == self.username:
-                    self.display_name = result['member']['displayName']
-                    return result['member']['id']
-            if response.get('next'):
-                cursor = response['next']
-                params['cursor'] = cursor
-            else:
-                break
-        raise LbxdNotFound('The user **' + self.username + '** wasn\'t found.')
 
-    def __get_user_infos(self, with_info):
-        member_response = api.api_call('member/{}'.format(self.lbxd_id))
-        if member_response == '':
-            raise LbxdNotFound(
-                'The user **' + self.username +
-                '** wasn\'t found. They may have refused to be reachable via the API.'
-            )
-        member_json = member_response.json()
-        self.avatar_url = member_json['avatar']['sizes'][-1]['url']
-        if not with_info:
-            return ''
-        description = '**'
-        if member_json.get('location'):
-            description += member_json['location'] + '** -- **'
-        stats_path = 'member/{}/statistics'.format(self.lbxd_id)
-        stats_json = api.api_call(stats_path).json()
-        description += str(stats_json['counts']['watches']) + ' films**\n'
+def __search_profile(username):
+    username = username.replace('_', ' ')
+    params = {
+        'input': username,
+        'include': 'MemberSearchItem',
+        'perPage': '100'
+    }
+    while True:
+        response = api.api_call('search', params).json()
+        if not response['items']:
+            break
+        for result in response['items']:
+            if result['member']['username'].lower() == username:
+                display_name = result['member']['displayName']
+                return result['member']['id'], display_name
+        if response.get('next'):
+            cursor = response['next']
+            params['cursor'] = cursor
+        else:
+            break
+    raise LbxdNotFound('The user **' + username + '** wasn\'t found.')
 
-        for fav_film in member_json['favoriteFilms']:
-            fav_name = fav_film['name']
-            if fav_film.get('poster'):
-                for poster in fav_film['poster']['sizes']:
-                    if 150 < poster['width'] < 250:
-                        self._fav_posters_link.append(poster['url'])
-            if fav_film.get('releaseYear'):
-                fav_name += ' (' + str(fav_film['releaseYear']) + ')'
-            for link in fav_film['links']:
-                if link['type'] == 'letterboxd':
-                    fav_url = link['url']
-            description += '[{0}]({1})\n'.format(fav_name, fav_url)
-        return description
 
-    def __download_fav_posters(self):
-        for index, fav_poster in enumerate(self._fav_posters_link):
-            img_data = api.session.get(fav_poster).content
-            temp_fav = '{0}/fav{1}.jpg'.format(self.username, index)
-            self._img_cmd += temp_fav + ' '
-            with open(temp_fav, 'wb') as handler:
-                handler.write(img_data)
+def __get_user_infos(username, with_info, lbxd_id):
+    member_response = api.api_call('member/{}'.format(lbxd_id))
+    if member_response == '':
+        raise LbxdNotFound(
+            'The user **' + username +
+            '** wasn\'t found. They may have refused to be reachable via the API.'
+        )
+    member_json = member_response.json()
+    avatar_url = member_json['avatar']['sizes'][-1]['url']
+    if not with_info:
+        return '', avatar_url, []
+    description = '**'
+    if member_json.get('location'):
+        description += member_json['location'] + '** -- **'
+    stats_path = 'member/{}/statistics'.format(lbxd_id)
+    stats_json = api.api_call(stats_path).json()
+    description += str(stats_json['counts']['watches']) + ' films**\n'
 
-    def __upload_cloudinary(self):
-        self.__download_fav_posters()
-        self._img_cmd += '+append {}/fav.jpg'.format(self.username)
-        subprocess.call(self._img_cmd, shell=True)
-        with open('{}/fav.jpg'.format(self.username), 'rb') as pic:
-            bin_pic = pic.read()
-        result = cloudinary.uploader.upload(
-            bin_pic, public_id=self.username, folder='bot favs')
-        return result['url']
+    fav_posters_link = list()
+    for fav_film in member_json['favoriteFilms']:
+        fav_name = fav_film['name']
+        if fav_film.get('poster'):
+            for poster in fav_film['poster']['sizes']:
+                if 150 < poster['width'] < 250:
+                    fav_posters_link.append(poster['url'])
+        if fav_film.get('releaseYear'):
+            fav_name += ' (' + str(fav_film['releaseYear']) + ')'
+        for link in fav_film['links']:
+            if link['type'] == 'letterboxd':
+                fav_url = link['url']
+        description += '[{0}]({1})\n'.format(fav_name, fav_url)
+    return description, avatar_url, fav_posters_link
+
+
+def __upload_fav_posters(username, fav_posters_link):
+    # Download posters
+    img_cmd = 'convert '
+    for index, fav_poster in enumerate(fav_posters_link):
+        img_data = api.session.get(fav_poster).content
+        temp_fav = '{0}/fav{1}.jpg'.format(username, index)
+        img_cmd += temp_fav + ' '
+        with open(temp_fav, 'wb') as handler:
+            handler.write(img_data)
+
+    # Upload to Cloudinary
+    img_cmd += '+append {}/fav.jpg'.format(username)
+    subprocess.call(img_cmd, shell=True)
+    with open('{}/fav.jpg'.format(username), 'rb') as pic:
+        bin_pic = pic.read()
+    result = cloudinary.uploader.upload(
+        bin_pic, public_id=username, folder='bot favs')
+    return result['url']

@@ -1,11 +1,13 @@
 from .core import api, create_embed
+from .user import user_embed
 
 
-def diary_embed(user):
-    url = user.url + '/films/diary'
-    title = 'Recent diary activity from {}'.format(user.display_name)
-    return create_embed(title, url, __get_activity(user.lbxd_id),
-                        user.avatar_url)
+def diary_embed(username):
+    username, display_name, user_lbxd_id, avatar_url = user_embed(
+        username, False)
+    url = 'https://letterboxd.com/{}/films/diary'.format(username)
+    title = 'Recent diary activity from {}'.format(display_name)
+    return create_embed(title, url, __get_activity(user_lbxd_id), avatar_url)
 
 
 def __get_activity(lbxd_id):
