@@ -80,9 +80,7 @@ async def helplb(ctx):
     help_embed = discord.Embed(colour=discord.Color.from_rgb(54, 57, 62))
     help_embed.set_thumbnail(url='https://i.imgur.com/Kr1diFu.png')
     help_embed.set_author(
-        name='Letterboxd Bot',
-        icon_url='https://i.imgur.com/5VALKVy.jpg',
-        url='https://boxdbot.com/')
+        name='Letterboxd Bot', icon_url='https://i.imgur.com/5VALKVy.jpg')
     help_embed.set_footer(
         text='Created by Porkepik#2664',
         icon_url='https://i.imgur.com/li4cLpd.png')
