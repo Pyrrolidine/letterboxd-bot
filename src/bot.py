@@ -98,9 +98,9 @@ async def helplb(ctx):
 
 
 @bot.command(aliases=['u'])
-async def user(ctx, arg):
+async def user(ctx, username):
     try:
-        msg = user_embed(arg)
+        msg = user_embed(username)
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
