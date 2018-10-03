@@ -28,10 +28,7 @@ def user_embed(username, with_extra_info=True):
         return username, display_name, lbxd_id, avatar_url
     fav_img_link = ''
     if fav_posters_link:
-        if not os.path.exists(username):
-            os.popen('mkdir ' + username)
         fav_img_link = __upload_fav_posters(username, fav_posters_link)
-        os.popen('rm -r ' + username)
     return create_embed(display_name, url, description, avatar_url,
                         fav_img_link)
 
@@ -102,6 +99,8 @@ def __get_user_infos(username, with_extra_info, lbxd_id):
 
 def __upload_fav_posters(username, fav_posters_link):
     # Download posters
+    if not os.path.exists(username):
+        os.popen('mkdir ' + username)
     img_cmd = 'convert '
     for index, fav_poster in enumerate(fav_posters_link):
         img_data = api_session.get(fav_poster).content
@@ -109,6 +108,7 @@ def __upload_fav_posters(username, fav_posters_link):
         img_cmd += temp_fav + ' '
         with open(temp_fav, 'wb') as handler:
             handler.write(img_data)
+    os.popen('rm -r ' + username)
 
     # Upload to Cloudinary
     img_cmd += '+append {}/fav.jpg'.format(username)
