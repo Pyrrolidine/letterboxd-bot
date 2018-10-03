@@ -7,9 +7,10 @@ from .core import create_embed
 from .exceptions import LbxdNotFound
 
 
-def crew_embed(input_name, alias):
+def crew_embed(input_name, cmd_alias):
     lbxd_id, fixed_search = __check_if_fixed_search(input_name)
-    person_json = __search_letterboxd(input_name, alias, lbxd_id, fixed_search)
+    person_json = __search_letterboxd(input_name, cmd_alias, lbxd_id,
+                                      fixed_search)
     description, name, url, api_url = __get_details(person_json)
     description += __get_dates(api_url)
     return create_embed(name, url, description, __get_picture(api_url))
@@ -22,15 +23,15 @@ def __check_if_fixed_search(keywords):
     return '', False
 
 
-def __search_letterboxd(item, alias, lbxd_id, fixed_search):
+def __search_letterboxd(item, cmd_alias, lbxd_id, fixed_search):
     if fixed_search:
         response = api_call('contributor/' + lbxd_id)
         person_json = response.json()
     else:
         params = {'input': item, 'include': 'ContributorSearchItem'}
-        if alias in ['a', 'actor']:
+        if cmd_alias in ['a', 'actor']:
             params['contributionType'] = 'Actor'
-        elif alias in ['d', 'director']:
+        elif cmd_alias in ['d', 'director']:
             params['contributionType'] = 'Director'
         response = api_call('search', params)
         if not response.json()['items']:

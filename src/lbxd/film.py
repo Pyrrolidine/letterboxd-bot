@@ -9,14 +9,14 @@ from .core import create_embed
 from .exceptions import LbxdNotFound
 
 
-def film_embed(keywords, with_info=True, with_mkdb=False):
+def film_embed(keywords, with_description=True, with_mkdb=False):
     input_year, has_year = __check_year(keywords)
     lbxd_id, fixed_search = __check_if_fixed_search(keywords)
     film_json = __search_request(keywords, has_year, input_year, fixed_search,
                                  lbxd_id)
     lbxd_id, title, year, lbxd_url, tmdb_id, poster_path = __get_details(
         film_json)
-    if not with_info:
+    if not with_description:
         return lbxd_id, title, year, poster_path, lbxd_url
     description = __create_description(lbxd_id, tmdb_id, title)
     if with_mkdb:
