@@ -66,9 +66,8 @@ def __get_user_infos(username, with_extra_info, lbxd_id):
     member_response = api_call('member/{}'.format(lbxd_id))
     if member_response == '':
         raise LbxdNotFound(
-            'The user **' + username +
-            '** wasn\'t found. They may have refused to be reachable via the API.'
-        )
+            'The user **' + username + '** wasn\'t found.' +
+            ' They may have refused to be reachable via the API.')
     member_json = member_response.json()
     display_name = member_json['displayName']
     avatar_url = member_json['avatar']['sizes'][-1]['url']

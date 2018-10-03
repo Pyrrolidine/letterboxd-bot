@@ -7,12 +7,12 @@ from .user import user_embed
 
 def review_embed(username, film_search):
     username, display_name, user_lbxd_id, __ = user_embed(username, False)
-    film_lbxd_id, film_title, film_year, poster_path, film_lbxd_url = film_embed(
+    film_id, film_title, film_year, poster_path, film_lbxd_url = film_embed(
         film_search, False)
     activity_url = film_lbxd_url.replace(
         '.com/', '.com/{}/'.format(username)) + 'activity'
-    response, nb_reviews = __find_reviews(user_lbxd_id, display_name,
-                                          film_lbxd_id, film_title, film_year)
+    response, nb_reviews = __find_reviews(user_lbxd_id, display_name, film_id,
+                                          film_title, film_year)
     description, embed_url = __create_description(response, activity_url)
 
     if nb_reviews > 1:
@@ -23,10 +23,9 @@ def review_embed(username, film_search):
     return create_embed(title, embed_url, description, poster_path)
 
 
-def __find_reviews(user_lbxd_id, display_name, film_lbxd_id, film_title,
-                   film_year):
+def __find_reviews(user_lbxd_id, display_name, film_id, film_title, film_year):
     params = {
-        'film': film_lbxd_id,
+        'film': film_id,
         'member': user_lbxd_id,
         'memberRelationship': 'Owner'
     }
