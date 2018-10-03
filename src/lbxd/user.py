@@ -3,7 +3,6 @@ import subprocess
 
 import cloudinary
 import cloudinary.uploader
-
 from config import SETTINGS
 
 from .api import api_call, api_session

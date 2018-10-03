@@ -5,7 +5,6 @@ import time
 import uuid
 
 import requests
-
 from config import SETTINGS
 
 from .exceptions import LbxdServerError

@@ -3,9 +3,8 @@ from asyncio import sleep
 
 import discord
 import requests
-from discord.ext import commands
-
 from config import SETTINGS
+from discord.ext import commands
 from lbxd.crew import crew_embed
 from lbxd.diary import diary_embed
 from lbxd.exceptions import LbxdErrors

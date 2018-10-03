@@ -1,5 +1,4 @@
 import requests
-
 from config import SETTINGS
 
 from .api import api_call, api_session
