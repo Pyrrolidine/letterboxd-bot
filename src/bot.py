@@ -14,7 +14,11 @@ from lbxd.list_ import list_embed
 from lbxd.review import review_embed
 from lbxd.user import user_embed
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s | %(message)s',
+    datefmt='%m/%d %H:%M:%S')
+
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
 
