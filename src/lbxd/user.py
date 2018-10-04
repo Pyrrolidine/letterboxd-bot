@@ -40,9 +40,8 @@ def __check_if_fixed_search(username):
 
 
 def __search_profile(username):
-    username = username.replace('_', ' ')
     params = {
-        'input': username,
+        'input': username.replace('_', ' '),
         'include': 'MemberSearchItem',
         'perPage': '100'
     }
@@ -106,7 +105,6 @@ def __upload_fav_posters(username, fav_posters_link):
         img_cmd += temp_fav + ' '
         with open(temp_fav, 'wb') as handler:
             handler.write(img_data)
-    os.popen('rm -r ' + username)
 
     # Upload to Cloudinary
     img_cmd += '+append {}/fav.jpg'.format(username)
@@ -115,4 +113,5 @@ def __upload_fav_posters(username, fav_posters_link):
         bin_pic = pic.read()
     result = cloudinary.uploader.upload(
         bin_pic, public_id=username, folder='bot favs')
+    os.popen('rm -r ' + username)
     return result['url']
