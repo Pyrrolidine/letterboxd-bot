@@ -53,8 +53,7 @@ def __search_profile(username):
             if result['member']['username'].lower() == username:
                 return result['member']['id']
         if response.get('next'):
-            cursor = response['next']
-            params['cursor'] = cursor
+            params['cursor'] = response['next']
         else:
             break
     raise LbxdNotFound('The user **' + username + '** wasn\'t found.')
