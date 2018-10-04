@@ -111,7 +111,7 @@ def __upload_fav_posters(username, fav_posters_link):
     subprocess.call(img_cmd, shell=True)
     with open('{}/fav.jpg'.format(username), 'rb') as pic:
         bin_pic = pic.read()
+    os.popen('rm -r ' + username)
     result = cloudinary.uploader.upload(
         bin_pic, public_id=username, folder='bot favs')
-    os.popen('rm -r ' + username)
     return result['url']
