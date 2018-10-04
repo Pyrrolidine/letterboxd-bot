@@ -73,8 +73,7 @@ def __get_user_infos(username, with_extra_info, lbxd_id):
     description = '**'
     if member_json.get('location'):
         description += member_json['location'] + '** -- **'
-    stats_path = 'member/{}/statistics'.format(lbxd_id)
-    stats_json = api_call(stats_path).json()
+    stats_json = api_call('member/{}/statistics'.format(lbxd_id)).json()
     description += str(stats_json['counts']['watches']) + ' films**\n'
 
     fav_posters_link = list()
