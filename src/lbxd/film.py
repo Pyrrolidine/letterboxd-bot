@@ -104,7 +104,7 @@ def __create_description(lbxd_id, tmdb_id, title):
                 director_str += director['name'] + ', '
             break
     if director_str:
-        if dir_count > 1:
+        if dir_count:
             text += '**Directors:** '
         else:
             text += '**Director:** '
@@ -118,7 +118,7 @@ def __create_description(lbxd_id, tmdb_id, title):
     for genres_count, genre in enumerate(film_json['genres']):
         genres_str += genre['name'] + ', '
     if genres_str:
-        if genres_count > 1:
+        if genres_count:
             text += '**Genres:** '
         else:
             text += '**Genre:** '
@@ -145,7 +145,7 @@ def __get_countries(tmdb_id, title):
                 else:
                     country_str += country['name'] + ', '
             if country_str:
-                if count > 1:
+                if count:
                     country_text += '**Countries:** '
                 else:
                     country_text += '**Country:** '
