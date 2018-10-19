@@ -1,5 +1,5 @@
 """ Crew command functions
-    It uses the TMDb API to get the info dates and picture
+    It uses the TMDb API to get the info dates and the picture
 """
 
 import requests

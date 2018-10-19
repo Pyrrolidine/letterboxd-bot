@@ -1,5 +1,5 @@
 """ Custom exception classes
-    To catch whether no item was found or a request failed
+    To catch, from bot.py, whether no item was found or a request failed
 """
 
 class LbxdErrors(Exception):
