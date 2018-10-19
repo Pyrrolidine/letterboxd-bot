@@ -1,3 +1,7 @@
+""" Review command functions
+    Call user_embed() first
+"""
+
 from .api import api_call
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound

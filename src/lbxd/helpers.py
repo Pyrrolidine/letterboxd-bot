@@ -1,3 +1,8 @@
+""" Helper functions
+    format_text() is imported by list.py and review.py
+    create_embed() is imported by all command files
+"""
+
 from html.parser import HTMLParser
 
 from discord import Embed

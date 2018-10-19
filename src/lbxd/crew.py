@@ -1,3 +1,7 @@
+""" Crew command functions
+    It uses the TMDb API to get the info dates and picture
+"""
+
 import requests
 from config import SETTINGS
 

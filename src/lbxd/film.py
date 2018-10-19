@@ -1,3 +1,7 @@
+""" Film command functions
+    It uses the TMDb API to get the production countries of a film
+"""
+
 from re import fullmatch
 
 import requests

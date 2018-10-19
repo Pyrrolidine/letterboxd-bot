@@ -1,3 +1,7 @@
+""" Main File
+    Event functions followed by a function for each command
+"""
+
 import logging
 from asyncio import sleep
 

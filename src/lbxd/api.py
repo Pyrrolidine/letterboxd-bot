@@ -1,3 +1,8 @@
+""" API request preparation
+    Only one public function: api_call()
+    It takes an endpoint and an optional dictionary of parameters
+"""
+
 import hashlib
 import hmac
 import logging
