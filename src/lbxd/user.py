@@ -1,6 +1,6 @@
 """ User command functions
-    also used by the list, diary and review commands to get the user infos
-    It uses the Cloudinary API to host the user's favourite films picture
+    Also used by the list, diary and review commands to get the user infos
+    It uses the Cloudinary API to host the user's favourite films image
 """
 
 import os
