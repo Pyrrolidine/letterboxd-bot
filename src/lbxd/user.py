@@ -6,7 +6,7 @@ import cloudinary.uploader
 from config import SETTINGS
 
 from .api import api_call, api_session
-from .core import create_embed
+from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
 cloudinary.config(
