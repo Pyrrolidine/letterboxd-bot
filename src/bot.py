@@ -42,6 +42,14 @@ async def update_stats():
 
 
 @bot.event
+async def on_message(message):
+    if message.author.id == bot.user.id:
+        return
+    message.content = message.content.replace('’', '')
+    await bot.process_commands(message)
+
+
+@bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
@@ -173,12 +181,11 @@ async def delete(ctx):
     await ctx.message.delete()
     found_bot_msg = False
     found_usr_cmd = False
-    cmd_list = []
-    # Get list of commands and their aliases
+    cmd_list = list()
     for command in bot.commands:
-        cmd_list.append(command.name)
+        cmd_list.append('!' + command.name)
         for alias in command.aliases:
-            cmd_list.append(alias)
+            cmd_list.append('!' + alias)
 
     async for log_message in ctx.channel.history(limit=30):
         if log_message.author.id == bot.user.id and not found_bot_msg:
@@ -189,11 +196,8 @@ async def delete(ctx):
                 first_word = log_message.content.split()[0]
             else:
                 return
-            for cmd in cmd_list:
-                if first_word == '!{}'.format(cmd):
-                    found_usr_cmd = True
-                    break
-            if found_usr_cmd:
+            if first_word in cmd_list:
+                found_usr_cmd = True
                 cmd_message = log_message
                 break
 
@@ -201,8 +205,9 @@ async def delete(ctx):
         if not ctx.author.permissions_in(ctx.channel).manage_messages:
             if not cmd_message.author.id == ctx.author.id:
                 return
-        await bot_message.delete()
         await cmd_message.delete()
+    if found_bot_msg:
+        await bot_message.delete()
 
 
 bot.run(SETTINGS['discord'])
