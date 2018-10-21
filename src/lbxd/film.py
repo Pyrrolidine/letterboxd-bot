@@ -17,8 +17,10 @@ def film_embed(keywords, with_description=True, with_mkdb=False):
     lbxd_id, fixed_search = __check_if_fixed_search(keywords)
     film_json = __search_request(keywords, has_year, input_year, fixed_search,
                                  lbxd_id)
-    lbxd_id, title, year, lbxd_url, tmdb_id, poster_path = __get_details(
-        film_json)
+    lbxd_id = film_json['id']
+    title = film_json['name']
+    year = film_json.get('releaseYear')
+    lbxd_url, tmdb_id, poster_path = __get_links(film_json)
     if not with_description:
         return lbxd_id, title, year, poster_path, lbxd_url
     description = __create_description(lbxd_id, tmdb_id, title)
@@ -72,10 +74,7 @@ def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id):
     return film_json
 
 
-def __get_details(film_json):
-    lbxd_id = film_json['id']
-    title = film_json['name']
-    year = film_json.get('releaseYear')
+def __get_links(film_json):
     for link in film_json['links']:
         if link['type'] == 'letterboxd':
             lbxd_url = link['url']
@@ -90,16 +89,16 @@ def __get_details(film_json):
                 break
         if not poster_path:
             poster_path = film_json['poster']['sizes'][0]['url']
-    return lbxd_id, title, year, lbxd_url, tmdb_id, poster_path
+    return lbxd_url, tmdb_id, poster_path
 
 
 def __create_description(lbxd_id, tmdb_id, title):
-    text = ''
+    description = ''
     film_json = api_call('film/{}'.format(lbxd_id)).json()
 
     original_title = film_json.get('originalName')
     if original_title:
-        text += '**Original Title:** ' + original_title + '\n'
+        description += '**Original Title:** ' + original_title + '\n'
 
     director_str = ''
     for contribution in film_json['contributions']:
@@ -109,26 +108,26 @@ def __create_description(lbxd_id, tmdb_id, title):
             break
     if director_str:
         if dir_count:
-            text += '**Directors:** '
+            description += '**Directors:** '
         else:
-            text += '**Director:** '
-        text += director_str[:-2] + '\n'
+            description += '**Director:** '
+        description += director_str[:-2] + '\n'
 
-    text += __get_countries(tmdb_id, title)
+    description += __get_countries(tmdb_id, title)
     runtime = film_json.get('runTime')
-    text += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
+    description += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
     genres_str = ''
     for genres_count, genre in enumerate(film_json['genres']):
         genres_str += genre['name'] + ', '
     if genres_str:
         if genres_count:
-            text += '**Genres:** '
+            description += '**Genres:** '
         else:
-            text += '**Genre:** '
-        text += genres_str[:-2] + '\n'
+            description += '**Genre:** '
+        description += genres_str[:-2] + '\n'
 
-    return text
+    return description
 
 
 def __get_countries(tmdb_id, title):

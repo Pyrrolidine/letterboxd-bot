@@ -10,8 +10,8 @@ from .user import user_embed
 
 def list_embed(username, keywords):
     __, __, user_lbxd_id, __ = user_embed(username, False)
-    list_id, name = __find_list(keywords, user_lbxd_id)
-    description, url, poster_url = __get_infos(list_id)
+    list_id = __find_list(keywords, user_lbxd_id)
+    description, url, poster_url, name = __get_infos(list_id)
     return create_embed(name, url, description, poster_url)
 
 
@@ -28,12 +28,11 @@ def __find_list(keywords, user_lbxd_id):
         for word in keywords.lower().split():
             if word in user_list['name'].lower():
                 match = True
-                name = user_list['name']
             else:
                 match = False
                 break
         if match:
-            return user_list['id'], name
+            return user_list['id']
     raise LbxdNotFound('No list was found (limit to 50 most recent).\n' +
                        'Make sure the first word is a **username**.')
 
@@ -57,4 +56,4 @@ def __get_infos(list_id):
                 if poster['height'] > 400:
                     poster_url = poster['url']
                     break
-    return description, url, poster_url
+    return description, url, poster_url, list_json['name']

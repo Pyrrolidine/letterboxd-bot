@@ -14,7 +14,8 @@ def crew_embed(input_name, cmd_alias):
     lbxd_id, fixed_search = __check_if_fixed_search(input_name)
     person_json = __search_letterboxd(input_name, cmd_alias, lbxd_id,
                                       fixed_search)
-    description, name, url, api_url = __get_details(person_json)
+    description, name, url, tmdb_id = __get_details(person_json)
+    api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
     description += __get_dates(api_url)
     return create_embed(name, url, description, __get_picture(api_url))
 
@@ -49,13 +50,11 @@ def __get_details(person_json):
             tmdb_id = link['id']
         elif link['type'] == 'letterboxd':
             url = link['url']
-    api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
-    name = person_json['name']
     description = ''
     for contrib_stats in person_json['statistics']['contributions']:
         description += '**' + contrib_stats['type'] + ':** '
         description += str(contrib_stats['filmCount']) + '\n'
-    return description, name, url, api_url
+    return description, person_json['name'], url, tmdb_id
 
 
 def __get_dates(api_url):
