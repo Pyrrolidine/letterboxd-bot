@@ -26,8 +26,8 @@ def format_text(input_html, max_char):
     return text
 
 
-def create_embed(title, url, descript, thumbnail_url, image_url=''):
-    embed = Embed(title=title, url=url, colour=0xd8b437, description=descript)
+def create_embed(title, url, dsc, thumbnail_url, image_url=''):
+    embed = Embed(title=title[:250], url=url, colour=0xd8b437, description=dsc)
     embed.set_thumbnail(url=thumbnail_url)
     if image_url:
         embed.set_image(url=image_url)
