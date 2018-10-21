@@ -140,7 +140,7 @@ async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
         if ctx.guild and ctx.guild.id in SETTINGS['mkdb_servers']:
-            msg = film_embed(arg, True, True)
+            msg = film_embed(arg, True)
         else:
             msg = film_embed(arg)
     except LbxdErrors as err:

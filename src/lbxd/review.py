@@ -1,18 +1,18 @@
 """ Review command functions
-    Call user_embed() first
+    Call user_details() first
 """
 
 from .api import api_call
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound
-from .film import film_embed
-from .user import user_embed
+from .film import film_details
+from .user import user_details
 
 
 def review_embed(username, film_search):
-    username, display_name, user_lbxd_id, __ = user_embed(username, False)
-    film_id, film_title, film_year, poster_path, film_lbxd_url = film_embed(
-        film_search, False)
+    username, display_name, user_lbxd_id, __ = user_details(username)
+    film_id, film_title, film_year, poster_path, film_lbxd_url = film_details(
+        film_search)
     activity_url = film_lbxd_url.replace(
         '.com/', '.com/{}/'.format(username)) + 'activity'
     response, nb_reviews = __find_reviews(user_lbxd_id, display_name, film_id,

@@ -1,4 +1,5 @@
 """ Film command functions
+    film_details() is used by review.py
     It uses the TMDb API to get the production countries of a film
 """
 
@@ -12,7 +13,7 @@ from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
 
-def film_embed(keywords, with_description=True, with_mkdb=False):
+def film_embed(keywords, with_mkdb=False):
     input_year, has_year = __check_year(keywords)
     lbxd_id, fixed_search = __check_if_fixed_search(keywords)
     film_json = __search_request(keywords, has_year, input_year, fixed_search,
@@ -21,8 +22,6 @@ def film_embed(keywords, with_description=True, with_mkdb=False):
     title = film_json['name']
     year = film_json.get('releaseYear')
     lbxd_url, tmdb_id, poster_path = __get_links(film_json)
-    if not with_description:
-        return lbxd_id, title, year, poster_path, lbxd_url
     description = __create_description(lbxd_id, tmdb_id, title)
     if with_mkdb:
         description += __get_mkdb_rating(lbxd_url)
@@ -30,6 +29,18 @@ def film_embed(keywords, with_description=True, with_mkdb=False):
     if year:
         title += ' (' + str(year) + ')'
     return create_embed(title, lbxd_url, description, poster_path)
+
+
+def film_details(keywords):
+    input_year, has_year = __check_year(keywords)
+    lbxd_id, fixed_search = __check_if_fixed_search(keywords)
+    film_json = __search_request(keywords, has_year, input_year, fixed_search,
+                                 lbxd_id)
+    lbxd_id = film_json['id']
+    title = film_json['name']
+    year = film_json.get('releaseYear')
+    lbxd_url, _, poster_path = __get_links(film_json)
+    return lbxd_id, title, year, poster_path, lbxd_url
 
 
 def __check_year(keywords):

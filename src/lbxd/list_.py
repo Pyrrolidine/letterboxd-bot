@@ -1,15 +1,15 @@
 """ List command functions
-    Call user_embed() first
+    Call user_details() first
 """
 
 from .api import api_call
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound
-from .user import user_embed
+from .user import user_details
 
 
 def list_embed(username, keywords):
-    __, __, user_lbxd_id, __ = user_embed(username, False)
+    __, __, user_lbxd_id, __ = user_details(username)
     list_id = __find_list(keywords, user_lbxd_id)
     description, url, poster_url, name = __get_infos(list_id)
     return create_embed(name, url, description, poster_url)

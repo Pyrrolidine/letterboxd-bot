@@ -1,15 +1,14 @@
 """ Diary command functions
-    Call user_embed() first
+    Call user_details() first
 """
 
 from .api import api_call
 from .helpers import create_embed
-from .user import user_embed
+from .user import user_details
 
 
 def diary_embed(username):
-    username, display_name, user_lbxd_id, avatar_url = user_embed(
-        username, False)
+    username, display_name, user_lbxd_id, avatar_url = user_details(username)
     url = 'https://letterboxd.com/{}/films/diary'.format(username)
     title = 'Recent diary activity from {}'.format(display_name)
     return create_embed(title, url, __get_activity(user_lbxd_id), avatar_url)

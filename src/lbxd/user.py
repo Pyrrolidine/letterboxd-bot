@@ -1,5 +1,5 @@
 """ User command functions
-    Also used by the list, diary and review commands to get the user infos
+    user_details() is used by review.py and list.py
     It uses the Cloudinary API to host the user's favourite films image
 """
 
@@ -20,21 +20,29 @@ cloudinary.config(
     api_secret=SETTINGS['cloudinary']['api_secret'])
 
 
-def user_embed(username, with_extra_info=True):
+def user_embed(username):
     username = username.lower()
     url = 'https://letterboxd.com/{}'.format(username)
     lbxd_id = __check_if_fixed_search(username)
     if not lbxd_id:
         lbxd_id = __search_profile(username)
     description, display_name, avatar_url, fav_posters_link = __get_user_infos(
-        username, with_extra_info, lbxd_id)
-    if not with_extra_info:
-        return username, display_name, lbxd_id, avatar_url
+        username, True, lbxd_id)
     fav_img_link = ''
     if fav_posters_link:
         fav_img_link = __upload_fav_posters(username, fav_posters_link)
     return create_embed(display_name, url, description, avatar_url,
                         fav_img_link)
+
+
+def user_details(username):
+    username = username.lower()
+    url = 'https://letterboxd.com/{}'.format(username)
+    lbxd_id = __check_if_fixed_search(username)
+    if not lbxd_id:
+        lbxd_id = __search_profile(username)
+    display_name, avatar_url = __get_user_infos(username, False, lbxd_id)
+    return username, display_name, lbxd_id, avatar_url
 
 
 def __check_if_fixed_search(username):
@@ -74,7 +82,7 @@ def __get_user_infos(username, with_extra_info, lbxd_id):
     display_name = member_json['displayName']
     avatar_url = member_json['avatar']['sizes'][-1]['url']
     if not with_extra_info:
-        return '', display_name, avatar_url, []
+        return display_name, avatar_url
     description = '**'
     if member_json.get('location'):
         description += member_json['location'] + '** -- **'
