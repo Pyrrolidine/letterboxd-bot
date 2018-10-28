@@ -27,7 +27,7 @@ def user_embed(username):
     if not lbxd_id:
         lbxd_id = __search_profile(username)
     description, display_name, avatar_url, fav_posters_link = __get_user_infos(
-        username, True, lbxd_id)
+        True, lbxd_id)
     fav_img_link = ''
     if fav_posters_link:
         fav_img_link = __upload_fav_posters(username, fav_posters_link)
@@ -41,7 +41,7 @@ def user_details(username):
     lbxd_id = __check_if_fixed_search(username)
     if not lbxd_id:
         lbxd_id = __search_profile(username)
-    display_name, avatar_url = __get_user_infos(username, False, lbxd_id)
+    display_name, avatar_url = __get_user_infos(False, lbxd_id)
     return username, display_name, lbxd_id, avatar_url
 
 
@@ -72,12 +72,12 @@ def __search_profile(username):
     raise LbxdNotFound('The user **' + username + '** wasn\'t found.')
 
 
-def __get_user_infos(username, with_extra_info, lbxd_id):
+def __get_user_infos(with_extra_info, lbxd_id):
     member_response = api_call('member/{}'.format(lbxd_id))
     if member_response == '':
         raise LbxdNotFound(
-            'The user **' + username + '** wasn\'t found.' +
-            ' They may have refused to be reachable via the API.')
+            'The user wasn\'t found. ' +
+            'They may have refused to be reachable via the API.')
     member_json = member_response.json()
     display_name = member_json['displayName']
     avatar_url = member_json['avatar']['sizes'][-1]['url']
