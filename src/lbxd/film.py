@@ -181,7 +181,7 @@ def __get_mkdb_rating(lbxd_url):
     avg_rating = page.json()['mean']
     nb_ratings = page.json()['total']
     mkdb_description = '**MKDb Average:** [' + str(avg_rating)
-    mkdb_description += ' out of ' + str(nb_ratings) + ' ratings\n]'
+    mkdb_description += ' / ' + str(nb_ratings) + ' ratings\n]'
     mkdb_description += '(' + mkdb_url.replace('/api', '') + ')'
     return mkdb_description
 
@@ -201,6 +201,6 @@ def __get_stats(lbxd_id):
         if ratings_count > 999:
             ratings_count = str(round(ratings_count / 1000, 1)) + 'k'
         text += '**Average Rating:** ' + str(round(rating, 2))
-        text += ' out of ' + str(ratings_count) + ' ratings\n'
+        text += ' / ' + str(ratings_count) + ' ratings\n'
     text += 'Watched by ' + str(views) + ' members'
     return text
