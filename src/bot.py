@@ -33,6 +33,13 @@ async def on_ready():
     bot.loop.create_task(update_stats())
 
 
+@bot.event
+async def on_message(message):
+    if message.content.startswith('!'):
+        message.content = message.content.replace('’', '').replace('‘', '')
+        await bot.process_commands(message)
+
+
 async def update_stats():
     while True:
         await bot.change_presence(
