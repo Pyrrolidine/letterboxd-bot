@@ -67,7 +67,8 @@ async def on_command_error(ctx, error):
         if isinstance(error.original, requests.exceptions.ConnectionError):
             await ctx.send('The command failed due to connection issues.')
             return
-    await ctx.send('The command crashed, a report was sent to the dev.')
+    await ctx.send('The command crashed, contact Porkepik#2664 '
+                   'for a possible fix.')
     logging.error(ctx.message.content)
     raise error
 
