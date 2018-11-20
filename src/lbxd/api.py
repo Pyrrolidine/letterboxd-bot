@@ -5,7 +5,6 @@
 
 import hashlib
 import hmac
-import logging
 import time
 import uuid
 
@@ -34,7 +33,6 @@ def api_call(path, params=None):
     except requests.exceptions.RequestException as error:
         if error.response and error.response.status_code == 404:
             return ''
-        logging.warning('API Error:\n' + str(error))
         raise LbxdServerError('A request to the Letterboxd API failed.' +
                               ' This may be due to a server issue.')
     return response

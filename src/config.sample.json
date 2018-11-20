@@ -27,7 +27,7 @@
     "help": {
         "!film/!movie/!f <film-name> (<year>)":
         "Searches a film on Letterboxd. The year is optional.",
-        "!crew/!c/director/!d/!actor/!a <name>":
+        "!crew/!c/!director/!d/!actor/!a <name>":
         "Searches a crew person.",
         "!user/!u <username>":
         "Displays the details of a Letterboxd member.",
