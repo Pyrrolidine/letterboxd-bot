@@ -106,8 +106,6 @@ def __get_user_infos(with_extra_info, lbxd_id):
 
 
 def __upload_fav_posters(username, fav_posters_link):
-    if " " in username:
-        return
     # Download posters
     if not os.path.exists(username):
         os.popen('mkdir ' + username)
