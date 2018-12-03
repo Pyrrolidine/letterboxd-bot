@@ -104,7 +104,7 @@ async def helplb(ctx):
     help_embed.description = '[Invite Bot](https://discordapp.com/oauth2'\
         + '/authorize?client_id=437737824255737857'\
         + '&permissions=93248&scope=bot) | '\
-        + '[GitHub](https://github.com/Porkepik/LetterboxdDiscordBot)'
+        + '[GitHub](https://github.com/Porkepik/Letterboxd-Bot)'
     await ctx.send(embed=help_embed)
 
 
