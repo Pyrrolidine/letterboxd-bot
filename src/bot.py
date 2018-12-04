@@ -201,7 +201,6 @@ async def delete(ctx):
             if not cmd_message.author.id == ctx.author.id:
                 return
         await cmd_message.delete()
-    if found_bot_msg:
         await bot_message.delete()
 
 
