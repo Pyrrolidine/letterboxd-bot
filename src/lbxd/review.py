@@ -2,7 +2,7 @@
     Call user_details() first
 """
 
-from .api import bot_api
+from .api import api_call
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound
 from .film import film_details
@@ -33,7 +33,7 @@ async def __find_reviews(user_lbxd_id, display_name, film_id, film_title, film_y
         'member': user_lbxd_id,
         'memberRelationship': 'Owner'
     }
-    response = await bot_api.api_call('log-entries', params)
+    response = await api_call('log-entries', params)
     nb_reviews = len(response['items'])
     if not nb_reviews:
         raise LbxdNotFound(

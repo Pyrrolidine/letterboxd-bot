@@ -4,7 +4,7 @@
 
 from config import SETTINGS
 
-from .api import bot_api
+from .api import api_call
 from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
@@ -29,14 +29,14 @@ def __check_if_fixed_search(keywords):
 
 async def __search_letterboxd(item, cmd_alias, lbxd_id, fixed_search):
     if fixed_search:
-        person_json = await bot_api.api_call('contributor/' + lbxd_id)
+        person_json = await api_call('contributor/' + lbxd_id)
     else:
         params = {'input': item, 'include': 'ContributorSearchItem'}
         if cmd_alias in ['a', 'actor']:
             params['contributionType'] = 'Actor'
         elif cmd_alias in ['d', 'director']:
             params['contributionType'] = 'Director'
-        response = await bot_api.api_call('search', params)
+        response = await api_call('search', params)
         if not response['items']:
             raise LbxdNotFound('No person was found with this search.')
         person_json = response['items'][0]['contributor']
@@ -59,7 +59,7 @@ def __get_details(person_json):
 async def __get_dates(api_url):
     details_text = ''
     url = api_url + '?api_key={}'.format(SETTINGS['tmdb'])
-    person_tmdb = await bot_api.api_call(url, None, False)
+    person_tmdb = await api_call(url, None, False)
     for element in person_tmdb:
         if not person_tmdb[element]:
             continue
@@ -74,7 +74,7 @@ async def __get_dates(api_url):
 
 async def __get_picture(api_url):
     api_url += '/images?api_key=' + SETTINGS['tmdb']
-    person_img = await bot_api.api_call(api_url, None, False)
+    person_img = await api_call(api_url, None, False)
     if not person_img['profiles']:
         return ''
     img_url = 'https://image.tmdb.org/t/p/w200'

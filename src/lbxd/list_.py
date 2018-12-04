@@ -2,7 +2,7 @@
     Call user_details() first
 """
 
-from .api import bot_api
+from .api import api_call
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound
 from .user import user_details
@@ -22,7 +22,7 @@ async def __find_list(keywords, user_lbxd_id):
         'perPage': 50,
         'where': 'Published'
     }
-    response = await bot_api.api_call('lists', params)
+    response = await api_call('lists', params)
     match = False
     for user_list in response['items']:
         for word in keywords.lower().split():
@@ -38,7 +38,7 @@ async def __find_list(keywords, user_lbxd_id):
 
 
 async def __get_infos(list_id):
-    list_json = await bot_api.api_call('list/{}'.format(list_id))
+    list_json = await api_call('list/{}'.format(list_id))
     for link in list_json['links']:
         if link['type'] == 'letterboxd':
             url = link['url']

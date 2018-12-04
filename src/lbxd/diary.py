@@ -2,7 +2,7 @@
     Call user_details() first
 """
 
-from .api import bot_api
+from .api import api_call
 from .helpers import create_embed
 from .user import user_details
 
@@ -21,7 +21,7 @@ async def __get_activity(lbxd_id):
         'memberRelationship': 'Owner',
         'where': 'HasDiaryDate'
     }
-    response = await bot_api.api_call('log-entries', params)
+    response = await api_call('log-entries', params)
     description = ''
     for n_entries, diary_entry in enumerate(response['items']):
         if n_entries > 4:

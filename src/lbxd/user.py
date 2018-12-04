@@ -10,7 +10,7 @@ import cloudinary
 import cloudinary.uploader
 from config import SETTINGS
 
-from .api import bot_api
+from .api import api_call
 from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
@@ -62,7 +62,7 @@ async def __search_profile(username):
         'perPage': '100'
     }
     while True:
-        response = await bot_api.api_call('search', params)
+        response = await api_call('search', params)
         if not response['items']:
             break
         for result in response['items']:
@@ -76,7 +76,7 @@ async def __search_profile(username):
 
 
 async def __get_userjson(lbxd_id):
-    member_response = await bot_api.api_call('member/{}'.format(lbxd_id))
+    member_response = await api_call('member/{}'.format(lbxd_id))
     if member_response == '':
         raise LbxdNotFound(
             'The user wasn\'t found. ' +
@@ -91,7 +91,7 @@ async def __get_infos(member_json, lbxd_id, with_stats=True):
     if member_json.get('location'):
         description += member_json['location'] + '** -- **'
     if with_stats:
-        stats_json = await bot_api.api_call('member/{}/statistics'.format(lbxd_id))
+        stats_json = await api_call('member/{}/statistics'.format(lbxd_id))
         description += str(stats_json['counts']['watches']) + ' films**\n'
     return display_name, avatar_url, description
 
@@ -120,7 +120,7 @@ async def __upload_fav_posters(username, fav_posters_link):
         os.popen('mkdir ' + username)
     img_cmd = 'convert '
     for index, fav_poster in enumerate(fav_posters_link):
-        img_data = await bot_api.api_call(fav_poster, None, False, False)
+        img_data = await api_call(fav_poster, None, False, False)
         temp_fav = '{0}/fav{1}.jpg'.format(username, index)
         img_cmd += temp_fav + ' '
         with open(temp_fav, 'wb') as handler:

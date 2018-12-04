@@ -7,7 +7,7 @@ from re import fullmatch
 
 from config import SETTINGS
 
-from .api import bot_api
+from .api import api_call
 from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
@@ -61,10 +61,10 @@ async def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id
     if has_year:
         keywords = ' '.join(keywords.split()[:-1])
     if fixed_search:
-        film_json = await bot_api.api_call('film/{}'.format(lbxd_id))
+        film_json = await api_call('film/{}'.format(lbxd_id))
     else:
         params = {'input': keywords, 'include': 'FilmSearchItem'}
-        response = await bot_api.api_call('search', params)
+        response = await api_call('search', params)
         if not response.get('items'):
             raise LbxdNotFound('No film was found with this search.')
         results = response['items']
@@ -104,7 +104,7 @@ def __get_links(film_json):
 
 async def __create_description(lbxd_id, tmdb_id, title):
     description = ''
-    film_json = await bot_api.api_call('film/{}'.format(lbxd_id))
+    film_json = await api_call('film/{}'.format(lbxd_id))
 
     original_title = film_json.get('originalName')
     if original_title:
@@ -145,7 +145,7 @@ async def __get_countries(tmdb_id, title):
                 + '?api_key=' + SETTINGS['tmdb']
     country_text = ''
     country_str = ''
-    response = await bot_api.api_call(api_url, None, False)
+    response = await api_call(api_url, None, False)
     if response['title'] == title:
         for count, country in enumerate(response['production_countries']):
             if country['name'] == 'United Kingdom':
@@ -165,7 +165,7 @@ async def __get_countries(tmdb_id, title):
 
 async def __get_mkdb_rating(lbxd_url):
     mkdb_url = lbxd_url.replace('letterboxd.com', 'eiga.me/api')
-    response = await bot_api.api_call(mkdb_url + 'summary', None, False)
+    response = await api_call(mkdb_url + 'summary', None, False)
     if not response['total']:
         return ''
     avg_rating = response['mean']
@@ -178,7 +178,7 @@ async def __get_mkdb_rating(lbxd_url):
 
 async def __get_stats(lbxd_id):
     text = ''
-    stats_json = await bot_api.api_call('film/{}/statistics'.format(lbxd_id))
+    stats_json = await api_call('film/{}/statistics'.format(lbxd_id))
     views = stats_json['counts']['watches']
     if views > 9999:
         views = str(round(views / 1000)) + 'k'
