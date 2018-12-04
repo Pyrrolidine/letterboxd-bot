@@ -2,22 +2,22 @@
     It uses the TMDb API to get the info dates and the picture
 """
 
-import requests
 from config import SETTINGS
 
-from .api import api_call, api_session
+from .api import bot_api
 from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
 
-def crew_embed(input_name, cmd_alias):
+async def crew_embed(input_name, cmd_alias):
     lbxd_id, fixed_search = __check_if_fixed_search(input_name)
-    person_json = __search_letterboxd(input_name, cmd_alias, lbxd_id,
-                                      fixed_search)
+    person_json = await __search_letterboxd(input_name, cmd_alias, lbxd_id,
+                                            fixed_search)
     description, name, url, tmdb_id = __get_details(person_json)
     api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
-    description += __get_dates(api_url)
-    return create_embed(name, url, description, __get_picture(api_url))
+    description += await __get_dates(api_url)
+    picture = await __get_picture(api_url)
+    return create_embed(name, url, description, picture)
 
 
 def __check_if_fixed_search(keywords):
@@ -27,20 +27,19 @@ def __check_if_fixed_search(keywords):
     return '', False
 
 
-def __search_letterboxd(item, cmd_alias, lbxd_id, fixed_search):
+async def __search_letterboxd(item, cmd_alias, lbxd_id, fixed_search):
     if fixed_search:
-        response = api_call('contributor/' + lbxd_id)
-        person_json = response.json()
+        person_json = await bot_api.api_call('contributor/' + lbxd_id)
     else:
         params = {'input': item, 'include': 'ContributorSearchItem'}
         if cmd_alias in ['a', 'actor']:
             params['contributionType'] = 'Actor'
         elif cmd_alias in ['d', 'director']:
             params['contributionType'] = 'Director'
-        response = api_call('search', params)
-        if not response.json()['items']:
+        response = await bot_api.api_call('search', params)
+        if not response['items']:
             raise LbxdNotFound('No person was found with this search.')
-        person_json = response.json()['items'][0]['contributor']
+        person_json = response['items'][0]['contributor']
     return person_json
 
 
@@ -57,43 +56,31 @@ def __get_details(person_json):
     return description, person_json['name'], url, tmdb_id
 
 
-def __get_dates(api_url):
+async def __get_dates(api_url):
     details_text = ''
     url = api_url + '?api_key={}'.format(SETTINGS['tmdb'])
-    try:
-        person_tmdb = api_session.get(url)
-        person_tmdb.raise_for_status()
-    except requests.exceptions.HTTPError:
-        return ''
-
-    for element in person_tmdb.json():
-        if not person_tmdb.json()[element]:
+    person_tmdb = await bot_api.api_call(url, None, False)
+    for element in person_tmdb:
+        if not person_tmdb[element]:
             continue
         if element == 'birthday':
-            details_text += '**Birthday:** ' \
-                            + person_tmdb.json()[element] + '\n'
+            details_text += '**Birthday:** ' + person_tmdb[element] + '\n'
         elif element == 'deathday':
-            details_text += '**Day of Death:** ' \
-                            + person_tmdb.json()[element] + '\n'
+            details_text += '**Day of Death:** ' + person_tmdb[element] + '\n'
         elif element == 'place_of_birth':
-            details_text += '**Place of Birth:** ' \
-                            + person_tmdb.json()[element]
+            details_text += '**Place of Birth:** ' + person_tmdb[element]
     return details_text
 
 
-def __get_picture(api_url):
-    try:
-        person_img = api_session.get(
-            api_url + '/images?api_key={}'.format(SETTINGS['tmdb']))
-        person_img.raise_for_status()
-        if not person_img.json()['profiles']:
-            return ''
-        img_url = 'https://image.tmdb.org/t/p/w200'
-        highest_vote = 0
-        for img in person_img.json()['profiles']:
-            if img['vote_average'] >= highest_vote:
-                highest_vote = img['vote_average']
-                path = img['file_path']
-        return img_url + path
-    except requests.exceptions.HTTPError:
+async def __get_picture(api_url):
+    api_url += '/images?api_key=' + SETTINGS['tmdb']
+    person_img = await bot_api.api_call(api_url, None, False)
+    if not person_img['profiles']:
         return ''
+    img_url = 'https://image.tmdb.org/t/p/w200'
+    highest_vote = 0
+    for img in person_img['profiles']:
+        if img['vote_average'] >= highest_vote:
+            highest_vote = img['vote_average']
+            path = img['file_path']
+    return img_url + path

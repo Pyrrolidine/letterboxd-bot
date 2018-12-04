@@ -6,7 +6,6 @@ import logging
 from asyncio import sleep
 
 import discord
-import requests
 from config import SETTINGS
 from discord.ext import commands
 from lbxd.crew import crew_embed
@@ -24,7 +23,6 @@ logging.basicConfig(
 
 bot = commands.Bot(command_prefix='!', case_insensitive=True)
 bot.remove_command('help')
-
 
 @bot.event
 async def on_ready():
@@ -63,9 +61,6 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandInvokeError):
         if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
-            return
-        if isinstance(error.original, requests.exceptions.ConnectionError):
-            await ctx.send('The command failed due to connection issues.')
             return
     await ctx.send('The command crashed, contact Porkepik#2664 '
                    'for a possible fix.')
@@ -111,7 +106,7 @@ async def helplb(ctx):
 @bot.command(aliases=['u'])
 async def user(ctx, username):
     try:
-        msg = user_embed(username)
+        msg = await user_embed(username)
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -120,7 +115,7 @@ async def user(ctx, username):
 @bot.command()
 async def diary(ctx, username):
     try:
-        msg = diary_embed(username)
+        msg = await diary_embed(username)
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -129,7 +124,7 @@ async def diary(ctx, username):
 @bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
 async def crew(ctx, *, arg):
     try:
-        msg = crew_embed(arg, ctx.invoked_with)
+        msg = await crew_embed(arg, ctx.invoked_with)
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -140,9 +135,9 @@ async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
         if ctx.guild and ctx.guild.id in SETTINGS['mkdb_servers']:
-            msg = film_embed(arg, True)
+            msg = await film_embed(arg, True)
         else:
-            msg = film_embed(arg)
+            msg = await film_embed(arg)
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -159,7 +154,7 @@ async def check_if_two_args(ctx):
 @commands.check(check_if_two_args)
 async def list_(ctx, username, *args):
     try:
-        msg = list_embed(username, ' '.join(str(i) for i in args))
+        msg = await list_embed(username, ' '.join(str(i) for i in args))
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)
@@ -169,7 +164,7 @@ async def list_(ctx, username, *args):
 @commands.check(check_if_two_args)
 async def review(ctx, username, *args):
     try:
-        msg = review_embed(username, ' '.join(str(i) for i in args))
+        msg = await review_embed(username, ' '.join(str(i) for i in args))
     except LbxdErrors as err:
         msg = err
     await send_msg(ctx, msg)

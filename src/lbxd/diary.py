@@ -2,27 +2,28 @@
     Call user_details() first
 """
 
-from .api import api_call
+from .api import bot_api
 from .helpers import create_embed
 from .user import user_details
 
 
-def diary_embed(username):
-    username, display_name, user_lbxd_id, avatar_url = user_details(username)
+async def diary_embed(username):
+    username, display_name, user_lbxd_id, avatar_url = await user_details(username)
     url = 'https://letterboxd.com/{}/films/diary'.format(username)
     title = 'Recent diary activity from {}'.format(display_name)
-    return create_embed(title, url, __get_activity(user_lbxd_id), avatar_url)
+    description = await __get_activity(user_lbxd_id)
+    return create_embed(title, url, description, avatar_url)
 
 
-def __get_activity(lbxd_id):
+async def __get_activity(lbxd_id):
     params = {
         'member': lbxd_id,
         'memberRelationship': 'Owner',
         'where': 'HasDiaryDate'
     }
-    response = api_call('log-entries', params)
+    response = await bot_api.api_call('log-entries', params)
     description = ''
-    for n_entries, diary_entry in enumerate(response.json()['items']):
+    for n_entries, diary_entry in enumerate(response['items']):
         if n_entries > 4:
             break
         for link in diary_entry['links']:

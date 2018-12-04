@@ -5,37 +5,36 @@
 
 from re import fullmatch
 
-import requests
 from config import SETTINGS
 
-from .api import api_call, api_session
+from .api import bot_api
 from .helpers import create_embed
 from .exceptions import LbxdNotFound
 
 
-def film_embed(keywords, with_mkdb=False):
+async def film_embed(keywords, with_mkdb=False):
     input_year, has_year = __check_year(keywords)
     lbxd_id, fixed_search = __check_if_fixed_search(keywords)
-    film_json = __search_request(keywords, has_year, input_year, fixed_search,
-                                 lbxd_id)
+    film_json = await __search_request(keywords, has_year, input_year,
+                                       fixed_search, lbxd_id)
     lbxd_id = film_json['id']
     title = film_json['name']
     year = film_json.get('releaseYear')
     lbxd_url, tmdb_id, poster_path = __get_links(film_json)
-    description = __create_description(lbxd_id, tmdb_id, title)
+    description = await __create_description(lbxd_id, tmdb_id, title)
     if with_mkdb:
-        description += __get_mkdb_rating(lbxd_url)
-    description += __get_stats(lbxd_id)
+        description += await __get_mkdb_rating(lbxd_url)
+    description += await __get_stats(lbxd_id)
     if year:
         title += ' (' + str(year) + ')'
     return create_embed(title, lbxd_url, description, poster_path)
 
 
-def film_details(keywords):
+async def film_details(keywords):
     input_year, has_year = __check_year(keywords)
     lbxd_id, fixed_search = __check_if_fixed_search(keywords)
-    film_json = __search_request(keywords, has_year, input_year, fixed_search,
-                                 lbxd_id)
+    film_json = await __search_request(keywords, has_year, input_year,
+                                       fixed_search, lbxd_id)
     lbxd_id = film_json['id']
     title = film_json['name']
     year = film_json.get('releaseYear')
@@ -57,18 +56,18 @@ def __check_if_fixed_search(keywords):
     return '', False
 
 
-def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id):
+async def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id):
     found = False
     if has_year:
         keywords = ' '.join(keywords.split()[:-1])
     if fixed_search:
-        film_json = api_call('film/{}'.format(lbxd_id)).json()
+        film_json = await bot_api.api_call('film/{}'.format(lbxd_id))
     else:
         params = {'input': keywords, 'include': 'FilmSearchItem'}
-        response = api_call('search', params)
-        results = response.json()['items']
-        if not results:
+        response = await bot_api.api_call('search', params)
+        if not response.get('items'):
             raise LbxdNotFound('No film was found with this search.')
+        results = response['items']
         if has_year:
             for result in results:
                 if not result['film'].get('releaseYear'):
@@ -103,9 +102,9 @@ def __get_links(film_json):
     return lbxd_url, tmdb_id, poster_path
 
 
-def __create_description(lbxd_id, tmdb_id, title):
+async def __create_description(lbxd_id, tmdb_id, title):
     description = ''
-    film_json = api_call('film/{}'.format(lbxd_id)).json()
+    film_json = await bot_api.api_call('film/{}'.format(lbxd_id))
 
     original_title = film_json.get('originalName')
     if original_title:
@@ -124,7 +123,7 @@ def __create_description(lbxd_id, tmdb_id, title):
             description += '**Director:** '
         description += director_str[:-2] + '\n'
 
-    description += __get_countries(tmdb_id, title)
+    description += await __get_countries(tmdb_id, title)
     runtime = film_json.get('runTime')
     description += '**Length:** ' + str(runtime) + ' mins\n' if runtime else ''
 
@@ -141,55 +140,45 @@ def __create_description(lbxd_id, tmdb_id, title):
     return description
 
 
-def __get_countries(tmdb_id, title):
+async def __get_countries(tmdb_id, title):
     api_url = 'https://api.themoviedb.org/3/movie/' + tmdb_id\
                 + '?api_key=' + SETTINGS['tmdb']
     country_text = ''
-    try:
-        response = api_session.get(api_url)
-        response.raise_for_status()
-        country_str = ''
-        if response.json()['title'] == title:
-            for count, country in enumerate(
-                    response.json()['production_countries']):
-                if country['name'] == 'United Kingdom':
-                    country_str += 'UK, '
-                elif country['name'] == 'United States of America':
-                    country_str += 'USA, '
-                else:
-                    country_str += country['name'] + ', '
-            if country_str:
-                if count:
-                    country_text += '**Countries:** '
-                else:
-                    country_text += '**Country:** '
-                country_text += country_str[:-2] + '\n'
-    except requests.exceptions.HTTPError:
-        pass
+    country_str = ''
+    response = await bot_api.api_call(api_url, None, False)
+    if response['title'] == title:
+        for count, country in enumerate(response['production_countries']):
+            if country['name'] == 'United Kingdom':
+                country_str += 'UK, '
+            elif country['name'] == 'United States of America':
+                country_str += 'USA, '
+            else:
+                country_str += country['name'] + ', '
+        if country_str:
+            if count:
+                country_text += '**Countries:** '
+            else:
+                country_text += '**Country:** '
+            country_text += country_str[:-2] + '\n'
     return country_text
 
 
-def __get_mkdb_rating(lbxd_url):
+async def __get_mkdb_rating(lbxd_url):
     mkdb_url = lbxd_url.replace('letterboxd.com', 'eiga.me/api')
-    try:
-        page = api_session.get(mkdb_url + 'summary')
-        page.raise_for_status()
-    except requests.exceptions.HTTPError:
+    response = await bot_api.api_call(mkdb_url + 'summary', None, False)
+    if not response['total']:
         return ''
-    if not page.json()['total']:
-        return ''
-    avg_rating = page.json()['mean']
-    nb_ratings = page.json()['total']
+    avg_rating = response['mean']
+    nb_ratings = response['total']
     mkdb_description = '**MKDb Average:** [' + str(avg_rating)
     mkdb_description += ' / ' + str(nb_ratings) + ' ratings\n]'
     mkdb_description += '(' + mkdb_url.replace('/api', '') + ')'
     return mkdb_description
 
 
-def __get_stats(lbxd_id):
+async def __get_stats(lbxd_id):
     text = ''
-    response = api_call('film/{}/statistics'.format(lbxd_id))
-    stats_json = response.json()
+    stats_json = await bot_api.api_call('film/{}/statistics'.format(lbxd_id))
     views = stats_json['counts']['watches']
     if views > 9999:
         views = str(round(views / 1000)) + 'k'

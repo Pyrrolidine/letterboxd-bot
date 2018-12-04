@@ -2,21 +2,21 @@
     Call user_details() first
 """
 
-from .api import api_call
+from .api import bot_api
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound
 from .film import film_details
 from .user import user_details
 
 
-def review_embed(username, film_search):
-    username, display_name, user_lbxd_id, __ = user_details(username)
-    film_id, film_title, film_year, poster_path, film_lbxd_url = film_details(
+async def review_embed(username, film_search):
+    username, display_name, user_lbxd_id, __ = await user_details(username)
+    film_id, film_title, film_year, poster_path, film_lbxd_url = await film_details(
         film_search)
     activity_url = film_lbxd_url.replace(
         '.com/', '.com/{}/'.format(username)) + 'activity'
-    response, nb_reviews = __find_reviews(user_lbxd_id, display_name, film_id,
-                                          film_title, film_year)
+    response, nb_reviews = await __find_reviews(user_lbxd_id, display_name,
+                                                film_id, film_title, film_year)
     description, embed_url = __create_description(response, activity_url)
 
     if nb_reviews > 1:
@@ -27,13 +27,13 @@ def review_embed(username, film_search):
     return create_embed(title, embed_url, description, poster_path)
 
 
-def __find_reviews(user_lbxd_id, display_name, film_id, film_title, film_year):
+async def __find_reviews(user_lbxd_id, display_name, film_id, film_title, film_year):
     params = {
         'film': film_id,
         'member': user_lbxd_id,
         'memberRelationship': 'Owner'
     }
-    response = api_call('log-entries', params).json()
+    response = await bot_api.api_call('log-entries', params)
     nb_reviews = len(response['items'])
     if not nb_reviews:
         raise LbxdNotFound(

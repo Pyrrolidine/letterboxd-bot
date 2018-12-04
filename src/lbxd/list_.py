@@ -2,27 +2,27 @@
     Call user_details() first
 """
 
-from .api import api_call
+from .api import bot_api
 from .helpers import create_embed, format_text
 from .exceptions import LbxdNotFound
 from .user import user_details
 
 
-def list_embed(username, keywords):
-    __, __, user_lbxd_id, __ = user_details(username)
-    list_id = __find_list(keywords, user_lbxd_id)
-    description, url, poster_url, name = __get_infos(list_id)
+async def list_embed(username, keywords):
+    __, __, user_lbxd_id, __ = await user_details(username)
+    list_id = await __find_list(keywords, user_lbxd_id)
+    description, url, poster_url, name = await __get_infos(list_id)
     return create_embed(name, url, description, poster_url)
 
 
-def __find_list(keywords, user_lbxd_id):
+async def __find_list(keywords, user_lbxd_id):
     params = {
         'member': user_lbxd_id,
         'memberRelationship': 'Owner',
         'perPage': 50,
         'where': 'Published'
     }
-    response = api_call('lists', params).json()
+    response = await bot_api.api_call('lists', params)
     match = False
     for user_list in response['items']:
         for word in keywords.lower().split():
@@ -37,8 +37,8 @@ def __find_list(keywords, user_lbxd_id):
                        'Make sure the first word is a **username**.')
 
 
-def __get_infos(list_id):
-    list_json = api_call('list/{}'.format(list_id)).json()
+async def __get_infos(list_id):
+    list_json = await bot_api.api_call('list/{}'.format(list_id))
     for link in list_json['links']:
         if link['type'] == 'letterboxd':
             url = link['url']
