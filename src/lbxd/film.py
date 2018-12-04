@@ -13,10 +13,9 @@ from .exceptions import LbxdNotFound
 
 
 async def film_embed(keywords, with_mkdb=False):
-    input_year, has_year = __check_year(keywords)
-    lbxd_id, fixed_search = __check_if_fixed_search(keywords)
-    film_json = await __search_request(keywords, has_year, input_year,
-                                       fixed_search, lbxd_id)
+    input_year = __check_year(keywords)
+    lbxd_id = __check_if_fixed_search(keywords)
+    film_json = await __search_request(keywords, input_year, lbxd_id)
     lbxd_id = film_json['id']
     title = film_json['name']
     year = film_json.get('releaseYear')
@@ -31,10 +30,9 @@ async def film_embed(keywords, with_mkdb=False):
 
 
 async def film_details(keywords):
-    input_year, has_year = __check_year(keywords)
-    lbxd_id, fixed_search = __check_if_fixed_search(keywords)
-    film_json = await __search_request(keywords, has_year, input_year,
-                                       fixed_search, lbxd_id)
+    input_year = __check_year(keywords)
+    lbxd_id = __check_if_fixed_search(keywords)
+    film_json = await __search_request(keywords, input_year, lbxd_id)
     lbxd_id = film_json['id']
     title = film_json['name']
     year = film_json.get('releaseYear')
@@ -45,22 +43,22 @@ async def film_details(keywords):
 def __check_year(keywords):
     last_word = keywords.split()[-1]
     if fullmatch(r'\(\d{4}\)', last_word):
-        return last_word.replace('(', '').replace(')', ''), True
-    return '', False
+        return last_word.replace('(', '').replace(')', '')
+    return ''
 
 
 def __check_if_fixed_search(keywords):
     for title, lbxd_id in SETTINGS['fixed_film_search'].items():
         if title.lower() == keywords.lower():
-            return lbxd_id, True
-    return '', False
+            return lbxd_id
+    return ''
 
 
-async def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id):
+async def __search_request(keywords, input_year, lbxd_id):
     found = False
-    if has_year:
+    if input_year:
         keywords = ' '.join(keywords.split()[:-1])
-    if fixed_search:
+    if lbxd_id:
         film_json = await api_call('film/{}'.format(lbxd_id))
     else:
         params = {'input': keywords, 'include': 'FilmSearchItem'}
@@ -68,7 +66,7 @@ async def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id
         if not response.get('items'):
             raise LbxdNotFound('No film was found with this search.')
         results = response['items']
-        if has_year:
+        if input_year:
             for result in results:
                 if not result['film'].get('releaseYear'):
                     continue
@@ -79,7 +77,7 @@ async def __search_request(keywords, has_year, input_year, fixed_search, lbxd_id
                     break
         else:
             film_json = results[0]['film']
-    if has_year and not found:
+    if input_year and not found:
         raise LbxdNotFound('No film was found with this search.')
     return film_json
 

@@ -10,9 +10,8 @@ from .exceptions import LbxdNotFound
 
 
 async def crew_embed(input_name, cmd_alias):
-    lbxd_id, fixed_search = __check_if_fixed_search(input_name)
-    person_json = await __search_letterboxd(input_name, cmd_alias, lbxd_id,
-                                            fixed_search)
+    lbxd_id = __check_if_fixed_search(input_name)
+    person_json = await __search_letterboxd(input_name, cmd_alias, lbxd_id)
     description, name, url, tmdb_id = __get_details(person_json)
     api_url = 'https://api.themoviedb.org/3/person/{}'.format(tmdb_id)
     description += await __get_dates(api_url)
@@ -23,12 +22,12 @@ async def crew_embed(input_name, cmd_alias):
 def __check_if_fixed_search(keywords):
     for name, lbxd_id in SETTINGS['fixed_crew_search'].items():
         if name.lower() == keywords.lower():
-            return lbxd_id, True
-    return '', False
+            return lbxd_id
+    return ''
 
 
-async def __search_letterboxd(item, cmd_alias, lbxd_id, fixed_search):
-    if fixed_search:
+async def __search_letterboxd(item, cmd_alias, lbxd_id):
+    if lbxd_id:
         person_json = await api_call('contributor/' + lbxd_id)
     else:
         params = {'input': item, 'include': 'ContributorSearchItem'}
