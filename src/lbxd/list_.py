@@ -51,8 +51,7 @@ async def __get_infos(list_id):
     if list_json['previewEntries']:
         poster_json = list_json['previewEntries'][0]['film'].get('poster')
         if poster_json:
-            film_posters = poster_json
-            for poster in film_posters['sizes']:
+            for poster in poster_json['sizes']:
                 if poster['height'] > 400:
                     poster_url = poster['url']
                     break

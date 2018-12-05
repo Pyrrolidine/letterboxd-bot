@@ -39,7 +39,6 @@ async def user_embed(username):
 
 async def user_details(username):
     username = username.lower()
-    url = 'https://letterboxd.com/{}'.format(username)
     lbxd_id = __check_if_fixed_search(username)
     if not lbxd_id:
         lbxd_id = await __search_profile(username)

@@ -76,10 +76,9 @@ async def __get_picture(api_url):
     person_img = await api_call(api_url, None, False)
     if not person_img['profiles']:
         return ''
-    img_url = 'https://image.tmdb.org/t/p/w200'
     highest_vote = 0
     for img in person_img['profiles']:
         if img['vote_average'] >= highest_vote:
             highest_vote = img['vote_average']
             path = img['file_path']
-    return img_url + path
+    return 'https://image.tmdb.org/t/p/w200' + path

@@ -166,10 +166,8 @@ async def __get_mkdb_rating(lbxd_url):
     response = await api_call(mkdb_url + 'summary', None, False)
     if not response['total']:
         return ''
-    avg_rating = response['mean']
-    nb_ratings = response['total']
-    mkdb_description = '**MKDb Average:** [' + str(avg_rating)
-    mkdb_description += ' / ' + str(nb_ratings) + ' ratings\n]'
+    mkdb_description = '**MKDb Average:** [' + str(response['mean'])
+    mkdb_description += ' / ' + str(response['total']) + ' ratings\n]'
     mkdb_description += '(' + mkdb_url.replace('/api', '') + ')'
     return mkdb_description
 
@@ -183,11 +181,10 @@ async def __get_stats(lbxd_id):
     elif views > 999:
         views = str(round(views / 1000, 1)) + 'k'
     if stats_json.get('rating'):
-        rating = stats_json['rating']
         ratings_count = stats_json['counts']['ratings']
         if ratings_count > 999:
             ratings_count = str(round(ratings_count / 1000, 1)) + 'k'
-        text += '**Average Rating:** ' + str(round(rating, 2))
+        text += '**Average Rating:** ' + str(round(stats_json['rating'], 2))
         text += ' / ' + str(ratings_count) + ' ratings\n'
     text += 'Watched by ' + str(views) + ' members'
     return text
