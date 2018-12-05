@@ -144,7 +144,7 @@ async def __get_countries(tmdb_id, title):
     country_text = ''
     country_str = ''
     response = await api_call(api_url, None, False)
-    if response['title'] == title:
+    if response and response['title'] == title:
         for count, country in enumerate(response['production_countries']):
             if country['name'] == 'United Kingdom':
                 country_str += 'UK, '
