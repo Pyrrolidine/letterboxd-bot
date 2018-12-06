@@ -74,7 +74,7 @@ async def __get_dates(api_url):
 async def __get_picture(api_url):
     api_url += '/images?api_key=' + SETTINGS['tmdb']
     person_img = await api_call(api_url, None, False)
-    if not person_img['profiles']:
+    if not person_img or not person_img['profiles']:
         return ''
     highest_vote = 0
     for img in person_img['profiles']:
