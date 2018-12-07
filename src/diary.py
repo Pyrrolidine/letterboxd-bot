@@ -2,9 +2,9 @@
     Call user_details() first
 """
 
-from .api import api_call
-from .helpers import create_embed
-from .user import user_details
+from api import api_call
+from helpers import create_embed
+from user import user_details
 
 
 async def diary_embed(username):

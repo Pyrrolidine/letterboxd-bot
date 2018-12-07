@@ -7,9 +7,8 @@ from re import fullmatch
 
 from config import SETTINGS
 
-from .api import api_call
-from .helpers import create_embed
-from .exceptions import LbxdNotFound
+from api import api_call
+from helpers import create_embed, LetterboxdError
 
 
 async def film_embed(keywords, with_mkdb=False):
@@ -64,7 +63,7 @@ async def __search_request(keywords, input_year, lbxd_id):
         params = {'input': keywords, 'include': 'FilmSearchItem'}
         response = await api_call('search', params)
         if not response.get('items'):
-            raise LbxdNotFound('No film was found with this search.')
+            raise LetterboxdError('No film was found with this search.')
         results = response['items']
         if input_year:
             for result in results:
@@ -78,7 +77,7 @@ async def __search_request(keywords, input_year, lbxd_id):
         else:
             film_json = results[0]['film']
     if input_year and not found:
-        raise LbxdNotFound('No film was found with this search.')
+        raise LetterboxdError('No film was found with this search.')
     return film_json
 
 

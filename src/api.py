@@ -13,7 +13,7 @@ from urllib.parse import urlencode
 
 import aiohttp
 from config import SETTINGS
-from .exceptions import LbxdServerError
+from helpers import LetterboxdError
 
 session = aiohttp.ClientSession(loop=asyncio.get_event_loop())
 
@@ -33,7 +33,7 @@ async def api_call(path, params=None, letterboxd=True, is_json=True):
         api_url = url + '&signature=' + __sign(url)
     async with session.get(api_url) as resp:
         if resp.status >= 500:
-            raise LbxdServerError('A request to the Letterboxd API failed.' +
+            raise LetterboxdError('A request to the Letterboxd API failed.' +
                                   ' This may be due to a server issue.')
         elif resp.status >= 400:
             return ''

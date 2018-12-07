@@ -4,9 +4,8 @@
 
 from config import SETTINGS
 
-from .api import api_call
-from .helpers import create_embed
-from .exceptions import LbxdNotFound
+from api import api_call
+from helpers import create_embed, LetterboxdError
 
 
 async def crew_embed(input_name, cmd_alias):
@@ -37,7 +36,7 @@ async def __search_letterboxd(item, cmd_alias, lbxd_id):
             params['contributionType'] = 'Director'
         response = await api_call('search', params)
         if not response['items']:
-            raise LbxdNotFound('No person was found with this search.')
+            raise LetterboxdError('No person was found with this search.')
         person_json = response['items'][0]['contributor']
     return person_json
 

@@ -2,11 +2,10 @@
     Call user_details() first
 """
 
-from .api import api_call
-from .helpers import create_embed, format_text
-from .exceptions import LbxdNotFound
-from .film import film_details
-from .user import user_details
+from api import api_call
+from helpers import create_embed, format_text, LetterboxdError
+from film import film_details
+from user import user_details
 
 
 async def review_embed(username, film_search):
@@ -36,7 +35,7 @@ async def __find_reviews(user_lbxd_id, display_name, film_id, film_title, film_y
     response = await api_call('log-entries', params)
     nb_reviews = len(response['items'])
     if not nb_reviews:
-        raise LbxdNotFound(
+        raise LetterboxdError(
             '{0} does not have logged activity for {1} ({2}).'.format(
                 display_name, film_title, film_year))
     return response, nb_reviews

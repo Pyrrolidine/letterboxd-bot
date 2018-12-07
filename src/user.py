@@ -10,9 +10,8 @@ import cloudinary
 import cloudinary.uploader
 from config import SETTINGS
 
-from .api import api_call
-from .helpers import create_embed
-from .exceptions import LbxdNotFound
+from api import api_call
+from helpers import create_embed, LetterboxdError
 
 cloudinary.config(
     cloud_name=SETTINGS['cloudinary']['cloud_name'],
@@ -71,13 +70,13 @@ async def __search_profile(username):
             params['cursor'] = response['next']
         else:
             break
-    raise LbxdNotFound('The user **' + username + '** wasn\'t found.')
+    raise LetterboxdError('The user **' + username + '** wasn\'t found.')
 
 
 async def __get_userjson(lbxd_id):
     member_response = await api_call('member/{}'.format(lbxd_id))
     if member_response == '':
-        raise LbxdNotFound(
+        raise LetterboxdError(
             'The user wasn\'t found. ' +
             'They may have refused to be reachable via the API.')
     return member_response

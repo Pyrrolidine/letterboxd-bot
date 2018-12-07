@@ -2,10 +2,9 @@
     Call user_details() first
 """
 
-from .api import api_call
-from .helpers import create_embed, format_text
-from .exceptions import LbxdNotFound
-from .user import user_details
+from api import api_call
+from helpers import create_embed, format_text, LetterboxdError
+from user import user_details
 
 
 async def list_embed(username, keywords):
@@ -33,7 +32,7 @@ async def __find_list(keywords, user_lbxd_id):
                 break
         if match:
             return user_list['id']
-    raise LbxdNotFound('No list was found (limit to 50 most recent).\n' +
+    raise LetterboxdError('No list was found (limit to 50 most recent).\n' +
                        'Make sure the first word is a **username**.')
 
 

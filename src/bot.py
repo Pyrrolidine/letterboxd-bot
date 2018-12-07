@@ -1,20 +1,16 @@
-""" Main File
-    Event functions followed by a function for each command
-"""
-
 import logging
 from asyncio import sleep
 
 import discord
-from config import SETTINGS
 from discord.ext import commands
-from lbxd.crew import crew_embed
-from lbxd.diary import diary_embed
-from lbxd.exceptions import LbxdErrors
-from lbxd.film import film_embed
-from lbxd.list_ import list_embed
-from lbxd.review import review_embed
-from lbxd.user import user_embed
+from config import SETTINGS
+from crew import crew_embed
+from diary import diary_embed
+from helpers import LetterboxdError
+from film import film_embed
+from list_ import list_embed
+from review import review_embed
+from user import user_embed
 
 logging.basicConfig(
     level=logging.INFO,
@@ -107,7 +103,7 @@ async def helplb(ctx):
 async def user(ctx, username):
     try:
         msg = await user_embed(username)
-    except LbxdErrors as err:
+    except LetterboxdError as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -116,7 +112,7 @@ async def user(ctx, username):
 async def diary(ctx, username):
     try:
         msg = await diary_embed(username)
-    except LbxdErrors as err:
+    except LetterboxdError as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -125,7 +121,7 @@ async def diary(ctx, username):
 async def crew(ctx, *, arg):
     try:
         msg = await crew_embed(arg, ctx.invoked_with)
-    except LbxdErrors as err:
+    except LetterboxdError as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -138,7 +134,7 @@ async def film(ctx, *, arg):
             msg = await film_embed(arg, True)
         else:
             msg = await film_embed(arg)
-    except LbxdErrors as err:
+    except LetterboxdError as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -155,7 +151,7 @@ async def check_if_two_args(ctx):
 async def list_(ctx, username, *args):
     try:
         msg = await list_embed(username, ' '.join(str(i) for i in args))
-    except LbxdErrors as err:
+    except LetterboxdError as err:
         msg = err
     await send_msg(ctx, msg)
 
@@ -165,7 +161,7 @@ async def list_(ctx, username, *args):
 async def review(ctx, username, *args):
     try:
         msg = await review_embed(username, ' '.join(str(i) for i in args))
-    except LbxdErrors as err:
+    except LetterboxdError as err:
         msg = err
     await send_msg(ctx, msg)
 

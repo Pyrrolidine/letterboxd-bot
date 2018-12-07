@@ -8,6 +8,10 @@ from html.parser import HTMLParser
 from discord import Embed
 
 
+class LetterboxdError(Exception):
+    pass
+
+
 class BotHTMLParser(HTMLParser):
     def __init__(self):
         self.text = ''
