@@ -17,6 +17,7 @@ from helpers import LetterboxdError
 
 session = aiohttp.ClientSession(loop=asyncio.get_event_loop())
 
+
 async def api_call(path, params=None, letterboxd=True, is_json=True):
     if not params:
         params = dict()
@@ -42,6 +43,7 @@ async def api_call(path, params=None, letterboxd=True, is_json=True):
         else:
             response = await resp.read()
     return response
+
 
 def __sign(url, body=''):
     # Create the salted bytestring

@@ -8,10 +8,10 @@ from user import user_details
 
 
 async def diary_embed(username):
-    username, display_name, user_lbxd_id, avatar_url = await user_details(username)
+    username, display_name, user_id, avatar_url = await user_details(username)
     url = 'https://letterboxd.com/{}/films/diary'.format(username)
     title = 'Recent diary activity from {}'.format(display_name)
-    description = await __get_activity(user_lbxd_id)
+    description = await __get_activity(user_id)
     return create_embed(title, url, description, avatar_url)
 
 

@@ -33,7 +33,7 @@ async def __find_list(keywords, user_lbxd_id):
         if match:
             return user_list['id']
     raise LetterboxdError('No list was found (limit to 50 most recent).\n' +
-                       'Make sure the first word is a **username**.')
+                          'Make sure the first word is a **username**.')
 
 
 async def __get_infos(list_id):

@@ -82,7 +82,7 @@ async def __get_userjson(lbxd_id):
     return member_response
 
 
-async def __get_infos(member_json, lbxd_id, with_stats=True): 
+async def __get_infos(member_json, lbxd_id, with_stats=True):
     display_name = member_json['displayName']
     avatar_url = member_json['avatar']['sizes'][-1]['url']
     description = '**'
