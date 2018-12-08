@@ -1,8 +1,3 @@
-""" Film command functions
-    film_details() is used by review.py
-    It uses the TMDb API to get the production countries of a film
-"""
-
 from re import fullmatch
 
 from api import api_call

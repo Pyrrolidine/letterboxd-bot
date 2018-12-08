@@ -1,8 +1,3 @@
-""" User command functions
-    user_details() is used by review.py, diary.py and list.py
-    It uses the Cloudinary API to host the user's favourite films image
-"""
-
 import os
 import subprocess
 

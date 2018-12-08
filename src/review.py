@@ -1,7 +1,3 @@
-""" Review command functions
-    Call user_details() first
-"""
-
 from api import api_call
 from film import film_details
 from helpers import create_embed, format_text, LetterboxdError

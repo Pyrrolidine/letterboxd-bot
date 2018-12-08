@@ -1,7 +1,3 @@
-""" Crew command functions
-    It uses the TMDb API to get the info dates and the picture
-"""
-
 from api import api_call
 from config import SETTINGS
 from helpers import create_embed, LetterboxdError
