@@ -6,8 +6,8 @@ from discord.ext import commands
 from config import SETTINGS
 from crew import crew_embed
 from diary import diary_embed
-from helpers import LetterboxdError
 from film import film_embed
+from helpers import LetterboxdError
 from list_ import list_embed
 from review import review_embed
 from user import user_embed

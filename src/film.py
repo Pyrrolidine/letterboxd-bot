@@ -5,9 +5,8 @@
 
 from re import fullmatch
 
-from config import SETTINGS
-
 from api import api_call
+from config import SETTINGS
 from helpers import create_embed, LetterboxdError
 
 
