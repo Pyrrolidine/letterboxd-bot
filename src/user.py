@@ -6,17 +6,9 @@
 import os
 import subprocess
 
-import cloudinary
-import cloudinary.uploader
+from api import api_call, post_call
 from config import SETTINGS
-
-from api import api_call
 from helpers import create_embed, LetterboxdError
-
-cloudinary.config(
-    cloud_name=SETTINGS['cloudinary']['cloud_name'],
-    api_key=SETTINGS['cloudinary']['api_key'],
-    api_secret=SETTINGS['cloudinary']['api_secret'])
 
 
 async def user_embed(username):
@@ -130,6 +122,9 @@ async def __upload_fav_posters(username, fav_posters_link):
     with open('{}/fav.jpg'.format(username), 'rb') as pic:
         bin_pic = pic.read()
     os.popen('rm -r ' + username)
-    result = cloudinary.uploader.upload(
-        bin_pic, public_id=username, folder='bot favs')
+    upload_url = 'https://api.cloudinary.com/v1_1/'
+    upload_url += SETTINGS['cloudinary']['cloud_name'] + '/image/upload'
+    params = {'file': bin_pic,
+              'upload_preset': SETTINGS['cloudinary']['preset']}
+    result = await post_call(upload_url, params)
     return result['url']

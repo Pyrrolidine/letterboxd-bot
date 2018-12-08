@@ -1,8 +1,7 @@
 SETTINGS = dict()
 SETTINGS["cloudinary"] = {
-    "api_key": "",
-    "api_secret": "",
-    "cloud_name": ""
+    "cloud_name": "",
+    "preset": ""
 }
 SETTINGS["discord"] = ""
 SETTINGS["fixed_crew_search"] = {

@@ -45,6 +45,14 @@ async def api_call(path, params=None, letterboxd=True, is_json=True):
     return response
 
 
+async def post_call(path, params=None):
+    if not params:
+        params = dict()
+    async with session.post(path, data=params) as resp:
+        response = await resp.json()
+    return response
+
+
 def __sign(url, body=''):
     # Create the salted bytestring
     signing_bytestring = b'\x00'.join(
