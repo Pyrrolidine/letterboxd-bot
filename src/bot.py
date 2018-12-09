@@ -185,7 +185,7 @@ async def delete(ctx):
             if log_message.content:
                 first_word = log_message.content.split()[0]
             else:
-                return
+                continue
             if first_word in cmd_list:
                 found_usr_cmd = True
                 cmd_message = log_message
