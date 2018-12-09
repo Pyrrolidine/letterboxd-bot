@@ -47,22 +47,20 @@ async def update_stats():
 async def on_command_error(ctx, error):
     if isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('This command requires a parameter.')
-        return
-    if isinstance(error, commands.BotMissingPermissions):
-        await ctx.send(
-            'The bot needs the {} permission to use this command.'.format(
+    elif isinstance(error, commands.BotMissingPermissions):
+        await ctx.send('This command requires the {} permission.'.format(
                 ', '.join(err for err in error.missing_perms)))
+    elif isinstance(error, (commands.CommandNotFound, commands.CheckFailure)):
         return
-    if isinstance(error, (commands.CommandNotFound, commands.CheckFailure)):
-        return
-    if isinstance(error, commands.CommandInvokeError):
+    elif isinstance(error, commands.CommandInvokeError):
         if isinstance(error.original, discord.HTTPException)\
                 and error.original.status == 403:
-            return
-    await ctx.send('The command crashed, contact Porkepik#2664 '
-                   'for a possible fix.')
-    logging.error(ctx.message.content)
-    raise error
+                    return
+    else:
+        await ctx.send('The command crashed, contact Porkepik#2664 '
+                       'for a possible fix.')
+        logging.error(ctx.message.content)
+        raise error
 
 
 async def send_msg(ctx, msg):
