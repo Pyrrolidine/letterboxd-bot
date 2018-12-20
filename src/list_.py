@@ -45,9 +45,10 @@ async def __get_infos(list_id):
         description += format_text(list_json['descriptionLbml'], 300)
     if list_json['previewEntries']:
         poster_json = list_json['previewEntries'][0]['film'].get('poster')
-        if poster_json:
-            for poster in poster_json['sizes']:
-                if poster['height'] > 400:
-                    poster_url = poster['url']
-                    break
+        if not poster_json:
+            return description, url, None, list_json['name']
+        for poster in poster_json['sizes']:
+            if poster['height'] > 400:
+                poster_url = poster['url']
+                break
     return description, url, poster_url, list_json['name']

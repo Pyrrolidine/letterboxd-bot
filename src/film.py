@@ -53,23 +53,23 @@ async def __search_request(keywords, input_year, lbxd_id):
         keywords = ' '.join(keywords.split()[:-1])
     if lbxd_id:
         film_json = await api_call('film/{}'.format(lbxd_id))
+        return film_json
+    params = {'input': keywords, 'include': 'FilmSearchItem'}
+    response = await api_call('search', params)
+    if not response.get('items'):
+        raise LetterboxdError('No film was found with this search.')
+    results = response['items']
+    if input_year:
+        for result in results:
+            if not result['film'].get('releaseYear'):
+                continue
+            film_year = str(result['film']['releaseYear'])
+            if film_year == input_year:
+                film_json = result['film']
+                found = True
+                break
     else:
-        params = {'input': keywords, 'include': 'FilmSearchItem'}
-        response = await api_call('search', params)
-        if not response.get('items'):
-            raise LetterboxdError('No film was found with this search.')
-        results = response['items']
-        if input_year:
-            for result in results:
-                if not result['film'].get('releaseYear'):
-                    continue
-                film_year = str(result['film']['releaseYear'])
-                if film_year == input_year:
-                    film_json = result['film']
-                    found = True
-                    break
-        else:
-            film_json = results[0]['film']
+        film_json = results[0]['film']
     if input_year and not found:
         raise LetterboxdError('No film was found with this search.')
     return film_json
