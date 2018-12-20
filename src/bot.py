@@ -53,9 +53,8 @@ async def on_command_error(ctx, error):
     elif isinstance(error, (commands.CommandNotFound, commands.CheckFailure)):
         return
     elif isinstance(error, commands.CommandInvokeError):
-        if isinstance(error.original, discord.HTTPException)\
-                and error.original.status == 403:
-                    return
+        if isinstance(error.original, discord.HTTPException):
+            return
     else:
         await ctx.send('The command crashed, contact Porkepik#2664 '
                        'for a possible fix.')
