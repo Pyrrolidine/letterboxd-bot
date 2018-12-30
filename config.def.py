@@ -24,18 +24,18 @@ SETTINGS["fixed_user_search"] = {
     "Supe": "bdJr"
 }
 SETTINGS["help"] = {
-    "!film/!movie/!f <film-name> (<year>)":
+    "!film/!movie <film-name> (<year>)":
     "Searches a film on Letterboxd. The year is optional.",
-    "!crew/!c/!director/!d/!actor/!a <name>":
+    "!crew/!director/!actor <name>":
     "Searches a crew person.",
-    "!user/!u <username>":
+    "!user <username>":
     "Displays the details of a Letterboxd member.",
-    "!review/!r <username> <film-name> (<year>)":
-    "Displays the logged entries (review, diary) from a member.",
-    "!list/!l <username> <list-name>":
-    "Searches a list by the specified member.",
+    "!review/!entry <username> <film-name> (<year>)":
+    "Displays the logged entries (review, diary) of a film.",
+    "!list <username> <list-name>":
+    "Searches a list from a member.",
     "!diary <username>":
-    "Displays the recent diary entries from the specified member.",
+    "Displays the recent diary entries from a member.",
     "!del":
     "Deletes the last message the bot sent in a channel."
 }

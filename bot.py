@@ -97,7 +97,7 @@ async def helplb(ctx):
     await ctx.send(embed=help_embed)
 
 
-@bot.command(aliases=['u'])
+@bot.command()
 async def user(ctx, username):
     try:
         msg = await user_embed(username)
@@ -115,7 +115,7 @@ async def diary(ctx, username):
     await send_msg(ctx, msg)
 
 
-@bot.command(aliases=['c', 'a', 'actor', 'd', 'director'])
+@bot.command(aliases=['actor', 'director'])
 async def crew(ctx, *, arg):
     try:
         msg = await crew_embed(arg, ctx.invoked_with)
@@ -124,7 +124,7 @@ async def crew(ctx, *, arg):
     await send_msg(ctx, msg)
 
 
-@bot.command(aliases=['movie', 'f'])
+@bot.command(aliases=['movie'])
 async def film(ctx, *, arg):
     try:
         # eiga.me ratings for specific servers
@@ -144,7 +144,7 @@ async def check_if_two_args(ctx):
     return len(msg) > 2
 
 
-@bot.command(aliases=['l'], name='list')
+@bot.command(name='list')
 @commands.check(check_if_two_args)
 async def list_(ctx, username, *args):
     try:
@@ -154,7 +154,7 @@ async def list_(ctx, username, *args):
     await send_msg(ctx, msg)
 
 
-@bot.command(aliases=['r'])
+@bot.command(aliases=['entry'])
 @commands.check(check_if_two_args)
 async def review(ctx, username, *args):
     try:
