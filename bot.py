@@ -56,8 +56,7 @@ async def on_command_error(ctx, error):
         if isinstance(error.original, discord.HTTPException):
             return
     else:
-        await ctx.send('The command crashed, contact Porkepik#2664 '
-                       'for a possible fix.')
+        await ctx.send('Sorry, the command crashed. :/')
         logging.error(ctx.message.content)
         raise error
 
