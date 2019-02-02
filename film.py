@@ -157,7 +157,7 @@ async def __get_countries(tmdb_id, title):
 async def __get_mkdb_rating(lbxd_url):
     mkdb_url = lbxd_url.replace('letterboxd.com', 'eiga.me/api')
     response = await api_call(mkdb_url + 'summary', None, False)
-    if not response['total']:
+    if not response or not response['total']:
         return ''
     mkdb_description = '**MKDb Average:** [' + str(response['mean'])
     mkdb_description += ' / ' + str(response['total']) + ' ratings\n]'

@@ -28,7 +28,7 @@ async def api_call(path, params=None, letterboxd=True, is_json=True):
         url += '?' + urlencode(params)
         api_url = url + '&signature=' + __sign(url)
     async with session.get(api_url) as resp:
-        if resp.status >= 500:
+        if resp.status >= 500 and letterboxd:
             raise LetterboxdError('A request to the Letterboxd API failed.' +
                                   ' This may be due to a server issue.')
         elif resp.status >= 400:
