@@ -25,9 +25,9 @@ async def __search_letterboxd(item, cmd_alias, lbxd_id):
         person_json = await api_call('contributor/' + lbxd_id)
     else:
         params = {'input': item, 'include': 'ContributorSearchItem'}
-        if cmd_alias in ['a', 'actor']:
+        if cmd_alias in ['actress', 'actor']:
             params['contributionType'] = 'Actor'
-        elif cmd_alias in ['d', 'director']:
+        elif cmd_alias == 'director':
             params['contributionType'] = 'Director'
         response = await api_call('search', params)
         if not response['items']:

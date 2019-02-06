@@ -26,7 +26,7 @@ SETTINGS["fixed_user_search"] = {
 SETTINGS["help"] = {
     "!film/!movie <film-name> (<year>)":
     "Searches a film on Letterboxd. The year is optional.",
-    "!crew/!director/!actor <name>":
+    "!crew/!director/!actor/!actress <name>":
     "Searches a crew person.",
     "!user <username>":
     "Displays the details of a Letterboxd member.",

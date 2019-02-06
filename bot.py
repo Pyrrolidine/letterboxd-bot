@@ -114,7 +114,7 @@ async def diary(ctx, username):
     await send_msg(ctx, msg)
 
 
-@bot.command(aliases=['actor', 'director'])
+@bot.command(aliases=['actor', 'actress', 'director'])
 async def crew(ctx, *, arg):
     try:
         msg = await crew_embed(arg, ctx.invoked_with)
