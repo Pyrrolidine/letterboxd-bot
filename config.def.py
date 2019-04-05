@@ -21,6 +21,8 @@ SETTINGS["fixed_film_search"] = {
     "The Wrong Man": "1AqK"
 }
 SETTINGS["fixed_user_search"] = {
+    "alexander": "JGrT",
+    "chloe_": "nZ4F",
     "Supe": "bdJr"
 }
 SETTINGS["help"] = {
@@ -44,6 +46,5 @@ SETTINGS["letterboxd"] = {
     "api_key": "",
     "api_secret": ""
 }
-SETTINGS["log_channel"] = 0
 SETTINGS["mkdb_servers"] = []
 SETTINGS["tmdb"] = ""
