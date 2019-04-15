@@ -82,9 +82,7 @@ async def helplb(ctx):
         icon_url='https://i.imgur.com/li4cLpd.png')
     for key, value in SETTINGS['help'].items():
         help_embed.add_field(name=key, value=value, inline=False)
-    help_embed.description = '[Invite Bot](https://discordapp.com/oauth2'\
-        + '/authorize?client_id=437737824255737857'\
-        + '&permissions=93248&scope=bot) | '\
+    help_embed.description = 'Invite Bot | '\
         + '[GitHub](https://github.com/Porkepik/Letterboxd-Bot)'
     await ctx.send(embed=help_embed)
 
